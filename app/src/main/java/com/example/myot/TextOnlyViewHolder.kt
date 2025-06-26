@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -24,12 +23,13 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.floor
 
-class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding) :
+class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
+                         private val isDetail: Boolean = false) :
     RecyclerView.ViewHolder(binding.root) {
 
     private var isExpanded = false
 
-    fun bind(item: FeedItem) {
+    fun bind(item: FeedItem, isDetail: Boolean = false) {
         binding.tvUsername.text = item.username
         binding.tvDate.text = item.date
         binding.tvTime.text = getTimeAgo(item.date)
@@ -39,20 +39,24 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding) :
         binding.tvBookmark.text = item.bookmarkCount.toString()
 
         val text = item.content
-        if (isExpanded || text.length <= 160) {
-            binding.tvContent.text = text
-            binding.tvMore.visibility = View.GONE
-        } else {
-            binding.tvContent.text = text.take(160) + "..."
-            binding.tvMore.visibility = View.VISIBLE
+        val isLongText = text.length > 160
+        var isExpanded = false
+
+        binding.tvContent.text = when {
+            isDetail -> text
+            isLongText -> text.take(160) + "..."
+            else -> text
         }
+
+        binding.tvMore.visibility = if (!isDetail && isLongText) View.VISIBLE else View.GONE
 
         binding.tvMore.setOnClickListener {
-            isExpanded = true
-            binding.tvContent.text = text
-            binding.tvMore.visibility = View.GONE
+            if (!isExpanded) {
+                binding.tvContent.text = text
+                binding.tvMore.visibility = View.GONE
+                isExpanded = true
+            }
         }
-
         // 초기 색상 설정
         updateLikeColor(binding.tvLike, binding.ivLike, item.isLiked)
         updateRepostColor(binding.tvRepost, binding.ivRepost, item.isReposted)
@@ -102,29 +106,41 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding) :
         // 피드백 홀드시 피드백 바텀시프트 이동
         binding.ivLike.setOnLongClickListener {
             showFeedbackBottomSheet(binding.root.context as android.app.Activity, "like")
-            true
+            isDetail
         }
         binding.tvLike.setOnLongClickListener {
             showFeedbackBottomSheet(binding.root.context as android.app.Activity, "like")
-            true
+            isDetail
         }
 
         binding.ivRepost.setOnLongClickListener {
             showFeedbackBottomSheet(binding.root.context as android.app.Activity, "repost")
-            true
+            isDetail
         }
         binding.tvRepost.setOnLongClickListener {
             showFeedbackBottomSheet(binding.root.context as android.app.Activity, "repost")
-            true
+            isDetail
         }
 
         binding.ivBookmark.setOnLongClickListener {
             showFeedbackBottomSheet(binding.root.context as android.app.Activity, "quote")
-            true
+            isDetail
         }
         binding.tvBookmark.setOnLongClickListener {
             showFeedbackBottomSheet(binding.root.context as android.app.Activity, "quote")
-            true
+            isDetail
+        }
+
+        // 피드 클릭
+        binding.root.setOnClickListener {
+            val context = binding.root.context
+            if (context is FragmentActivity) {
+                val fragment = FeedDetailFragment.newInstance(item)
+                context.supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 

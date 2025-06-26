@@ -1,5 +1,9 @@
 package com.example.myot
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class FeedItem(
     val username: String,
     val community: String,
@@ -16,4 +20,4 @@ data class FeedItem(
     var isLiked: Boolean = false,
     var isReposted: Boolean = false,
     var isBookmarked: Boolean = false
-)
+) : Parcelable

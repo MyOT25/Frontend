@@ -30,21 +30,22 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.floor
 
 class ImageViewHolder(
-    private val binding: ViewBinding
+    private val binding: ViewBinding,
+    private val isDetail: Boolean = false
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: FeedItem) {
+    fun bind(item: FeedItem, isDetail: Boolean = false) {
         val context = binding.root.context
 
         when (binding) {
-            is ItemFeedImage1Binding -> bindCommon(binding, item)
-            is ItemFeedImage2Binding -> bindCommon(binding, item)
-            is ItemFeedImage3Binding -> bindCommon(binding, item)
-            is ItemFeedImage4Binding -> bindCommon(binding, item)
+            is ItemFeedImage1Binding -> bindCommon(binding, item, isDetail)
+            is ItemFeedImage2Binding -> bindCommon(binding, item, isDetail)
+            is ItemFeedImage3Binding -> bindCommon(binding, item, isDetail)
+            is ItemFeedImage4Binding -> bindCommon(binding, item, isDetail)
         }
     }
 
-    private fun <T : ViewBinding> bindCommon(b: T, item: FeedItem) {
+    private fun <T : ViewBinding> bindCommon(b: T, item: FeedItem, isDetail: Boolean) {
         val context = b.root.context
         val tvUsername = b.root.findViewById<View>(R.id.tv_username) as? TextView
         val tvDate = b.root.findViewById<View>(R.id.tv_date) as? TextView
@@ -66,16 +67,17 @@ class ImageViewHolder(
         val isLongText = text.length > 160
         var isExpanded = false
 
-        tvUsername?.text = item.username
-        tvDate?.text = item.date
-        tvTime?.text = getTimeAgo(item.date)
-        tvContent?.text = if (isLongText) text.take(160) + "..." else text
-        tvMore?.visibility = if (isLongText) View.VISIBLE else View.GONE
+        tvContent?.text = when {
+            isDetail -> text
+            isLongText -> text.take(160) + "..."
+            else -> text
+        }
+        tvMore?.visibility = if (!isDetail && isLongText) View.VISIBLE else View.GONE
 
         tvMore?.setOnClickListener {
             if (!isExpanded) {
                 tvContent?.text = text
-                tvMore.visibility = View.GONE
+                tvMore?.visibility = View.GONE
                 isExpanded = true
             }
         }
@@ -147,6 +149,17 @@ class ImageViewHolder(
         tvBookmark?.setOnLongClickListener {
             showFeedbackBottomSheet(b.root.context as android.app.Activity, "quote")
             true
+        }
+
+        binding.root.setOnClickListener {
+            val context = binding.root.context
+            if (context is FragmentActivity) {
+                val fragment = FeedDetailFragment.newInstance(item)
+                context.supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
