@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/bg_popup_menu_community"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/btn_community"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_popup_community" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="'ABC' 바로 가기"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/gray2" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="160dp"
+        android:layout_height="1dp"
+        android:background="@color/gray4" />
+
+    <LinearLayout
+        android:id="@+id/btn_user_profile"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_popup_profile" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\@abcde 바로 가기"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/gray2" />
+    </LinearLayout>
+
+</LinearLayout>

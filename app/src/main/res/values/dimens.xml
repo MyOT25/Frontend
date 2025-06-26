@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 커뮤니티 항목 간격 조절 -->
+    <dimen name="rv_collapsed_height">80dp</dimen>
+    <dimen name="rv_column_spacing">-3.2dp</dimen>
+    <dimen name="rv_row_spacing">-5dp</dimen>
+
+</resources>

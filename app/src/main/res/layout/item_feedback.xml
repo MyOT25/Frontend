@@ -1,0 +1,73 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="9dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- 프로필 이미지 -->
+        <ImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_no_profile"
+            android:scaleType="centerCrop"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="7dp"/>
+
+        <!-- 유저 정보 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="유저1"
+                style="@style/TextAppearance.App.LabelLarge"
+                android:textStyle="bold"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/tv_userid"
+                style="@style/TextAppearance.App.LabelSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="\@user1"
+                android:textColor="@color/gray2" />
+
+            <TextView
+                android:id="@+id/tv_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="설명설명설명설명설명설명설명설명"
+                style="@style/TextAppearance.App.LabelSmall"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <!-- 팔로우 버튼 -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_follow"
+            android:layout_width="85dp"
+            android:layout_height="28dp"
+            android:background="@drawable/btn_follow_selector"
+            android:text="팔로우"
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/btn_follow_text_selector" />
+
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray5" />
+</LinearLayout>
+

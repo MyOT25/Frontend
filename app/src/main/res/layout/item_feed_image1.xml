@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- 콘텐츠: padding 포함 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="17dp"
+        android:paddingBottom="20dp"
+        android:paddingHorizontal="15dp">
+
+        <!-- 더보기 이미지 -->
+        <ImageView
+            android:id="@+id/iv_overflow"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginTop="-5dp"
+            android:src="@drawable/ic_feed_overflow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 커뮤니티 이미지 -->
+        <ImageView
+            android:id="@+id/iv_community"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_no_community"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- 프로필 이미지 -->
+        <ImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="22dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_no_profile"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 유저 이름 -->
+        <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="유저1"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@id/iv_community"
+            app:layout_constraintTop_toTopOf="@id/iv_community"
+            android:layout_marginStart="17dp"/>
+
+        <!-- 시간 -->
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="2dp"
+            android:text="00시간 전"
+            android:textColor="@color/gray2"
+            style="@style/TextAppearance.App.LabelTiny"
+            app:layout_constraintBottom_toBottomOf="@id/tv_username"
+            app:layout_constraintStart_toEndOf="@id/tv_username" />
+
+        <!-- 본문 텍스트 -->
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="40dp"
+            android:text="텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트"
+            style="@style/TextAppearance.App.BodySmall"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/iv_profile"
+            app:layout_constraintTop_toBottomOf="@+id/tv_username" />
+
+        <!-- 더보기 버튼 -->
+        <TextView
+            android:id="@+id/tv_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="더 보기"
+            android:textColor="@color/point_blue"
+            android:fontFamily="@font/roboto_semibold"
+            android:textSize="12sp"
+            android:lineHeight="16sp"
+            android:letterSpacing="0.0333"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tv_content"
+            app:layout_constraintStart_toStartOf="@id/tv_content"
+            android:layout_marginTop="4dp"/>
+
+        <!-- 이미지 -->
+        <ImageView
+            android:id="@+id/iv_image1"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/ic_feed_no_img"
+            app:layout_constraintTop_toBottomOf="@id/tv_more"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="55dp"
+            android:layout_marginEnd="45dp"/>
+
+        <!-- 날짜 표시 -->
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2025/00/00 00:00"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:textColor="@color/gray3"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="45dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_image1"/>
+
+        <!-- 피드백 -->
+        <LinearLayout
+            android:id="@+id/ll_feed_actions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_date">
+
+            <!-- 댓글 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_comment"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_feed_comment" />
+
+                <TextView
+                    android:id="@+id/tv_comment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="000"
+                    style="@style/TextAppearance.App.LabelSmall"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray2"/>
+            </LinearLayout>
+
+            <!-- 좋아요 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_like"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_feed_like" />
+
+                <TextView
+                    android:id="@+id/tv_like"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="000"
+                    style="@style/TextAppearance.App.LabelSmall"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray2" />
+            </LinearLayout>
+
+            <!-- 리포스트 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_repost"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_feed_repost" />
+
+                <TextView
+                    android:id="@+id/tv_repost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="000"
+                    style="@style/TextAppearance.App.LabelSmall"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray2" />
+            </LinearLayout>
+
+            <!-- 북마크 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_bookmark"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_feed_bookmark" />
+
+                <TextView
+                    android:id="@+id/tv_bookmark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="000"
+                    style="@style/TextAppearance.App.LabelSmall"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray2" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 구분선 (윤곽선) -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_feed_divider"
+        android:layout_gravity="bottom" />
+
+</FrameLayout>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/bg_popup_menu_overflow"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <!-- 공유 -->
+    <LinearLayout
+        android:id="@+id/btn_share"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_popup_share" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="공유"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/gray2" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="160dp"
+        android:layout_height="1dp"
+        android:background="@color/gray4" />
+
+    <!-- 게시글 신고 -->
+    <LinearLayout
+        android:id="@+id/btn_report"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_popup_report" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="게시글 신고"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/gray2" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray4" />
+
+    <!-- 계정 보기 -->
+    <LinearLayout
+        android:id="@+id/btn_profile"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_popup_profile" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="계정 @abcde 보기"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/gray2" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray4" />
+
+    <!-- 삭제 -->
+    <LinearLayout
+        android:id="@+id/btn_delete"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_popup_delete" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="삭제"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/point_red" />
+    </LinearLayout>
+
+</LinearLayout>

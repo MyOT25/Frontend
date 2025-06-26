@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Black/White -->
+    <color name="black">#0E0E12</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Gray Scale -->
+    <color name="gray1">#2D2F36</color>
+    <color name="gray2">#4D505C</color>
+    <color name="gray3">#747886</color>
+    <color name="gray4">#A4A8B7</color>
+    <color name="gray5">#D7D9DE</color>
+
+    <!-- Point Color -->
+    <color name="point_purple">#A771E8</color>
+    <color name="point_blue">#1C99FF</color>
+    <color name="point_pink">#FF3A68</color>
+    <color name="point_red">#E0635A</color>
+    <color name="point_lavender">#5F477C</color>
+    <color name="point_pink_purple">#BC66D6</color>
+
+</resources>
