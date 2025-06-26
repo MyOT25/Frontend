@@ -51,4 +51,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.glide)
     kapt(libs.glideCompiler)
+    implementation ("androidx.coordinatorlayout:coordinatorlayout:1.3.0")
 }
