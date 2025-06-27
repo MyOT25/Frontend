@@ -172,9 +172,11 @@ class HomeFragment : Fragment() {
         val topBar = requireActivity().findViewById<View>(R.id.top_bar)
         val ivLogo = topBar.findViewById<ImageView>(R.id.iv_logo)
         val tvCommunityName = topBar.findViewById<TextView>(R.id.tv_community_name)
+        val ivClose = topBar.findViewById<ImageView>(R.id.iv_close)
 
         ivLogo.visibility = View.VISIBLE
         tvCommunityName.visibility = View.GONE
+        ivClose.visibility = View.GONE
     }
 
     override fun onDestroyView() {

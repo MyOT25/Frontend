@@ -82,6 +82,8 @@ class ImageViewHolder(
             }
         }
 
+        tvDate?.text = item.date
+        tvTime?.text = getTimeAgo(item.date)
         tvComment?.text = item.commentCount.toString()
         tvLike?.text = item.likeCount.toString()
         tvRepost?.text = item.repostCount.toString()

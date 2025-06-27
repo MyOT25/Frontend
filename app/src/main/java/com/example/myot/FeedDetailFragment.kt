@@ -23,7 +23,6 @@ class FeedDetailFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentFeedDetailBinding
-    private lateinit var commentAdapter: CommentAdapter
     private lateinit var feedItem: FeedItem
 
     override fun onCreateView(
@@ -39,14 +38,16 @@ class FeedDetailFragment : Fragment() {
         val topBar = requireActivity().findViewById<View>(R.id.top_bar)
         val ivLogo = topBar.findViewById<ImageView>(R.id.iv_logo)
         val tvCommunityName = topBar.findViewById<TextView>(R.id.tv_community_name)
+        val ivClose = topBar.findViewById<ImageView>(R.id.iv_close)
 
         ivLogo.visibility = View.GONE
         tvCommunityName.visibility = View.VISIBLE
         tvCommunityName.text = feedItem.community
+        ivClose.visibility = View.VISIBLE
 
-        val feedView = createFeedView(feedItem)
-        binding.containerFeed.removeAllViews()
-        binding.containerFeed.addView(feedView)
+        ivClose.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
 
         // 더미 데이터
         val commentList = listOf(
@@ -82,7 +83,7 @@ class FeedDetailFragment : Fragment() {
             ),
             CommentItem(
                 username = "연뮤러",
-                content = "민중의 노래 부르는데 관객들 반응도 장난 아니었음.",
+                content = "민중의 노래 부르는데 관객들 반응도 장난 아니었음.".repeat(10),
                 date = "2025/06/26 17:42",
                 commentCount = 0, likeCount = 7, repostCount = 1, bookmarkCount = 0
             ),
@@ -112,41 +113,36 @@ class FeedDetailFragment : Fragment() {
             ),
             CommentItem(
                 username = "긴글유저",
-                content = "이번 공연은 정말 최고였습니다. 배우들의 표정 하나하나에서 감정이 살아 있었고, 특히 마지막 장면에서는 관객 전체가 숨을 멈춘 듯한 느낌이었습니다. 이 감동을 어떻게 말로 표현할 수 있을지 모르겠어요. 다시 보고 싶은 공연이에요.",
+                content = "이번 공연은 정말 최고였습니다. 배우들의 표정 하나하나에서 감정이 살아 있었고, 특히 마지막 장면에서는 관객 전체가 숨을 멈춘 듯한 느낌이었습니다. 이 감동을 어떻게 말로 표현할 수 있을지 모르겠어요. 기회가 된다면 무조건 꼭!! 다시 보고 싶은 공연이에요.",
                 date = "2025/06/26 14:30",
                 commentCount = 6, likeCount = 20, repostCount = 5, bookmarkCount = 4
             ),
             CommentItem(
                 username = "긴글러",
-                content = "뮤지컬을 많이 본 편은 아니지만 이번 <레미제라블> 공연은 특별했습니다. 무대 전환과 조명의 활용, 배우들의 감정 표현까지 어느 하나도 허투루 넘길 수 없었고, 모든 장면에서 연출의 치밀함이 느껴졌습니다. 이런 작품을 직접 볼 수 있어 정말 감사했어요.",
+                content = "뮤지컬을 많이 본 편은 아니지만 이번 <레미제라블> 공연은 특별했습니다. 무대 전환과 조명의 활용, 배우들의 감정 표현까지 어느 하나도 허투루 넘길 수 없었고, 모든 장면에서 연출의 치밀함이 느껴졌습니다. 이런 작품을 직접 볼 수 있어 정말 감사했어요. 나중에 시간이 되면 다른 배우들의 연극도 보고 싶어요!",
                 date = "2025/06/26 13:45",
                 commentCount = 7, likeCount = 18, repostCount = 4, bookmarkCount = 3
             )
         )
 
+        val adapter = FeedDetailAdapter(feedItem, commentList)
+        binding.rvFeedDetail.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvFeedDetail.adapter = adapter
 
-        commentAdapter = CommentAdapter(commentList)
-        binding.rvComments.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvComments.adapter = commentAdapter
+        // 첫 아이템(피드) 패딩 추가
+        binding.rvFeedDetail.post {
+            val holder = binding.rvFeedDetail.findViewHolderForAdapterPosition(0)?.itemView
+            holder?.setPadding(
+                holder.paddingLeft,
+                holder.paddingTop + dpToPx(90),
+                holder.paddingRight,
+                holder.paddingBottom
+            )
+        }
     }
 
-    private fun createFeedView(item: FeedItem): View {
-        return when (item.imageUrls.size) {
-            0 -> ItemFeedTextOnlyBinding.inflate(layoutInflater).apply {
-                TextOnlyViewHolder(this).bind(item, isDetail = true)
-            }.root
-            1 -> ItemFeedImage1Binding.inflate(layoutInflater).apply {
-                ImageViewHolder(this).bind(item, isDetail = true)
-            }.root
-            2 -> ItemFeedImage2Binding.inflate(layoutInflater).apply {
-                ImageViewHolder(this).bind(item, isDetail = true)
-            }.root
-            3 -> ItemFeedImage3Binding.inflate(layoutInflater).apply {
-                ImageViewHolder(this).bind(item, isDetail = true)
-            }.root
-            else -> ItemFeedImage4Binding.inflate(layoutInflater).apply {
-                ImageViewHolder(this).bind(item, isDetail = true)
-            }.root
-        }
+    private fun dpToPx(dp: Int): Int {
+        val metrics = resources.displayMetrics
+        return (dp * metrics.density).toInt()
     }
 }
