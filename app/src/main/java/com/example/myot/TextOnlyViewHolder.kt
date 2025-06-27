@@ -304,7 +304,7 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
         val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
         val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
 
-        dialog.window?.setDimAmount(0f)
+        dialog.window?.setDimAmount(0.1f)
 
         // 피드백 데이터
         val feedbackMap = mapOf(
@@ -339,23 +339,22 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
             bottomSheet?.let {
                 val behavior = BottomSheetBehavior.from(it as FrameLayout)
 
-                // peekHeight 330dp
                 val peekHeight = (330 * context.resources.displayMetrics.density).toInt()
                 behavior.peekHeight = peekHeight
 
-                // 확장 가능한 상태로 설정
-                behavior.isHideable = false
+                // 닫을 수 있게 설정
+                behavior.isHideable = true
                 behavior.skipCollapsed = false
                 behavior.isDraggable = true
                 behavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
-                // 최대 높이 제한
                 val screenHeight = context.resources.displayMetrics.heightPixels
                 val maxHeight = (screenHeight * 0.64).toInt()
                 it.layoutParams.height = maxHeight
                 it.requestLayout()
             }
         }
+
         dialog.show()
     }
 

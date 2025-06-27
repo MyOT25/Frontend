@@ -167,7 +167,7 @@ class FeedDetailAdapter(
 
             val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
             val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
-            dialog.window?.setDimAmount(0f)
+            dialog.window?.setDimAmount(0.1f)
 
             val feedbackMap = mapOf(
                 "like" to List(7) { "user${it + 1}" },
@@ -189,13 +189,19 @@ class FeedDetailAdapter(
                 val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 bottomSheet?.let {
                     val behavior = BottomSheetBehavior.from(it as FrameLayout)
+
                     behavior.peekHeight = (330 * context.resources.displayMetrics.density).toInt()
-                    behavior.isHideable = false
+
+                    behavior.isHideable = true
+                    behavior.skipCollapsed = false
+                    behavior.isDraggable = true
                     behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
                     it.layoutParams.height = (context.resources.displayMetrics.heightPixels * 0.64).toInt()
                     it.requestLayout()
                 }
             }
+
             dialog.show()
         }
 

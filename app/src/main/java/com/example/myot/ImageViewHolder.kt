@@ -328,7 +328,7 @@ class ImageViewHolder(
         val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
         val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
 
-        dialog.window?.setDimAmount(0f)
+        dialog.window?.setDimAmount(0.1f)
 
         // 피드백 데이터
         val feedbackMap = mapOf(
@@ -367,8 +367,8 @@ class ImageViewHolder(
                 val peekHeight = (330 * context.resources.displayMetrics.density).toInt()
                 behavior.peekHeight = peekHeight
 
-                // 확장 가능한 상태로 설정
-                behavior.isHideable = false
+                // 닫을 수 있게 설정
+                behavior.isHideable = true
                 behavior.skipCollapsed = false
                 behavior.isDraggable = true
                 behavior.state = BottomSheetBehavior.STATE_COLLAPSED
