@@ -8,7 +8,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/white"
+        android:background="@color/white"
         android:paddingTop="17dp"
         android:paddingBottom="20dp"
         android:paddingHorizontal="15dp">
@@ -118,6 +118,18 @@
             android:layout_marginStart="55dp"
             android:layout_marginEnd="45dp"/>
 
+        <!-- 인용 피드 컨테이너 -->
+        <FrameLayout
+            android:id="@+id/layout_quote"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="14dp"
+            app:layout_constraintTop_toBottomOf="@id/iv_image1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <!-- 날짜 표시 -->
         <TextView
             android:id="@+id/tv_date"
@@ -129,7 +141,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginStart="45dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_image1"/>
+            app:layout_constraintTop_toBottomOf="@+id/layout_quote"/>
 
         <!-- 피드백 -->
         <LinearLayout

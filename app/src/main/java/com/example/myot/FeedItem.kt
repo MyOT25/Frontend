@@ -19,5 +19,7 @@ data class FeedItem(
 
     var isLiked: Boolean = false,
     var isReposted: Boolean = false,
-    var isBookmarked: Boolean = false
+    var isBookmarked: Boolean = false,
+
+    val quotedFeed: FeedItem? = null
 ) : Parcelable

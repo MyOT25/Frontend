@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.myot.databinding.ItemFeedTextOnlyBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -129,6 +130,67 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
         binding.tvBookmark.setOnLongClickListener {
             showFeedbackBottomSheet(binding.root.context as android.app.Activity, "quote")
             isDetail
+        }
+
+        // 인용 피드 관련 처리
+        val quoteLayout = binding.layoutQuote
+
+        if (item.quotedFeed != null) {
+            val quoted = item.quotedFeed!!
+            quoteLayout.visibility = View.VISIBLE
+            quoteLayout.removeAllViews()
+
+            val inflater = LayoutInflater.from(binding.root.context)
+            val layoutResId = when (quoted.imageUrls.size) {
+                0 -> R.layout.item_feed_quote_text_only
+                1 -> R.layout.item_feed_quote_image1
+                2 -> R.layout.item_feed_quote_image2
+                3 -> R.layout.item_feed_quote_image3
+                4 -> R.layout.item_feed_quote_image4
+                else -> R.layout.item_feed_quote_text_only
+            }
+
+            val quoteView = inflater.inflate(layoutResId, quoteLayout, false)
+            quoteLayout.addView(quoteView)
+
+            val tvQuoteContent = quoteView.findViewById<TextView>(R.id.tv_content)
+            val tvQuoteMore = quoteView.findViewById<TextView>(R.id.tv_more)
+
+            val text = quoted.content
+            val isLongText = text.length > 160
+
+            if (isDetail) {
+                tvQuoteContent?.text = text
+                tvQuoteMore?.visibility = View.GONE
+            } else if (isLongText) {
+                tvQuoteContent?.text = text.take(160) + "..."
+                tvQuoteMore?.visibility = View.VISIBLE
+                tvQuoteMore?.setOnClickListener {
+                    tvQuoteContent?.text = text
+                    tvQuoteMore?.visibility = View.GONE
+                }
+            } else {
+                tvQuoteContent?.text = text
+                tvQuoteMore?.visibility = View.GONE
+            }
+
+            quoted.imageUrls.forEachIndexed { idx, url ->
+                val imageId = when (idx) {
+                    0 -> R.id.iv_image1
+                    1 -> R.id.iv_image2
+                    2 -> R.id.iv_image3
+                    3 -> R.id.iv_image4
+                    else -> null
+                }
+                imageId?.let {
+                    quoteView.findViewById<ImageView>(it)?.let { imageView ->
+                        imageView.visibility = View.VISIBLE
+                        Glide.with(imageView).load(url).into(imageView)
+                    }
+                }
+            }
+        } else {
+            quoteLayout.visibility = View.GONE
         }
 
         // 피드 클릭
