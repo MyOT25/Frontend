@@ -288,6 +288,8 @@ class ImageViewHolder(
         popupWindow.isOutsideTouchable = true
         popupWindow.isFocusable = true
 
+        popupWindow.elevation = 20f
+
         // X 좌표를 anchor의 오른쪽 기준에서 왼쪽으로 이동시킴
         val offsetX = anchor.width - popupWidth - 50
         val offsetY = anchor.height + 7
@@ -344,6 +346,8 @@ class ImageViewHolder(
         popupWindow.setBackgroundDrawable(null)
         popupWindow.isOutsideTouchable = true
         popupWindow.isFocusable = true
+
+        popupWindow.elevation = 20f
 
         val offsetX = anchor.width - popupWidth + 430
         val offsetY = anchor.height - 10

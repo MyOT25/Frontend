@@ -258,9 +258,12 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
         rootView.addView(dimView)
         popupWindow.setOnDismissListener { rootView.removeView(dimView) }
 
-        popupWindow.setBackgroundDrawable(null)
+        popupWindow.setBackgroundDrawable(null) // CardView 그림자 보이게 하려면 null로 유지
         popupWindow.isOutsideTouchable = true
         popupWindow.isFocusable = true
+
+        // 그림자 효과를 위해 elevation 설정
+        popupWindow.elevation = 20f
 
         // X 좌표를 anchor의 오른쪽 기준에서 왼쪽으로 이동시킴
         val offsetX = anchor.width - popupWidth - 50
@@ -286,6 +289,7 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
             Toast.makeText(context, "삭제 클릭", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun showProfilePopup(anchor: View) {
         val context = anchor.context
@@ -318,6 +322,8 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
         popupWindow.setBackgroundDrawable(null)
         popupWindow.isOutsideTouchable = true
         popupWindow.isFocusable = true
+
+        popupWindow.elevation = 20f
 
         val offsetX = anchor.width - popupWidth + 430
         val offsetY = anchor.height - 10

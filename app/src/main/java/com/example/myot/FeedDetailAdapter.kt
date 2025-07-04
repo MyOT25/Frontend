@@ -237,6 +237,8 @@ class FeedDetailAdapter(
             popupWindow.isOutsideTouchable = true
             popupWindow.isFocusable = true
 
+            popupWindow.elevation = 20f
+
             val offsetX = anchor.width - popupWidth + 430
             val offsetY = anchor.height - 10
             popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
@@ -282,6 +284,8 @@ class FeedDetailAdapter(
             popupWindow.setBackgroundDrawable(null)
             popupWindow.isOutsideTouchable = true
             popupWindow.isFocusable = true
+
+            popupWindow.elevation = 20f
 
             val offsetX = anchor.width - popupWidth - 50
             val offsetY = anchor.height + 7
