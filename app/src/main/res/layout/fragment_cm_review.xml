@@ -1,14 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".CmReviewFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/const_total_review"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@drawable/bg_cm_dashed_item"
+            android:padding="20dp">
+
+            <!-- 포스터 -->
+            <ImageView
+                android:id="@+id/iv_poster"
+                android:layout_width="100dp"
+                android:layout_height="140dp"
+                android:src="@drawable/ig_community_poster_sample"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- 별점 -->
+            <TextView
+                android:id="@+id/tv_avg_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:fontFamily="@font/roboto_regular"
+                android:text="평균 별점"
+                android:textColor="@color/gray2"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/iv_poster"
+                app:layout_constraintTop_toTopOf="@+id/iv_poster" />
+
+            <TextView
+                android:id="@+id/tv_rating_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:fontFamily="@font/roboto_regular"
+                android:text="5.0"
+                android:textColor="@color/gray1"
+                android:textSize="36sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@+id/tv_avg_rate"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- 출연 -->
+            <TextView
+                android:id="@+id/tv_cast_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="출연:"
+                android:textColor="@color/gray2"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/tv_avg_rate"
+                app:layout_constraintTop_toBottomOf="@id/tv_rating_value" />
+
+            <TextView
+                android:id="@+id/tv_cast_short"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="TextView"
+                android:textColor="@color/point_purple"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_cast_title"
+                app:layout_constraintStart_toEndOf="@+id/tv_cast_title"
+                app:layout_constraintTop_toTopOf="@+id/tv_cast_title" />
+
+            <TextView
+                android:id="@+id/tv_cast_expanded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textColor="@color/point_purple"
+                android:textSize="13sp"
+                app:layout_constraintStart_toStartOf="@+id/tv_cast_short"
+                app:layout_constraintTop_toBottomOf="@+id/tv_cast_short" />
+
+            <!-- 확장 버튼-->
+            <ImageView
+                android:id="@+id/iv_expand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_cast_short"
+                app:layout_constraintTop_toTopOf="@+id/tv_cast_short"
+                app:srcCompat="@drawable/ic_home_extend" />
+
+            <!-- 기간 -->
+            <TextView
+                android:id="@+id/tv_period_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="기간:"
+                android:textColor="@color/gray2"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/tv_avg_rate"
+                app:layout_constraintTop_toBottomOf="@+id/tv_cast_expanded" />
+
+            <TextView
+                android:id="@+id/tv_period"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/roboto_medium"
+                android:text="TextView"
+                android:textColor="@color/gray2"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_period_title"
+                app:layout_constraintStart_toEndOf="@+id/tv_period_title"
+                app:layout_constraintTop_toTopOf="@+id/tv_period_title" />
+
+            <!-- 극장 -->
+            <TextView
+                android:id="@+id/tv_theater_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="극장:"
+                android:textColor="@color/gray2"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/tv_avg_rate"
+                app:layout_constraintTop_toBottomOf="@id/tv_period_title" />
+
+            <TextView
+                android:id="@+id/tv_theater"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="TextView"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_theater_title"
+                app:layout_constraintStart_toEndOf="@+id/tv_theater_title"
+                app:layout_constraintTop_toTopOf="@+id/tv_theater_title" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingRight="40dp">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_filter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tv_sort"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_sort"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_medium"
+                android:gravity="right"
+                android:text="정렬 편집"
+                android:textColor="@color/gray2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_cm_review_item"
+            android:padding="10dp"
+            android:layout_margin="10dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

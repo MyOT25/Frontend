@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.myot.databinding.FragmentCommunityBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import androidx.fragment.app.viewModels
 
 class CommunityFragment : Fragment() {
 
@@ -14,6 +15,8 @@ class CommunityFragment : Fragment() {
 
     private var _binding: FragmentCommunityBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: CommunityViewModel by viewModels()   // 커뮤니티 가입 관리
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +45,9 @@ class CommunityFragment : Fragment() {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabTitles[position]
         }.attach()
+
+        setCommunityMode()
+        setJoinBtnClickListener()
     }
 
     companion object {
@@ -52,6 +58,21 @@ class CommunityFragment : Fragment() {
                 putString(ARG_ITEM_TYPE, type)
             }
             return fragment
+        }
+    }
+
+    private fun setCommunityMode() {
+        viewModel.communityMode.observe(viewLifecycleOwner) { mode ->
+            binding.ivCommunityJoin.setImageResource(
+                if (mode == CommunityMode.MEMBER) R.drawable.btn_community_join_selected
+                else R.drawable.btn_community_join_unselected
+            )
+        }
+    }
+
+    private fun setJoinBtnClickListener() {
+        binding.ivCommunityJoin.setOnClickListener {
+            viewModel.switchCommunityMode()
         }
     }
 }
