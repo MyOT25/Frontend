@@ -10,11 +10,11 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.myot.databinding.ItemFeedImage1Binding
 import com.example.myot.databinding.ItemFeedImage2Binding
 import com.example.myot.databinding.ItemFeedImage3Binding
@@ -30,21 +30,22 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.floor
 
 class ImageViewHolder(
-    private val binding: ViewBinding
+    private val binding: ViewBinding,
+    private val isDetail: Boolean = false
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: FeedItem) {
+    fun bind(item: FeedItem, isDetail: Boolean = false, isLastItem: Boolean = false) {
         val context = binding.root.context
 
         when (binding) {
-            is ItemFeedImage1Binding -> bindCommon(binding, item)
-            is ItemFeedImage2Binding -> bindCommon(binding, item)
-            is ItemFeedImage3Binding -> bindCommon(binding, item)
-            is ItemFeedImage4Binding -> bindCommon(binding, item)
+            is ItemFeedImage1Binding -> bindCommon(binding, item, isDetail, isLastItem)
+            is ItemFeedImage2Binding -> bindCommon(binding, item, isDetail, isLastItem)
+            is ItemFeedImage3Binding -> bindCommon(binding, item, isDetail, isLastItem)
+            is ItemFeedImage4Binding -> bindCommon(binding, item, isDetail, isLastItem)
         }
     }
 
-    private fun <T : ViewBinding> bindCommon(b: T, item: FeedItem) {
+    private fun <T : ViewBinding> bindCommon(b: T, item: FeedItem, isDetail: Boolean, isLastItem: Boolean) {
         val context = b.root.context
         val tvUsername = b.root.findViewById<View>(R.id.tv_username) as? TextView
         val tvDate = b.root.findViewById<View>(R.id.tv_date) as? TextView
@@ -62,24 +63,33 @@ class ImageViewHolder(
         val ivCommunity = b.root.findViewById<View>(R.id.iv_community)
         val ivProfile = b.root.findViewById<View>(R.id.iv_profile)
 
+
+        // 마지막 피드인 경우 구분선 가리기
+        val divider = b.root.findViewById<View>(R.id.iv_div_line)
+        divider?.visibility = if (isLastItem) View.GONE else View.VISIBLE
+
         val text = item.content
         val isLongText = text.length > 160
         var isExpanded = false
 
-        tvUsername?.text = item.username
-        tvDate?.text = item.date
-        tvTime?.text = getTimeAgo(item.date)
-        tvContent?.text = if (isLongText) text.take(160) + "..." else text
-        tvMore?.visibility = if (isLongText) View.VISIBLE else View.GONE
+        tvContent?.text = when {
+            isDetail -> text
+            isLongText -> text.take(160) + "..."
+            else -> text
+        }
+        tvMore?.visibility = if (!isDetail && isLongText) View.VISIBLE else View.GONE
 
         tvMore?.setOnClickListener {
             if (!isExpanded) {
                 tvContent?.text = text
-                tvMore.visibility = View.GONE
+                tvMore?.visibility = View.GONE
                 isExpanded = true
             }
         }
 
+        tvDate?.text = item.date
+        tvUsername?.text = item.username
+        tvTime?.text = getTimeAgo(item.date)
         tvComment?.text = item.commentCount.toString()
         tvLike?.text = item.likeCount.toString()
         tvRepost?.text = item.repostCount.toString()
@@ -123,30 +133,102 @@ class ImageViewHolder(
 
         // 피드백 홀드시 피드백 바텀시프트 이동
         ivLike?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "like")
+            showFeedbackBottomSheet(b.root.context as Activity, "like", item)
             true
         }
         tvLike?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "like")
+            showFeedbackBottomSheet(b.root.context as Activity, "like", item)
             true
         }
-
         ivRepost?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "repost")
+            showFeedbackBottomSheet(b.root.context as Activity, "repost", item)
             true
         }
         tvRepost?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "repost")
+            showFeedbackBottomSheet(b.root.context as Activity, "repost", item)
             true
         }
-
         ivBookmark?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "quote")
+            showFeedbackBottomSheet(b.root.context as Activity, "quote", item)
             true
         }
         tvBookmark?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "quote")
+            showFeedbackBottomSheet(b.root.context as Activity, "quote", item)
             true
+        }
+
+
+        // --- 인용 피드 처리 ---
+        val quoteLayout = b.root.findViewById<ViewGroup>(R.id.layout_quote)
+
+        if (item.quotedFeed != null) {
+            val quoted = item.quotedFeed!!
+            quoteLayout.visibility = View.VISIBLE
+            quoteLayout.removeAllViews()
+
+            val inflater = LayoutInflater.from(b.root.context)
+            val layoutResId = when (quoted.imageUrls.size) {
+                0 -> R.layout.item_feed_quote_text_only
+                1 -> R.layout.item_feed_quote_image1
+                2 -> R.layout.item_feed_quote_image2
+                3 -> R.layout.item_feed_quote_image3
+                4 -> R.layout.item_feed_quote_image4
+                else -> R.layout.item_feed_quote_text_only
+            }
+
+            val quoteView = inflater.inflate(layoutResId, quoteLayout, false)
+            quoteLayout.addView(quoteView)
+
+            val tvQuoteContent = quoteView.findViewById<TextView>(R.id.tv_content)
+            val tvQuoteMore = quoteView.findViewById<TextView>(R.id.tv_more)
+
+            val text = quoted.content
+            val isLongText = text.length > 160
+
+            if (isDetail) {
+                tvQuoteContent?.text = text
+                tvQuoteMore?.visibility = View.GONE
+            } else if (isLongText) {
+                tvQuoteContent?.text = text.take(160) + "..."
+                tvQuoteMore?.visibility = View.VISIBLE
+                tvQuoteMore?.setOnClickListener {
+                    tvQuoteContent?.text = text
+                    tvQuoteMore?.visibility = View.GONE
+                }
+            } else {
+                tvQuoteContent?.text = text
+                tvQuoteMore?.visibility = View.GONE
+            }
+
+            quoted.imageUrls.forEachIndexed { idx, url ->
+                val imageId = when (idx) {
+                    0 -> R.id.iv_image1
+                    1 -> R.id.iv_image2
+                    2 -> R.id.iv_image3
+                    3 -> R.id.iv_image4
+                    else -> null
+                }
+                imageId?.let {
+                    quoteView.findViewById<ImageView>(it)?.let { imageView ->
+                        imageView.visibility = View.VISIBLE
+                        Glide.with(imageView).load(url).into(imageView)
+                    }
+                }
+            }
+        } else {
+            quoteLayout.visibility = View.GONE
+        }
+
+
+        binding.root.setOnClickListener {
+            val context = binding.root.context
+            if (context is FragmentActivity) {
+                val fragment = FeedDetailFragment.newInstance(item)
+                context.supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
@@ -209,6 +291,8 @@ class ImageViewHolder(
         popupWindow.isOutsideTouchable = true
         popupWindow.isFocusable = true
 
+        popupWindow.elevation = 20f
+
         // X 좌표를 anchor의 오른쪽 기준에서 왼쪽으로 이동시킴
         val offsetX = anchor.width - popupWidth - 50
         val offsetY = anchor.height + 7
@@ -266,6 +350,8 @@ class ImageViewHolder(
         popupWindow.isOutsideTouchable = true
         popupWindow.isFocusable = true
 
+        popupWindow.elevation = 20f
+
         val offsetX = anchor.width - popupWidth + 430
         val offsetY = anchor.height - 10
 
@@ -305,7 +391,7 @@ class ImageViewHolder(
         }
     }
 
-    private fun showFeedbackBottomSheet(context: Activity, defaultType: String) {
+    private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem) {
         val dialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.bottomsheet_feed_feedback, null)
         dialog.setContentView(view)
@@ -313,17 +399,37 @@ class ImageViewHolder(
         val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
         val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
 
-        dialog.window?.setDimAmount(0f)
+        dialog.window?.setDimAmount(0.1f)
 
         // 피드백 데이터
-        val feedbackMap = mapOf(
-            "like" to List(11) { "user${it + 1}" },
-            "repost" to List(3) { "user${it + 4}" },
-            "quote" to List(2) { "user${it + 2}" }
+        val likeUsers = List(10) { "user${it + 1}" }
+        val repostUsers = List(5) { "user${it + 11}" }
+
+        val quoteFeeds = listOf(
+            FeedItem(
+                username = "인용러A",
+                community = feedItem.community,
+                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                content = "이 피드를 인용해서 작성한 피드입니다!",
+                quotedFeed = feedItem
+            ),
+            FeedItem(
+                username = "인용러B",
+                community = feedItem.community,
+                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                content = "또 다른 사용자가 이 피드를 인용했어요.",
+                quotedFeed = feedItem
+            )
         )
 
-        val adapter = FeedbackPagerAdapter(context as FragmentActivity, feedbackMap)
+        val adapter = FeedbackPagerAdapter(
+            context as FragmentActivity,
+            likeUsers,
+            repostUsers,
+            quoteFeeds
+        )
         viewPager.adapter = adapter
+
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
@@ -352,8 +458,8 @@ class ImageViewHolder(
                 val peekHeight = (330 * context.resources.displayMetrics.density).toInt()
                 behavior.peekHeight = peekHeight
 
-                // 확장 가능한 상태로 설정
-                behavior.isHideable = false
+                // 닫을 수 있게 설정
+                behavior.isHideable = true
                 behavior.skipCollapsed = false
                 behavior.isDraggable = true
                 behavior.state = BottomSheetBehavior.STATE_COLLAPSED

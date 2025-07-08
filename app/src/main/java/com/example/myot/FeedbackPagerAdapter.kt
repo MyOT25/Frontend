@@ -5,16 +5,20 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
 class FeedbackPagerAdapter(
-    fragmentActivity: FragmentActivity,
-    private val feedbackMap: Map<String, List<String>>
-) : FragmentStateAdapter(fragmentActivity) {
+    fa: FragmentActivity,
+    private val likeUsers: List<String>,
+    private val repostUsers: List<String>,
+    private val quoteFeeds: List<FeedItem>
+) : FragmentStateAdapter(fa) {
 
-    private val keys = listOf("like", "repost", "quote")
-
-    override fun getItemCount(): Int = keys.size
+    override fun getItemCount(): Int = 3
 
     override fun createFragment(position: Int): Fragment {
-        val key = keys[position]
-        return FeedbackListFragment.newInstance(feedbackMap[key] ?: emptyList())
+        return when (position) {
+            0 -> FeedbackListFragment.newInstance(likeUsers)
+            1 -> FeedbackListFragment.newInstance(repostUsers)
+            2 -> FeedbackQuoteFragment.newInstance(quoteFeeds)
+            else -> throw IllegalArgumentException("Invalid position")
+        }
     }
 }
