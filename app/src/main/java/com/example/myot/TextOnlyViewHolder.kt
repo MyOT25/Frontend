@@ -30,7 +30,7 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
 
     private var isExpanded = false
 
-    fun bind(item: FeedItem, isDetail: Boolean = false) {
+    fun bind(item: FeedItem, isDetail: Boolean = false, isLastItem: Boolean = false) {
         binding.tvUsername.text = item.username
         binding.tvDate.text = item.date
         binding.tvTime.text = getTimeAgo(item.date)
@@ -38,6 +38,10 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
         binding.tvLike.text = item.likeCount.toString()
         binding.tvRepost.text = item.repostCount.toString()
         binding.tvBookmark.text = item.bookmarkCount.toString()
+
+        // 마지막 피드일 경우 구분선 가리기
+        val divider = itemView.findViewById<View>(R.id.iv_div_line)
+        divider?.visibility = if (isLastItem) View.GONE else View.VISIBLE
 
         val text = item.content
         val isLongText = text.length > 160

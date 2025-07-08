@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -35,18 +34,18 @@ class ImageViewHolder(
     private val isDetail: Boolean = false
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: FeedItem, isDetail: Boolean = false) {
+    fun bind(item: FeedItem, isDetail: Boolean = false, isLastItem: Boolean = false) {
         val context = binding.root.context
 
         when (binding) {
-            is ItemFeedImage1Binding -> bindCommon(binding, item, isDetail)
-            is ItemFeedImage2Binding -> bindCommon(binding, item, isDetail)
-            is ItemFeedImage3Binding -> bindCommon(binding, item, isDetail)
-            is ItemFeedImage4Binding -> bindCommon(binding, item, isDetail)
+            is ItemFeedImage1Binding -> bindCommon(binding, item, isDetail, isLastItem)
+            is ItemFeedImage2Binding -> bindCommon(binding, item, isDetail, isLastItem)
+            is ItemFeedImage3Binding -> bindCommon(binding, item, isDetail, isLastItem)
+            is ItemFeedImage4Binding -> bindCommon(binding, item, isDetail, isLastItem)
         }
     }
 
-    private fun <T : ViewBinding> bindCommon(b: T, item: FeedItem, isDetail: Boolean) {
+    private fun <T : ViewBinding> bindCommon(b: T, item: FeedItem, isDetail: Boolean, isLastItem: Boolean) {
         val context = b.root.context
         val tvUsername = b.root.findViewById<View>(R.id.tv_username) as? TextView
         val tvDate = b.root.findViewById<View>(R.id.tv_date) as? TextView
@@ -63,6 +62,11 @@ class ImageViewHolder(
         val ivOverflow = b.root.findViewById<View>(R.id.iv_overflow)
         val ivCommunity = b.root.findViewById<View>(R.id.iv_community)
         val ivProfile = b.root.findViewById<View>(R.id.iv_profile)
+
+
+        // 마지막 피드인 경우 구분선 가리기
+        val divider = b.root.findViewById<View>(R.id.iv_div_line)
+        divider?.visibility = if (isLastItem) View.GONE else View.VISIBLE
 
         val text = item.content
         val isLongText = text.length > 160

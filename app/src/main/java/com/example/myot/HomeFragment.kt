@@ -211,6 +211,7 @@ class HomeFragment : Fragment() {
                 handler.postDelayed(restoreFabAlphaRunnable, 300)
             }
         }
+
     }
 
     override fun onResume() {

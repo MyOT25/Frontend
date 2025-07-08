@@ -282,6 +282,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- 구분선 (윤곽선) -->
     <ImageView
+        android:id="@+id/iv_div_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_feed_divider"

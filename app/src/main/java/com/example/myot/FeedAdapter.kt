@@ -62,9 +62,11 @@ class FeedAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = items[position]
+        val isLastItem = position == itemCount - 1
+
         when (holder) {
-            is TextOnlyViewHolder -> holder.bind(item, isDetail)
-            is ImageViewHolder -> holder.bind(item, isDetail)
+            is TextOnlyViewHolder -> holder.bind(item, isDetail, isLastItem)
+            is ImageViewHolder -> holder.bind(item, isDetail, isLastItem)
         }
     }
 
