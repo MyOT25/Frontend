@@ -106,31 +106,32 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
 
         // 피드백 홀드시 피드백 바텀시프트 이동
         binding.ivLike.setOnLongClickListener {
-            showFeedbackBottomSheet(binding.root.context as android.app.Activity, "like")
-            isDetail
+            showFeedbackBottomSheet(binding.root.context as Activity, "like", item)
+            true
         }
         binding.tvLike.setOnLongClickListener {
-            showFeedbackBottomSheet(binding.root.context as android.app.Activity, "like")
-            isDetail
+            showFeedbackBottomSheet(binding.root.context as Activity, "like", item)
+            true
         }
 
         binding.ivRepost.setOnLongClickListener {
-            showFeedbackBottomSheet(binding.root.context as android.app.Activity, "repost")
-            isDetail
+            showFeedbackBottomSheet(binding.root.context as Activity, "repost", item)
+            true
         }
         binding.tvRepost.setOnLongClickListener {
-            showFeedbackBottomSheet(binding.root.context as android.app.Activity, "repost")
-            isDetail
+            showFeedbackBottomSheet(binding.root.context as Activity, "repost", item)
+            true
         }
 
         binding.ivBookmark.setOnLongClickListener {
-            showFeedbackBottomSheet(binding.root.context as android.app.Activity, "quote")
-            isDetail
+            showFeedbackBottomSheet(binding.root.context as Activity, "quote", item)
+            true
         }
         binding.tvBookmark.setOnLongClickListener {
-            showFeedbackBottomSheet(binding.root.context as android.app.Activity, "quote")
-            isDetail
+            showFeedbackBottomSheet(binding.root.context as Activity, "quote", item)
+            true
         }
+
 
         // 인용 피드 관련 처리
         val quoteLayout = binding.layoutQuote
@@ -364,7 +365,7 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
         }
     }
 
-    private fun showFeedbackBottomSheet(context: Activity, defaultType: String) {
+    private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem) {
         val dialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.bottomsheet_feed_feedback, null)
         dialog.setContentView(view)
@@ -374,14 +375,33 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
 
         dialog.window?.setDimAmount(0.1f)
 
-        // 피드백 데이터
-        val feedbackMap = mapOf(
-            "like" to List(11) { "user${it + 1}" },
-            "repost" to List(3) { "user${it + 4}" },
-            "quote" to List(2) { "user${it + 2}" }
+        // 더미 데이터
+        val likeUsers = List(10) { "user${it + 1}" }
+        val repostUsers = List(5) { "user${it + 11}" }
+
+        val quoteFeeds = listOf(
+            FeedItem(
+                username = "userA",
+                community = "커뮤니티A",
+                date = "2025/07/05 00:00",
+                content = "이 피드를 인용했어요",
+                quotedFeed = feedItem
+            ),
+            FeedItem(
+                username = "userB",
+                community = "커뮤니티B",
+                date = "2025/07/05 00:01",
+                content = "나도 이 피드를 인용함",
+                quotedFeed = feedItem
+            )
         )
 
-        val adapter = FeedbackPagerAdapter(context as FragmentActivity, feedbackMap)
+        val adapter = FeedbackPagerAdapter(
+            context as FragmentActivity,
+            likeUsers,
+            repostUsers,
+            quoteFeeds
+        )
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -410,7 +430,6 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
                 val peekHeight = (330 * context.resources.displayMetrics.density).toInt()
                 behavior.peekHeight = peekHeight
 
-                // 닫을 수 있게 설정
                 behavior.isHideable = true
                 behavior.skipCollapsed = false
                 behavior.isDraggable = true
@@ -425,5 +444,6 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
 
         dialog.show()
     }
+
 
 }

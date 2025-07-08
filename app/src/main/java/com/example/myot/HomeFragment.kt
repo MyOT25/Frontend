@@ -197,6 +197,20 @@ class HomeFragment : Fragment() {
             adapter = FeedAdapter(dummyFeeds)
             layoutManager = LinearLayoutManager(requireContext())
         }
+
+        // 글쓰기 버튼 스크롤 시 투명도 처리
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        val restoreFabAlphaRunnable = Runnable {
+            binding.btnEdit.animate().alpha(1f).setDuration(200).start()
+        }
+
+        binding.nestedScrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY != oldScrollY) {
+                binding.btnEdit.alpha = 0.3f
+                handler.removeCallbacks(restoreFabAlphaRunnable)
+                handler.postDelayed(restoreFabAlphaRunnable, 300)
+            }
+        }
     }
 
     override fun onResume() {

@@ -129,31 +129,30 @@ class ImageViewHolder(
 
         // 피드백 홀드시 피드백 바텀시프트 이동
         ivLike?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "like")
+            showFeedbackBottomSheet(b.root.context as Activity, "like", item)
             true
         }
         tvLike?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "like")
+            showFeedbackBottomSheet(b.root.context as Activity, "like", item)
             true
         }
-
         ivRepost?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "repost")
+            showFeedbackBottomSheet(b.root.context as Activity, "repost", item)
             true
         }
         tvRepost?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "repost")
+            showFeedbackBottomSheet(b.root.context as Activity, "repost", item)
             true
         }
-
         ivBookmark?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "quote")
+            showFeedbackBottomSheet(b.root.context as Activity, "quote", item)
             true
         }
         tvBookmark?.setOnLongClickListener {
-            showFeedbackBottomSheet(b.root.context as android.app.Activity, "quote")
+            showFeedbackBottomSheet(b.root.context as Activity, "quote", item)
             true
         }
+
 
         // --- 인용 피드 처리 ---
         val quoteLayout = b.root.findViewById<ViewGroup>(R.id.layout_quote)
@@ -388,7 +387,7 @@ class ImageViewHolder(
         }
     }
 
-    private fun showFeedbackBottomSheet(context: Activity, defaultType: String) {
+    private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem) {
         val dialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.bottomsheet_feed_feedback, null)
         dialog.setContentView(view)
@@ -399,14 +398,34 @@ class ImageViewHolder(
         dialog.window?.setDimAmount(0.1f)
 
         // 피드백 데이터
-        val feedbackMap = mapOf(
-            "like" to List(11) { "user${it + 1}" },
-            "repost" to List(3) { "user${it + 4}" },
-            "quote" to List(2) { "user${it + 2}" }
+        val likeUsers = List(10) { "user${it + 1}" }
+        val repostUsers = List(5) { "user${it + 11}" }
+
+        val quoteFeeds = listOf(
+            FeedItem(
+                username = "인용러A",
+                community = feedItem.community,
+                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                content = "이 피드를 인용해서 작성한 피드입니다!",
+                quotedFeed = feedItem
+            ),
+            FeedItem(
+                username = "인용러B",
+                community = feedItem.community,
+                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                content = "또 다른 사용자가 이 피드를 인용했어요.",
+                quotedFeed = feedItem
+            )
         )
 
-        val adapter = FeedbackPagerAdapter(context as FragmentActivity, feedbackMap)
+        val adapter = FeedbackPagerAdapter(
+            context as FragmentActivity,
+            likeUsers,
+            repostUsers,
+            quoteFeeds
+        )
         viewPager.adapter = adapter
+
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {

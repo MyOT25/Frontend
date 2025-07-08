@@ -48,8 +48,9 @@ class FeedDetailAdapter(
             }
             else -> {
                 val binding = ItemCommentBinding.inflate(inflater, parent, false)
-                CommentViewHolder(binding)
+                CommentViewHolder(binding, feedItem)
             }
+
         }
     }
 
@@ -75,7 +76,10 @@ class FeedDetailAdapter(
         }
     }
 
-    class CommentViewHolder(private val binding: ItemCommentBinding) : RecyclerView.ViewHolder(binding.root) {
+    class CommentViewHolder(
+        private val binding: ItemCommentBinding,
+        private val feedItem: FeedItem
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         private var isExpanded = false
 
@@ -112,12 +116,13 @@ class FeedDetailAdapter(
             binding.ivBookmark.setOnClickListener { toggleBookmark(item) }
 
             val context = binding.root.context as Activity
-            setFeedbackLongClick(context, binding.tvLike, "like")
-            setFeedbackLongClick(context, binding.ivLike, "like")
-            setFeedbackLongClick(context, binding.tvRepost, "repost")
-            setFeedbackLongClick(context, binding.ivRepost, "repost")
-            setFeedbackLongClick(context, binding.tvBookmark, "quote")
-            setFeedbackLongClick(context, binding.ivBookmark, "quote")
+            setFeedbackLongClick(context, binding.tvLike, "like", feedItem)
+            setFeedbackLongClick(context, binding.ivLike, "like", feedItem)
+            setFeedbackLongClick(context, binding.tvRepost, "repost", feedItem)
+            setFeedbackLongClick(context, binding.ivRepost, "repost", feedItem)
+            setFeedbackLongClick(context, binding.tvBookmark, "quote", feedItem)
+            setFeedbackLongClick(context, binding.ivBookmark, "quote", feedItem)
+
 
             binding.ivOverflow.setOnClickListener { showOverflowPopup(binding.ivOverflow) }
             binding.ivProfile.setOnClickListener { showProfilePopup(binding.ivProfile) }
@@ -153,56 +158,11 @@ class FeedDetailAdapter(
             iv.setColorFilter(color)
         }
 
-        private fun setFeedbackLongClick(context: Activity, view: View, type: String) {
+        private fun setFeedbackLongClick(context: Activity, view: View, type: String, feedItem: FeedItem) {
             view.setOnLongClickListener {
-                showFeedbackBottomSheet(context, type)
+                showFeedbackBottomSheet(context, type, feedItem)
                 true
             }
-        }
-
-        private fun showFeedbackBottomSheet(context: Activity, defaultType: String) {
-            val dialog = BottomSheetDialog(context)
-            val view = LayoutInflater.from(context).inflate(R.layout.bottomsheet_feed_feedback, null)
-            dialog.setContentView(view)
-
-            val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
-            val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
-            dialog.window?.setDimAmount(0.1f)
-
-            val feedbackMap = mapOf(
-                "like" to List(7) { "user${it + 1}" },
-                "repost" to List(3) { "user${it + 8}" },
-                "quote" to List(2) { "user${it + 11}" }
-            )
-            val adapter = FeedbackPagerAdapter(context as FragmentActivity, feedbackMap)
-            viewPager.adapter = adapter
-
-            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-                tab.text = when (position) { 0 -> "좋아요"; 1 -> "재게시"; 2 -> "인용"; else -> "" }
-            }.attach()
-
-            viewPager.setCurrentItem(when (defaultType) {
-                "like" -> 0; "repost" -> 1; "quote" -> 2; else -> 0
-            }, false)
-
-            dialog.setOnShowListener {
-                val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-                bottomSheet?.let {
-                    val behavior = BottomSheetBehavior.from(it as FrameLayout)
-
-                    behavior.peekHeight = (330 * context.resources.displayMetrics.density).toInt()
-
-                    behavior.isHideable = true
-                    behavior.skipCollapsed = false
-                    behavior.isDraggable = true
-                    behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
-                    it.layoutParams.height = (context.resources.displayMetrics.heightPixels * 0.64).toInt()
-                    it.requestLayout()
-                }
-            }
-
-            dialog.show()
         }
 
         private fun showProfilePopup(anchor: View) {
@@ -308,5 +268,65 @@ class FeedDetailAdapter(
                 Toast.makeText(context, "삭제 클릭", Toast.LENGTH_SHORT).show()
             }
         }
+
+        private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem) {
+            val dialog = BottomSheetDialog(context)
+            val view = LayoutInflater.from(context).inflate(R.layout.bottomsheet_feed_feedback, null)
+            dialog.setContentView(view)
+
+            val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
+            val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
+            dialog.window?.setDimAmount(0.1f)
+
+            // 더미 데이터
+            val likeUsers = List(7) { "user${it + 1}" }
+            val repostUsers = List(3) { "user${it + 8}" }
+            val quoteFeeds = listOf(feedItem)  // feedItem 활용
+
+            val adapter = FeedbackPagerAdapter(
+                context as FragmentActivity,
+                likeUsers,
+                repostUsers,
+                quoteFeeds
+            )
+            viewPager.adapter = adapter
+
+            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                tab.text = when (position) {
+                    0 -> "좋아요"
+                    1 -> "재게시"
+                    2 -> "인용"
+                    else -> ""
+                }
+            }.attach()
+
+            viewPager.setCurrentItem(
+                when (defaultType) {
+                    "like" -> 0
+                    "repost" -> 1
+                    "quote" -> 2
+                    else -> 0
+                }, false
+            )
+
+            dialog.setOnShowListener {
+                val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                bottomSheet?.let {
+                    val behavior = BottomSheetBehavior.from(it as FrameLayout)
+
+                    behavior.peekHeight = (330 * context.resources.displayMetrics.density).toInt()
+                    behavior.isHideable = true
+                    behavior.skipCollapsed = false
+                    behavior.isDraggable = true
+                    behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+                    it.layoutParams.height = (context.resources.displayMetrics.heightPixels * 0.64).toInt()
+                    it.requestLayout()
+                }
+            }
+
+            dialog.show()
+        }
+
     }
 }
