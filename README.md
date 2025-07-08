@@ -7,7 +7,7 @@ MyOT 안드로이드 파트 리포지토리입니다.
 
 | 김가윤 | 김시환 | 황승민 |
 |:---:|:---:|:---:|
-| <img src="https://github.com/JCTA0125.png" width="240" height="180"> | <img src="https://github.com/SihwanGit.png" width="240" height="180"> | <img src="https://github.com/sxunxin.png" width="240" height="180"> |
+| <img src="https://github.com/JCTA0125.png" width="180" height="180"> | <img src="https://github.com/SihwanGit.png" width="180" height="180"> | <img src="https://github.com/sxunxin.png" width="180" height="180"> |
 | [@JCTA0125](https://github.com/JCTA0125) | [@SihwanGit](https://github.com/SihwanGit) | [@sxunxin](https://github.com/sxunxin) |
 
 ---
