@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -52,4 +53,5 @@ dependencies {
     implementation(libs.glide)
     kapt(libs.glideCompiler)
     implementation ("androidx.coordinatorlayout:coordinatorlayout:1.3.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.8")
 }

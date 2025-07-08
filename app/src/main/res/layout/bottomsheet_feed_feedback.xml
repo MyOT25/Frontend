@@ -27,6 +27,12 @@
         app:tabGravity="fill"
         app:tabMode="fixed" />
 
+    <!-- 그림자용 뷰 추가 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@drawable/bg_bottomsheet_shadow" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/vp_feedback"
         android:layout_width="match_parent"
