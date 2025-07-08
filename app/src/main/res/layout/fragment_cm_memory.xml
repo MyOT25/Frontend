@@ -35,15 +35,46 @@
                 android:clickable="true"
                 android:focusable="true" />
 
-            <!-- 목차 영역 -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/memoryTocRecycler"
+            <!-- 목차 영역 (CardView로 감싸기) -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="0dp"
-                android:nestedScrollingEnabled="false"
                 android:layout_marginTop="16dp"
-                android:overScrollMode="never" />
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardPreventCornerOverlap="false"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="#A277FF"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/tocTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="목차"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/memoryTocRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="0dp"
+                        android:nestedScrollingEnabled="false"
+                        android:clipToPadding="false"
+                        android:overScrollMode="never" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <!-- 콘텐츠 영역 -->
             <androidx.recyclerview.widget.RecyclerView
@@ -57,5 +88,4 @@
                 android:overScrollMode="never" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
