@@ -76,7 +76,15 @@ class HomeFragment : Fragment() {
         }
         // RecyclerView 초기 세팅
         binding.rvCommunities.apply {
-            adapter = CommunityAdapter(rawItems) { }
+            // community 테스트를 위한 임시 clickListener
+            adapter = CommunityAdapter(rawItems) {
+                    clickedItem ->
+                val fragment = CommunityFragment.newInstance("MUSICAL")
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
             layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
             layoutParams = layoutParams.apply {
                 height = resources.getDimensionPixelSize(R.dimen.rv_collapsed_height)
