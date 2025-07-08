@@ -5,17 +5,20 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.databinding.FragmentCmHomeBinding
-import com.example.myot.databinding.FragmentCmMediaBinding
+import kotlinx.coroutines.launch
 
 class CmHomeFragment : Fragment() {
 
     private var _binding: FragmentCmHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: CommunityViewModel by activityViewModels()
+    private val viewModel: CommunityViewModel by viewModels({ requireParentFragment() })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,9 +30,13 @@ class CmHomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.communityMode.observe(viewLifecycleOwner) { mode ->
-            binding.btnCmHomeEdit.visibility = if (mode == CommunityMode.MEMBER) View.VISIBLE else View.GONE
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.communityMode.collect { mode ->
+                    binding.btnCmHomeEdit.visibility =
+                        if (mode == CommunityMode.MEMBER) View.VISIBLE else View.GONE
+                }
+            }
         }
 
         // 피드 더미 데이터 생성

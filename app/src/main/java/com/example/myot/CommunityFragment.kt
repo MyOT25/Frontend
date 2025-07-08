@@ -8,6 +8,10 @@ import android.view.ViewGroup
 import com.example.myot.databinding.FragmentCommunityBinding
 import com.google.android.material.tabs.TabLayoutMediator
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 
 class CommunityFragment : Fragment() {
 
@@ -47,7 +51,6 @@ class CommunityFragment : Fragment() {
         }.attach()
 
         setCommunityMode()
-        setJoinBtnClickListener()
     }
 
     companion object {
@@ -62,17 +65,22 @@ class CommunityFragment : Fragment() {
     }
 
     private fun setCommunityMode() {
-        viewModel.communityMode.observe(viewLifecycleOwner) { mode ->
-            binding.ivCommunityJoin.setImageResource(
-                if (mode == CommunityMode.MEMBER) R.drawable.btn_community_join_selected
-                else R.drawable.btn_community_join_unselected
-            )
-        }
-    }
-
-    private fun setJoinBtnClickListener() {
         binding.ivCommunityJoin.setOnClickListener {
             viewModel.switchCommunityMode()
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.communityMode.collect { mode ->
+                    binding.ivCommunityJoin.setImageResource(
+                        if (mode == CommunityMode.MEMBER) {
+                            R.drawable.btn_community_join_selected
+                        } else {
+                            R.drawable.btn_community_join_unselected
+                        }
+                    )
+                }
+            }
         }
     }
 }

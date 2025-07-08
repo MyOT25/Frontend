@@ -1,12 +1,13 @@
 package com.example.myot
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class CommunityViewModel: ViewModel() {
-    private val _communityMode = MutableLiveData<CommunityMode>()
-    val communityMode: LiveData<CommunityMode> = _communityMode
+    private val _communityMode = MutableStateFlow(CommunityMode.GUEST)
+    val communityMode: StateFlow<CommunityMode> = _communityMode.asStateFlow()
 
     fun setCommunityMode(mode: CommunityMode) {
         _communityMode.value = mode

@@ -14,6 +14,7 @@ class CmReviewAdapter (
     private val fragment: Fragment,
     private val reviews: List<ReviewItem>
 ) : RecyclerView.Adapter<CmReviewAdapter.ReviewViewHolder>() {
+
     inner class ReviewViewHolder(private val binding: ItemCmReviewBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(review: ReviewItem) {

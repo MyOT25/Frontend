@@ -5,13 +5,20 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.databinding.FragmentCmHighlightBinding
+import kotlinx.coroutines.launch
 
 class CmHighlightFragment : Fragment() {
 
     private var _binding: FragmentCmHighlightBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: CommunityViewModel by viewModels({ requireParentFragment() })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,6 +30,15 @@ class CmHighlightFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.communityMode.collect { mode ->
+                    binding.btnCmHighlightEdit.visibility =
+                        if (mode == CommunityMode.MEMBER) View.VISIBLE else View.GONE
+                }
+            }
+        }
         // 피드 더미 데이터 생성
         val dummyFeeds = listOf(
             FeedItem(
