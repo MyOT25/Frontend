@@ -1,4 +1,4 @@
-# 🎟️ MyOT Android
+# 🎟️ MyOT Frontend
 MyOT 안드로이드 파트 리포지토리입니다.
 
 ---
