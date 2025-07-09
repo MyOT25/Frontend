@@ -1,8 +1,10 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myot.feed.ImageViewHolder
+import com.example.myot.feed.TextOnlyViewHolder
 import com.example.myot.databinding.ItemFeedImage1Binding
 import com.example.myot.databinding.ItemFeedImage2Binding
 import com.example.myot.databinding.ItemFeedImage3Binding

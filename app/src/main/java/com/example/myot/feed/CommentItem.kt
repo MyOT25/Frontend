@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 data class CommentItem(
     val username: String,

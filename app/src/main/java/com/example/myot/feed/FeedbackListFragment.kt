@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.os.Bundle
 import android.view.LayoutInflater

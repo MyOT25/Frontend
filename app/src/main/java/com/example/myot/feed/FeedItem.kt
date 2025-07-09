@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

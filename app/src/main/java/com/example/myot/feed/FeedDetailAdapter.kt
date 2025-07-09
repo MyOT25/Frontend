@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.app.Activity
 import android.view.*
@@ -11,6 +11,10 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
+import com.example.myot.feed.CommentItem
+import com.example.myot.feed.ImageViewHolder
+import com.example.myot.R
+import com.example.myot.feed.TextOnlyViewHolder
 import com.example.myot.databinding.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -281,13 +285,29 @@ class FeedDetailAdapter(
             // 더미 데이터
             val likeUsers = List(7) { "user${it + 1}" }
             val repostUsers = List(3) { "user${it + 8}" }
-            val quoteFeeds = listOf(feedItem)  // feedItem 활용
+            val quoteFeeds = listOf(
+                FeedItem(
+                    username = "인용유저1",
+                    community = "커뮤니티A",
+                    date = "2025/07/09 19:00",
+                    content = "이 피드를 인용한 유저1의 글",
+                    quotedFeed = feedItem
+                ),
+                FeedItem(
+                    username = "인용유저2",
+                    community = "커뮤니티B",
+                    date = "2025/07/09 19:10",
+                    content = "이 피드를 인용한 유저2의 글입니다.".repeat(10),
+                    quotedFeed = feedItem
+                )
+            )
 
             val adapter = FeedbackPagerAdapter(
                 context as FragmentActivity,
                 likeUsers,
                 repostUsers,
-                quoteFeeds
+                quoteFeeds,
+                dialog
             )
             viewPager.adapter = adapter
 

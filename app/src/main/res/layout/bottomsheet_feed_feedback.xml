@@ -19,11 +19,15 @@
         android:layout_width="match_parent"
         android:layout_height="36dp"
         android:background="@android:color/transparent"
+        app:tabTextAppearance="@style/TextAppearance.App.LabelMedium"
         app:tabIndicatorColor="@color/point_purple"
         app:tabIndicatorHeight="3dp"
+        app:tabMinWidth="0dp"
         app:tabRippleColor="@android:color/transparent"
         app:tabSelectedTextColor="@color/black"
-        app:tabTextColor="@color/gray2"
+        app:tabIndicator="@drawable/tab_indicator_bottomsheet"
+        app:tabTextColor="@color/black"
+        app:tabIndicatorFullWidth="true"
         app:tabGravity="fill"
         app:tabMode="fixed" />
 

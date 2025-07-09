@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.app.Activity
 import android.view.Gravity
@@ -14,13 +14,15 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.example.myot.R
 import com.example.myot.databinding.ItemFeedTextOnlyBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.floor
 
@@ -158,25 +160,35 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
             val quoteView = inflater.inflate(layoutResId, quoteLayout, false)
             quoteLayout.addView(quoteView)
 
+            val tvQuoteUsername = quoteView.findViewById<TextView>(R.id.tv_username)
+            val ivQuoteProfile = quoteView.findViewById<ImageView>(R.id.iv_profile)
+            val ivQuoteCommunity = quoteView.findViewById<ImageView>(R.id.iv_community)
+
+            tvQuoteUsername?.text = quoted.username
+            Glide.with(ivQuoteCommunity).load(R.drawable.ic_no_community).into(ivQuoteCommunity)
+            Glide.with(ivQuoteProfile).load(R.drawable.ic_no_profile).into(ivQuoteProfile)
+
+
             val tvQuoteContent = quoteView.findViewById<TextView>(R.id.tv_content)
             val tvQuoteMore = quoteView.findViewById<TextView>(R.id.tv_more)
 
             val text = quoted.content
-            val isLongText = text.length > 160
+            val maxLength = if (quoted.imageUrls.isEmpty()) 105 else 50
+            val isLongText = text.length > maxLength
 
-            if (isDetail) {
-                tvQuoteContent?.text = text
-                tvQuoteMore?.visibility = View.GONE
-            } else if (isLongText) {
-                tvQuoteContent?.text = text.take(160) + "..."
-                tvQuoteMore?.visibility = View.VISIBLE
-                tvQuoteMore?.setOnClickListener {
-                    tvQuoteContent?.text = text
-                    tvQuoteMore?.visibility = View.GONE
+            tvQuoteContent?.text = text.take(maxLength) + if (isLongText) "..." else ""
+            tvQuoteMore?.visibility = if (isLongText) View.VISIBLE else View.GONE
+
+            // 인용된 피드 클릭
+            quoteView.setOnClickListener {
+                val context = binding.root.context
+                if (context is FragmentActivity) {
+                    val fragment = FeedDetailFragment.newInstance(quoted)
+                    context.supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container_view, fragment)
+                        .addToBackStack(null)
+                        .commit()
                 }
-            } else {
-                tvQuoteContent?.text = text
-                tvQuoteMore?.visibility = View.GONE
             }
 
             quoted.imageUrls.forEachIndexed { idx, url ->
@@ -295,7 +307,6 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
         }
     }
 
-
     private fun showProfilePopup(anchor: View) {
         val context = anchor.context
         val inflater = LayoutInflater.from(context)
@@ -385,17 +396,17 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
 
         val quoteFeeds = listOf(
             FeedItem(
-                username = "userA",
+                username = "인용유저1",
                 community = "커뮤니티A",
-                date = "2025/07/05 00:00",
-                content = "이 피드를 인용했어요",
+                date = "2025/07/09 19:00",
+                content = "이 피드를 인용한 유저1의 글",
                 quotedFeed = feedItem
             ),
             FeedItem(
-                username = "userB",
+                username = "인용유저2",
                 community = "커뮤니티B",
-                date = "2025/07/05 00:01",
-                content = "나도 이 피드를 인용함",
+                date = "2025/07/09 19:10",
+                content = "이 피드를 인용한 유저2의 글입니다.".repeat(10),
                 quotedFeed = feedItem
             )
         )
@@ -404,7 +415,8 @@ class TextOnlyViewHolder(private val binding: ItemFeedTextOnlyBinding,
             context as FragmentActivity,
             likeUsers,
             repostUsers,
-            quoteFeeds
+            quoteFeeds,
+            dialog
         )
         viewPager.adapter = adapter
 

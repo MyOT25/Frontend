@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.myot.databinding.*
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myot.feed.CommentItem
+import com.example.myot.R
 
 class FeedDetailFragment : Fragment() {
 
