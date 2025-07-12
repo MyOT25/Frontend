@@ -133,6 +133,6 @@ MyOT 안드로이드 파트 리포지토리입니다.
 | min SDK | 28 |
 | target SDK | 35 |
 | IDE | Android Studio Meerkat (2024.3.1) |
-| 테스트 기기 | Emulator : Medium Phone API 36 |
+| 테스트 기기 | Emulator : Medium Phone API 35 |
 
 ---
