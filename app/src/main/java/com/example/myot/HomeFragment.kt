@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -272,8 +273,17 @@ class HomeFragment : Fragment() {
             binding.btnEdit.animate().alpha(1f).setDuration(200).start()
         }
 
-        binding.nestedScrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            if (scrollY != oldScrollY) {
+        binding.nestedScrollView.setOnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
+            val scrollView = v as NestedScrollView
+            val view = scrollView.getChildAt(0)
+            val diff = view.bottom - (scrollView.height + scrollY)
+
+            if (diff <= 60) {
+                // 스크롤이 끝까지 내려갔을 때
+                handler.removeCallbacks(restoreFabAlphaRunnable)
+                binding.btnEdit.animate().alpha(0f).setDuration(200).start()
+            } else if (scrollY != oldScrollY) {
+                // 스크롤 중인 경우
                 binding.btnEdit.alpha = 0.3f
                 handler.removeCallbacks(restoreFabAlphaRunnable)
                 handler.postDelayed(restoreFabAlphaRunnable, 300)
