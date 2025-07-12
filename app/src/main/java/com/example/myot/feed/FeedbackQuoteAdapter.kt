@@ -19,18 +19,23 @@ class FeedbackQuoteAdapter(
         private val tvUsername: TextView = view.findViewById(R.id.tv_username)
         private val tvContent: TextView = view.findViewById(R.id.tv_content)
         private val tvMore: TextView = view.findViewById(R.id.tv_more)
+        private val layoutImageInfo: View = view.findViewById(R.id.layout_image_info)
         private val layoutQuote: ViewGroup = view.findViewById(R.id.layout_quote)
 
         fun bind(feed: FeedItem) {
             tvUsername.text = feed.username
 
             // 본문 텍스트 처리
-            val isLongText = feed.content.length > 160
-            tvContent.text = if (isLongText) feed.content.take(160) + "..." else feed.content
+            val isLongText = feed.content.length > 45
+            tvContent.text = if (isLongText) feed.content.take(45) + "..." else feed.content
             tvMore.visibility = if (isLongText) View.VISIBLE else View.GONE
 
+            // 이미지 포함 여부 표시
+            layoutImageInfo.visibility = if (feed.imageUrls.isNotEmpty()) View.VISIBLE else View.GONE
+
+            // 피드 클릭 시 상세 화면으로 이동
             itemView.setOnClickListener {
-                dialog.dismiss()  // 바텀시트 닫기
+                dialog.dismiss()
                 val context = itemView.context
                 if (context is androidx.fragment.app.FragmentActivity) {
                     val fragment = FeedDetailFragment.newInstance(feed)
@@ -41,66 +46,34 @@ class FeedbackQuoteAdapter(
                 }
             }
 
-            // --- 인용 피드 처리 시작 ---
+            // 인용 피드 처리
             layoutQuote.removeAllViews()
-
             val quoted = feed.quotedFeed
             if (quoted != null) {
                 layoutQuote.visibility = View.VISIBLE
+                val quoteView = LayoutInflater.from(layoutQuote.context)
+                    .inflate(R.layout.item_feed_interacrion_quote, layoutQuote, false)
 
-                val inflater = LayoutInflater.from(layoutQuote.context)
-                val quoteLayoutResId = when (quoted.imageUrls.size) {
-                    0 -> R.layout.item_feed_quote_text_only
-                    1 -> R.layout.item_feed_quote_image1
-                    2 -> R.layout.item_feed_quote_image2
-                    3 -> R.layout.item_feed_quote_image3
-                    else -> R.layout.item_feed_quote_image4
-                }
-
-                val quoteView = inflater.inflate(quoteLayoutResId, layoutQuote, false)
                 layoutQuote.addView(quoteView)
 
-                // 텍스트 바인딩
                 val tvQuoteContent = quoteView.findViewById<TextView>(R.id.tv_content)
                 val tvQuoteMore = quoteView.findViewById<TextView>(R.id.tv_more)
-
-                val quoteText = quoted.content
-                val isQuoteLong = when {
-                    quoted.imageUrls.isNotEmpty() -> quoteText.length > 50
-                    else -> quoteText.length > 105
-                }
-
-                tvQuoteContent?.text = if (isQuoteLong) quoteText.take(if (quoted.imageUrls.isNotEmpty()) 50 else 105) + "..." else quoteText
-                tvQuoteMore?.visibility = if (isQuoteLong) View.VISIBLE else View.GONE
-
-                // 이미지 바인딩
-                quoted.imageUrls.forEachIndexed { index, url ->
-                    val imageId = when (index) {
-                        0 -> R.id.iv_image1
-                        1 -> R.id.iv_image2
-                        2 -> R.id.iv_image3
-                        3 -> R.id.iv_image4
-                        else -> null
-                    }
-                    imageId?.let {
-                        val iv = quoteView.findViewById<ImageView>(it)
-                        iv?.visibility = View.VISIBLE
-                        Glide.with(iv).load(url).into(iv)
-                    }
-                }
-
-                // 유저 정보
                 val tvQuoteUsername = quoteView.findViewById<TextView>(R.id.tv_username)
                 val ivQuoteProfile = quoteView.findViewById<ImageView>(R.id.iv_profile)
-                val ivQuoteCommunity = quoteView.findViewById<ImageView>(R.id.iv_community)
+                val layoutQuoteImageInfo = quoteView.findViewById<View>(R.id.layout_image_info)
 
-                tvQuoteUsername?.text = quoted.username
-                Glide.with(ivQuoteCommunity).load(R.drawable.ic_no_community).into(ivQuoteCommunity)
+                val quoteText = quoted.content
+                val isQuoteLong = quoteText.length > 45
+                tvQuoteContent.text = if (isQuoteLong) quoteText.take(45) + "..." else quoteText
+                tvQuoteMore.visibility = if (isQuoteLong) View.VISIBLE else View.GONE
+
+                tvQuoteUsername.text = quoted.username
+                layoutQuoteImageInfo.visibility = if (quoted.imageUrls.isNotEmpty()) View.VISIBLE else View.GONE
+
                 Glide.with(ivQuoteProfile).load(R.drawable.ic_no_profile).into(ivQuoteProfile)
 
-                // 인용된 피드 선택
                 quoteView.setOnClickListener {
-                    dialog.dismiss()  // 바텀시트 닫기
+                    dialog.dismiss()
                     val context = quoteView.context
                     if (context is androidx.fragment.app.FragmentActivity) {
                         val fragment = FeedDetailFragment.newInstance(quoted)
@@ -110,7 +83,6 @@ class FeedbackQuoteAdapter(
                             .commit()
                     }
                 }
-
             } else {
                 layoutQuote.visibility = View.GONE
             }
@@ -119,7 +91,7 @@ class FeedbackQuoteAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_feedback_text_only, parent, false)
+            .inflate(R.layout.item_feed_interacrion, parent, false)
         return QuoteViewHolder(view)
     }
 

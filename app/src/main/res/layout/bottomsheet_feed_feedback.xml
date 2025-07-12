@@ -17,7 +17,7 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_feedback"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="30dp"
         android:background="@android:color/transparent"
         app:tabTextAppearance="@style/TextAppearance.App.LabelMedium"
         app:tabIndicatorColor="@color/point_purple"
@@ -31,15 +31,21 @@
         app:tabGravity="fill"
         app:tabMode="fixed" />
 
-    <!-- 그림자용 뷰 추가 -->
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:background="@drawable/bg_bottomsheet_shadow" />
+        android:layout_height="wrap_content">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vp_feedback"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:overScrollMode="never" />
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp_feedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never" />
+
+        <!-- 그림자 뷰를 위로 올림 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_bottomsheet_shadow"
+            android:layout_gravity="top" />
+    </FrameLayout>
 </LinearLayout>

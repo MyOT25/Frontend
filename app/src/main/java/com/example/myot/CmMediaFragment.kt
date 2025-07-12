@@ -52,7 +52,7 @@ class CmMediaFragment : Fragment() {
                 commentCount = 0,
                 likeCount = 1,
                 repostCount = 0,
-                bookmarkCount = 0
+                quoteCount = 0
             ),
             FeedItem(
                 username = "유저2",
@@ -63,7 +63,7 @@ class CmMediaFragment : Fragment() {
                 commentCount = 7,
                 likeCount = 55,
                 repostCount = 4,
-                bookmarkCount = 20
+                quoteCount = 20
             ),
             FeedItem(
                 username = "유저3", content = "오늘은 대학로에서 <빨래> 관람했어요. 소극장이라 배우들과 가까워서 몰입감 장난 아님!",
@@ -71,7 +71,7 @@ class CmMediaFragment : Fragment() {
                     "https://picsum.photos/300/200?random=2",
                     "https://picsum.photos/300/200?random=3"
                 ), date = "2025/06/20 20:30", community = "소극장 뮤지컬",
-                commentCount = 2, likeCount = 33, repostCount = 1, bookmarkCount = 7
+                commentCount = 2, likeCount = 33, repostCount = 1, quoteCount = 7
             ),
             FeedItem(
                 username = "유저4",
@@ -86,7 +86,7 @@ class CmMediaFragment : Fragment() {
                 commentCount = 9,
                 likeCount = 61,
                 repostCount = 5,
-                bookmarkCount = 18
+                quoteCount = 18
             ),
             FeedItem(
                 username = "유저5",
@@ -102,7 +102,7 @@ class CmMediaFragment : Fragment() {
                 commentCount = 10,
                 likeCount = 78,
                 repostCount = 6,
-                bookmarkCount = 25
+                quoteCount = 25
             )
         )
 

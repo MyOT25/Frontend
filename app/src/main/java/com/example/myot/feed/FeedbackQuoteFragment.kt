@@ -15,7 +15,13 @@ class FeedbackQuoteFragment(private val dialog: BottomSheetDialog) : Fragment() 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        quoteFeeds = requireArguments().getParcelableArrayList(ARG_QUOTES)!!
+        @Suppress("DEPRECATION") // API 32 이하 호환성 유지 시
+        quoteFeeds = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelableArrayList(ARG_QUOTES, FeedItem::class.java) ?: emptyList()
+        } else {
+            @Suppress("DEPRECATION")
+            requireArguments().getParcelableArrayList(ARG_QUOTES) ?: emptyList()
+        }
     }
 
     override fun onCreateView(

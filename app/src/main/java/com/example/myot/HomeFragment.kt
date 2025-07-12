@@ -148,7 +148,7 @@ class HomeFragment : Fragment() {
                 commentCount = 0,
                 likeCount = 1,
                 repostCount = 0,
-                bookmarkCount = 0,
+                quoteCount = 0,
                 quotedFeed = FeedItem(
                     username = "유저6",
                     content = "이건 인용된 텍스트 피드예요! 뮤지컬 <지킬 앤 하이드>에서 '지금 이 순간' 장면, 진짜 전설적이죠.",
@@ -163,13 +163,13 @@ class HomeFragment : Fragment() {
                     commentCount = 0,
                     likeCount = 0,
                     repostCount = 0,
-                    bookmarkCount = 0
+                    quoteCount = 0
                 )
             ),
             FeedItem(
                 username = "유저11", content = "이거 인용했어요",
                 imageUrls = listOf(), date = "2025/06/24 01:10", community = "인용 피드",
-                commentCount = 0, likeCount = 1, repostCount = 0, bookmarkCount = 0,
+                commentCount = 0, likeCount = 1, repostCount = 0, quoteCount = 0,
                 quotedFeed = FeedItem(
                     username = "유저12",
                     content = "이건 인용된 텍스트 피드예요",
@@ -178,7 +178,7 @@ class HomeFragment : Fragment() {
                     commentCount = 0,
                     likeCount = 0,
                     repostCount = 0,
-                    bookmarkCount = 0
+                    quoteCount = 0
                 )
             ),
             FeedItem(
@@ -190,7 +190,7 @@ class HomeFragment : Fragment() {
                 commentCount = 7,
                 likeCount = 55,
                 repostCount = 4,
-                bookmarkCount = 20
+                quoteCount = 20
             ),
             FeedItem(
                 username = "유저3", content = "오늘은 대학로에서 <빨래> 관람했어요. 소극장이라 배우들과 가까워서 몰입감 장난 아님!",
@@ -198,7 +198,7 @@ class HomeFragment : Fragment() {
                     "https://picsum.photos/300/200?random=2",
                     "https://picsum.photos/300/200?random=3"
                 ), date = "2025/06/20 20:30", community = "소극장 뮤지컬",
-                commentCount = 2, likeCount = 33, repostCount = 1, bookmarkCount = 7,
+                commentCount = 2, likeCount = 33, repostCount = 1, quoteCount = 7,
                 quotedFeed = FeedItem(
                     username = "유저6",
                     content = "이건 인용된 텍스트 피드예요! 뮤지컬 <지킬 앤 하이드>에서 '지금 이 순간' 장면, 진짜 전설적이죠.",
@@ -212,12 +212,12 @@ class HomeFragment : Fragment() {
                     commentCount = 0,
                     likeCount = 0,
                     repostCount = 0,
-                    bookmarkCount = 0
+                    quoteCount = 0
                 )
             ),
             FeedItem(
                 username = "유저4",
-                content = "뮤지컬 <위키드> 내한공연 보신 분? 글린다랑 엘파바 완전 찰떡이었음... 무대 세트도 대박이에요.",
+                content = "이 문장은 안드로이드 앱 개발자들이 레이아웃 테스트나 글자 수 제한 기능을 점검할 때 사용할 수 있도록 만든 예시이며, 띄어쓰기 포함 정확히 160자입니다. 한글이든 영어이든 기호이든 띄어쓰기이든 전부 한 글자로 하여 총 160글자입니다. 이 글은 160자를 테스트하기 위한 글로 이제끝",
                 imageUrls = listOf(
                     "https://picsum.photos/300/200?random=4",
                     "https://picsum.photos/300/200?random=5",
@@ -228,7 +228,7 @@ class HomeFragment : Fragment() {
                 commentCount = 9,
                 likeCount = 61,
                 repostCount = 5,
-                bookmarkCount = 18,
+                quoteCount = 18,
                 quotedFeed = FeedItem(
                     username = "유저6",
                     content = "이건 인용된 텍스트 피드예요! 뮤지컬 <지킬 앤 하이드>에서 '지금 이 순간' 장면, 진짜 전설적이죠.".repeat(7),
@@ -237,7 +237,7 @@ class HomeFragment : Fragment() {
                     commentCount = 0,
                     likeCount = 0,
                     repostCount = 0,
-                    bookmarkCount = 0
+                    quoteCount = 0
                 )
             ),
             FeedItem(
@@ -254,7 +254,7 @@ class HomeFragment : Fragment() {
                 commentCount = 10,
                 likeCount = 78,
                 repostCount = 6,
-                bookmarkCount = 25
+                quoteCount = 25
             )
 
 
