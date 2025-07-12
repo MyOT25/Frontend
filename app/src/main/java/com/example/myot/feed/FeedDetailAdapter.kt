@@ -17,6 +17,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class FeedDetailAdapter(
     private val feedItem: FeedItem,
@@ -106,13 +109,19 @@ class FeedDetailAdapter(
             binding.ivQuote.setOnClickListener { toggleQuote(item) }
 
             val context = binding.root.context as Activity
-            setFeedbackLongClick(context, binding.tvLike, "like", feedItem)
-            setFeedbackLongClick(context, binding.ivLike, "like", feedItem)
-            setFeedbackLongClick(context, binding.tvRepost, "repost", feedItem)
-            setFeedbackLongClick(context, binding.ivRepost, "repost", feedItem)
-            setFeedbackLongClick(context, binding.tvQuote, "quote", feedItem)
-            setFeedbackLongClick(context, binding.ivQuote, "quote", feedItem)
+            val quotedCommentFeed = FeedItem(
+                username = item.username,
+                community = feedItem.community,
+                date = item.date,
+                content = item.content
+            )
 
+            setFeedbackLongClick(context, binding.tvLike, "like", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.ivLike, "like", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.tvRepost, "repost", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.ivRepost, "repost", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.tvQuote, "quote", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.ivQuote, "quote", quotedCommentFeed)
 
             binding.ivOverflow.setOnClickListener { showOverflowPopup(binding.ivOverflow) }
             binding.ivProfile.setOnClickListener { showProfilePopup(binding.ivProfile) }
@@ -266,26 +275,30 @@ class FeedDetailAdapter(
 
             val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
             val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
+
             dialog.window?.setDimAmount(0.1f)
 
-            // 더미 데이터
-            val likeUsers = List(7) { "user${it + 1}" }
-            val repostUsers = List(3) { "user${it + 8}" }
+            // 댓글 피드백 더미 데이터
+            val likeUsers = List(8) { "user${it + 1}" }
+            val repostUsers = List(3) { "user${it + 11}" }
+
+
             val quoteFeeds = listOf(
                 FeedItem(
-                    username = "인용유저1",
-                    community = "커뮤니티A",
-                    date = "2025/07/09 19:00",
-                    content = "이 피드를 인용한 유저1의 글",
+                    username = "댓글인용러1",
+                    community = feedItem.community,
+                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                    content = "이 댓글을 인용한 피드입니다.",
                     quotedFeed = feedItem
                 ),
                 FeedItem(
-                    username = "인용유저2",
-                    community = "커뮤니티B",
-                    date = "2025/07/09 19:10",
-                    content = "이 피드를 인용한 유저2의 글입니다.".repeat(10),
+                    username = "댓글인용러2",
+                    community = feedItem.community,
+                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                    content = "이 댓글을 인용한 또다른 피드입니다.".repeat(5),
                     quotedFeed = feedItem
                 )
+
             )
 
             val adapter = FeedbackPagerAdapter(
@@ -320,19 +333,23 @@ class FeedDetailAdapter(
                 bottomSheet?.let {
                     val behavior = BottomSheetBehavior.from(it as FrameLayout)
 
-                    behavior.peekHeight = (330 * context.resources.displayMetrics.density).toInt()
+                    val peekHeight = (330 * context.resources.displayMetrics.density).toInt()
+                    behavior.peekHeight = peekHeight
+
                     behavior.isHideable = true
                     behavior.skipCollapsed = false
                     behavior.isDraggable = true
                     behavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
-                    it.layoutParams.height = (context.resources.displayMetrics.heightPixels * 0.64).toInt()
+                    val screenHeight = context.resources.displayMetrics.heightPixels
+                    val maxHeight = (screenHeight * 0.64).toInt()
+                    it.layoutParams.height = maxHeight
                     it.requestLayout()
                 }
             }
-
             dialog.show()
         }
+
 
     }
 }

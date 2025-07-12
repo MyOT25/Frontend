@@ -214,15 +214,6 @@ class FeedViewHolder(
                         if (isLongText) View.VISIBLE else View.GONE
                 }
 
-                // 기본 이미지 설정
-                Glide.with(quoteView.findViewById<ImageView>(R.id.iv_profile))
-                    .load(R.drawable.ic_no_profile)
-                    .into(quoteView.findViewById(R.id.iv_profile))
-
-                Glide.with(quoteView.findViewById<ImageView>(R.id.iv_community))
-                    .load(R.drawable.ic_no_community)
-                    .into(quoteView.findViewById(R.id.iv_community))
-
                 // 이미지 레이아웃 초기화 및 적용
                 val layoutImage1 = quoteView.findViewById<View>(R.id.layout_image1)
                 val layoutImage2 = quoteView.findViewById<View>(R.id.layout_image2)
