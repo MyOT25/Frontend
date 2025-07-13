@@ -38,7 +38,7 @@
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/vp_feedback"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:overScrollMode="never" />
 
         <!-- 그림자 뷰를 위로 올림 -->

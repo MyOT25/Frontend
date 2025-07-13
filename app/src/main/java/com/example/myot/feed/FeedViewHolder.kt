@@ -432,8 +432,8 @@ class FeedViewHolder(
         dialog.window?.setDimAmount(0.1f)
 
         // 피드백 더미 데이터
-        val likeUsers = List(10) { "user${it + 1}" }
-        val repostUsers = List(5) { "user${it + 11}" }
+        val likeUsers = List(17) { "user${it + 1}" }
+        val repostUsers = List(22) { "user${it + 11}" }
         val quoteFeeds = listOf(
             FeedItem(
                 username = "인용러A",
@@ -497,21 +497,16 @@ class FeedViewHolder(
             bottomSheet?.let {
                 val behavior = BottomSheetBehavior.from(it as FrameLayout)
 
-                // peekHeight 330dp
-                val peekHeight = (330 * context.resources.displayMetrics.density).toInt()
-                behavior.peekHeight = peekHeight
-
-                // 닫을 수 있게 설정
-                behavior.isHideable = true
-                behavior.skipCollapsed = false
-                behavior.isDraggable = true
-                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
-                // 최대 높이 제한
                 val screenHeight = context.resources.displayMetrics.heightPixels
                 val maxHeight = (screenHeight * 0.64).toInt()
                 it.layoutParams.height = maxHeight
                 it.requestLayout()
+
+                behavior.peekHeight = (330 * context.resources.displayMetrics.density).toInt()
+                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                behavior.skipCollapsed = false
+                behavior.isDraggable = true
+                behavior.isHideable = true
             }
         }
         dialog.show()

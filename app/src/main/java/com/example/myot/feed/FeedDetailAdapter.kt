@@ -333,18 +333,16 @@ class FeedDetailAdapter(
                 bottomSheet?.let {
                     val behavior = BottomSheetBehavior.from(it as FrameLayout)
 
-                    val peekHeight = (330 * context.resources.displayMetrics.density).toInt()
-                    behavior.peekHeight = peekHeight
-
-                    behavior.isHideable = true
-                    behavior.skipCollapsed = false
-                    behavior.isDraggable = true
-                    behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
                     val screenHeight = context.resources.displayMetrics.heightPixels
                     val maxHeight = (screenHeight * 0.64).toInt()
                     it.layoutParams.height = maxHeight
                     it.requestLayout()
+
+                    behavior.peekHeight = (330 * context.resources.displayMetrics.density).toInt()
+                    behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    behavior.skipCollapsed = false
+                    behavior.isDraggable = true
+                    behavior.isHideable = true
                 }
             }
             dialog.show()

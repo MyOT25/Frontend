@@ -24,15 +24,16 @@ class FeedbackQuoteFragment(private val dialog: BottomSheetDialog) : Fragment() 
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val recyclerView = RecyclerView(requireContext())
+        recyclerView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = FeedbackQuoteAdapter(quoteFeeds, dialog)
         return recyclerView
     }
-
     companion object {
         private const val ARG_QUOTES = "arg_quotes"
 
