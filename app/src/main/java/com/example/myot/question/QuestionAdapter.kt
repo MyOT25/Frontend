@@ -3,9 +3,12 @@ package com.example.myot.question
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -77,6 +80,7 @@ class QuestionAdapter(private val items: List<QuestionItem>) :
             val color = if (isLiked) R.color.point_pink else R.color.gray2
             binding.tvLikeCount.setTextColor(ContextCompat.getColor(context, color))
         }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestionViewHolder {

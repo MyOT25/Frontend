@@ -1,9 +1,12 @@
 package com.example.myot
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -108,6 +111,8 @@ class QuestionFragment : Fragment() {
         binding.rvFeeds.adapter = adapter
         binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
 
+        binding.btnSortEdit.setOnClickListener { showSortPopup(it) }
+
         // 글쓰기 버튼 스크롤 시 투명도 처리
         val handler = android.os.Handler(android.os.Looper.getMainLooper())
         val restoreFabAlphaRunnable = Runnable {
@@ -129,6 +134,62 @@ class QuestionFragment : Fragment() {
                 handler.removeCallbacks(restoreFabAlphaRunnable)
                 handler.postDelayed(restoreFabAlphaRunnable, 300)
             }
+        }
+    }
+
+    private fun showSortPopup(anchor: View) {
+        val context = anchor.context
+        val inflater = LayoutInflater.from(context)
+        val popupView = inflater.inflate(R.layout.menu_popup_sort, null)
+
+        val popupWindow = PopupWindow(
+            popupView,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        val popupWidth = popupView.measuredWidth
+
+        val location = IntArray(2)
+        anchor.getLocationOnScreen(location)
+        val anchorX = location[0]
+        val anchorY = location[1]
+
+        val rootView = (anchor.rootView as? ViewGroup) ?: return
+        val dimView = View(context).apply {
+            setBackgroundColor(0x22000000.toInt())
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+        rootView.addView(dimView)
+        popupWindow.setOnDismissListener { rootView.removeView(dimView) }
+
+        popupWindow.setBackgroundDrawable(null)
+        popupWindow.isOutsideTouchable = true
+        popupWindow.isFocusable = true
+        popupWindow.elevation = 20f
+
+        val offsetX = anchor.width - popupWidth - 10
+        val offsetY = anchor.height + 10
+
+        popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
+
+        // 정렬 항목 리스너
+        popupView.findViewById<View>(R.id.btn_sort_popular).setOnClickListener {
+            popupWindow.dismiss()
+            Toast.makeText(context, "인기 순 클릭", Toast.LENGTH_SHORT).show()
+        }
+        popupView.findViewById<View>(R.id.btn_sort_recent).setOnClickListener {
+            popupWindow.dismiss()
+            Toast.makeText(context, "최신 순 클릭", Toast.LENGTH_SHORT).show()
+        }
+        popupView.findViewById<View>(R.id.btn_sort_old).setOnClickListener {
+            popupWindow.dismiss()
+            Toast.makeText(context, "오래된 순 클릭", Toast.LENGTH_SHORT).show()
         }
     }
 }
