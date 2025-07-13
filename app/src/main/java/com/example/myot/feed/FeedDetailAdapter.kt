@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.app.Activity
 import android.view.*
@@ -11,11 +11,15 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
+import com.example.myot.R
 import com.example.myot.databinding.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class FeedDetailAdapter(
     private val feedItem: FeedItem,
@@ -37,26 +41,19 @@ class FeedDetailAdapter(
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             TYPE_FEED -> {
-                val binding = when (feedItem.imageUrls.size) {
-                    0 -> ItemFeedTextOnlyBinding.inflate(inflater, parent, false)
-                    1 -> ItemFeedImage1Binding.inflate(inflater, parent, false)
-                    2 -> ItemFeedImage2Binding.inflate(inflater, parent, false)
-                    3 -> ItemFeedImage3Binding.inflate(inflater, parent, false)
-                    else -> ItemFeedImage4Binding.inflate(inflater, parent, false)
-                }
+                val binding = ItemFeedDetailBinding.inflate(inflater, parent, false)
                 FeedViewHolder(binding)
             }
             else -> {
                 val binding = ItemCommentBinding.inflate(inflater, parent, false)
                 CommentViewHolder(binding, feedItem)
             }
-
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is FeedViewHolder) {
-            holder.bind(feedItem, true)
+            holder.bind(feedItem, isLastItem = false)
         } else if (holder is CommentViewHolder) {
             val commentPos = position - 1
             val isLast = commentPos == comments.size - 1
@@ -65,13 +62,9 @@ class FeedDetailAdapter(
     }
 
     class FeedViewHolder(private val binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: FeedItem, isDetail: Boolean) {
-            when (binding) {
-                is ItemFeedTextOnlyBinding -> TextOnlyViewHolder(binding).bind(item, isDetail)
-                is ItemFeedImage1Binding -> ImageViewHolder(binding).bind(item, isDetail)
-                is ItemFeedImage2Binding -> ImageViewHolder(binding).bind(item, isDetail)
-                is ItemFeedImage3Binding -> ImageViewHolder(binding).bind(item, isDetail)
-                is ItemFeedImage4Binding -> ImageViewHolder(binding).bind(item, isDetail)
+        fun bind(item: FeedItem, isLastItem: Boolean) {
+            if (binding is ItemFeedDetailBinding) {
+                com.example.myot.feed.FeedViewHolder(binding).bind(item, isLastItem)
             }
         }
     }
@@ -102,27 +95,33 @@ class FeedDetailAdapter(
             binding.tvComment.text = item.commentCount.toString()
             binding.tvLike.text = item.likeCount.toString()
             binding.tvRepost.text = item.repostCount.toString()
-            binding.tvBookmark.text = item.bookmarkCount.toString()
+            binding.tvQuote.text = item.quoteCount.toString()
 
             updateColor(binding.tvLike, binding.ivLike, item.isLiked, R.color.point_pink)
             updateColor(binding.tvRepost, binding.ivRepost, item.isReposted, R.color.point_blue)
-            updateColor(binding.tvBookmark, binding.ivBookmark, item.isBookmarked, R.color.point_purple)
+            updateColor(binding.tvQuote, binding.ivQuote, item.isQuoted, R.color.point_purple)
 
             binding.tvLike.setOnClickListener { toggleLike(item) }
             binding.ivLike.setOnClickListener { toggleLike(item) }
             binding.tvRepost.setOnClickListener { toggleRepost(item) }
             binding.ivRepost.setOnClickListener { toggleRepost(item) }
-            binding.tvBookmark.setOnClickListener { toggleBookmark(item) }
-            binding.ivBookmark.setOnClickListener { toggleBookmark(item) }
+            binding.tvQuote.setOnClickListener { toggleQuote(item) }
+            binding.ivQuote.setOnClickListener { toggleQuote(item) }
 
             val context = binding.root.context as Activity
-            setFeedbackLongClick(context, binding.tvLike, "like", feedItem)
-            setFeedbackLongClick(context, binding.ivLike, "like", feedItem)
-            setFeedbackLongClick(context, binding.tvRepost, "repost", feedItem)
-            setFeedbackLongClick(context, binding.ivRepost, "repost", feedItem)
-            setFeedbackLongClick(context, binding.tvBookmark, "quote", feedItem)
-            setFeedbackLongClick(context, binding.ivBookmark, "quote", feedItem)
+            val quotedCommentFeed = FeedItem(
+                username = item.username,
+                community = feedItem.community,
+                date = item.date,
+                content = item.content
+            )
 
+            setFeedbackLongClick(context, binding.tvLike, "like", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.ivLike, "like", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.tvRepost, "repost", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.ivRepost, "repost", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.tvQuote, "quote", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.ivQuote, "quote", quotedCommentFeed)
 
             binding.ivOverflow.setOnClickListener { showOverflowPopup(binding.ivOverflow) }
             binding.ivProfile.setOnClickListener { showProfilePopup(binding.ivProfile) }
@@ -145,11 +144,11 @@ class FeedDetailAdapter(
             updateColor(binding.tvRepost, binding.ivRepost, item.isReposted, R.color.point_blue)
         }
 
-        private fun toggleBookmark(item: CommentItem) {
-            item.isBookmarked = !item.isBookmarked
-            item.bookmarkCount += if (item.isBookmarked) 1 else -1
-            binding.tvBookmark.text = item.bookmarkCount.toString()
-            updateColor(binding.tvBookmark, binding.ivBookmark, item.isBookmarked, R.color.point_purple)
+        private fun toggleQuote(item: CommentItem) {
+            item.isQuoted = !item.isQuoted
+            item.quoteCount += if (item.isQuoted) 1 else -1
+            binding.tvQuote.text = item.quoteCount.toString()
+            updateColor(binding.tvQuote, binding.ivQuote, item.isQuoted, R.color.point_purple)
         }
 
         private fun updateColor(tv: TextView, iv: ImageView, active: Boolean, colorRes: Int) {
@@ -276,18 +275,38 @@ class FeedDetailAdapter(
 
             val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
             val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
+
             dialog.window?.setDimAmount(0.1f)
 
-            // 더미 데이터
-            val likeUsers = List(7) { "user${it + 1}" }
-            val repostUsers = List(3) { "user${it + 8}" }
-            val quoteFeeds = listOf(feedItem)  // feedItem 활용
+            // 댓글 피드백 더미 데이터
+            val likeUsers = List(8) { "user${it + 1}" }
+            val repostUsers = List(3) { "user${it + 11}" }
+
+
+            val quoteFeeds = listOf(
+                FeedItem(
+                    username = "댓글인용러1",
+                    community = feedItem.community,
+                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                    content = "이 댓글을 인용한 피드입니다.",
+                    quotedFeed = feedItem
+                ),
+                FeedItem(
+                    username = "댓글인용러2",
+                    community = feedItem.community,
+                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                    content = "이 댓글을 인용한 또다른 피드입니다.".repeat(5),
+                    quotedFeed = feedItem
+                )
+
+            )
 
             val adapter = FeedbackPagerAdapter(
                 context as FragmentActivity,
                 likeUsers,
                 repostUsers,
-                quoteFeeds
+                quoteFeeds,
+                dialog
             )
             viewPager.adapter = adapter
 
@@ -314,19 +333,21 @@ class FeedDetailAdapter(
                 bottomSheet?.let {
                     val behavior = BottomSheetBehavior.from(it as FrameLayout)
 
+                    val screenHeight = context.resources.displayMetrics.heightPixels
+                    val maxHeight = (screenHeight * 0.64).toInt()
+                    it.layoutParams.height = maxHeight
+                    it.requestLayout()
+
                     behavior.peekHeight = (330 * context.resources.displayMetrics.density).toInt()
-                    behavior.isHideable = true
+                    behavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     behavior.skipCollapsed = false
                     behavior.isDraggable = true
-                    behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
-                    it.layoutParams.height = (context.resources.displayMetrics.heightPixels * 0.64).toInt()
-                    it.requestLayout()
+                    behavior.isHideable = true
                 }
             }
-
             dialog.show()
         }
+
 
     }
 }

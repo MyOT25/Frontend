@@ -1,9 +1,10 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,10 +28,20 @@ class FeedbackListFragment : Fragment() {
         userList = arguments?.getStringArrayList("data") ?: emptyList()
     }
 
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val recyclerView = RecyclerView(requireContext())
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = FeedbackAdapter(userList)
-        return recyclerView
+        val root = FrameLayout(requireContext())
+        val recyclerView = RecyclerView(requireContext()).apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = FeedbackAdapter(userList)
+            layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+        root.addView(recyclerView)
+
+        return root
     }
+
 }

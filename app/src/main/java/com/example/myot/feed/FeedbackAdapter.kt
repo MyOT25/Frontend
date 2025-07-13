@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.feed
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myot.R
 
 class FeedbackAdapter(private val users: List<String>) :
     RecyclerView.Adapter<FeedbackAdapter.ViewHolder>() {

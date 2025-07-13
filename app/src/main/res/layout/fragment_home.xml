@@ -53,7 +53,7 @@
                 android:nestedScrollingEnabled="false"
                 android:clipToPadding="false"
                 android:overScrollMode="never"
-                tools:listitem="@layout/item_feed_text_only" />
+                tools:listitem="@layout/item_feed" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
