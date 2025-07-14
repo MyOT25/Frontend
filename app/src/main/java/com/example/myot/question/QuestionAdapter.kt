@@ -15,8 +15,10 @@ import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.ItemQuestionFeedBinding
 
-class QuestionAdapter(private val items: List<QuestionItem>) :
-    RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder>() {
+class QuestionAdapter(
+    private val items: List<QuestionItem>,
+    private val onItemClick: (QuestionItem) -> Unit
+) : RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder>() {
 
     inner class QuestionViewHolder(val binding: ItemQuestionFeedBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: QuestionItem) {
@@ -65,6 +67,12 @@ class QuestionAdapter(private val items: List<QuestionItem>) :
             } else {
                 binding.ivThumbnail.visibility = View.INVISIBLE
             }
+
+            // 피드 클릭 이벤트
+            binding.root.setOnClickListener {
+                onItemClick(item)
+            }
+
         }
 
         private fun updateLikeUI(likeCount: Int, isLiked: Boolean) {

@@ -1,5 +1,9 @@
 package com.example.myot.question
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class QuestionItem(
     val title: String,
     val time: String,
@@ -7,4 +11,4 @@ data class QuestionItem(
     val likeCount: Int,
     val commentCount: Int,
     val imageUrl: String? = null
-)
+) : Parcelable

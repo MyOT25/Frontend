@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.databinding.FragmentQuestionBinding
 import com.example.myot.question.QuestionAdapter
+import com.example.myot.question.QuestionDetailFragment
 import com.example.myot.question.QuestionItem
 
 class QuestionFragment : Fragment() {
@@ -107,7 +108,13 @@ class QuestionFragment : Fragment() {
             )
         )
 
-        adapter = QuestionAdapter(dummyList)
+        adapter = QuestionAdapter(dummyList) { item ->
+            val detailFragment = QuestionDetailFragment.newInstance(item)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, detailFragment)
+                .addToBackStack(null)
+                .commit()
+        }
         binding.rvFeeds.adapter = adapter
         binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
 
