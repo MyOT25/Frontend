@@ -5,50 +5,51 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    android:background="@drawable/bg_question_detail"
+    android:background="@drawable/bg_question_comment"
     android:paddingHorizontal="15dp"
-    android:paddingVertical="10dp">
+    android:paddingVertical="8dp">
 
-    <!-- Q 아이콘 -->
+    <!-- A 아이콘 -->
     <ImageView
         android:id="@+id/ivDetailQ"
-        android:layout_width="20dp"
-        android:layout_height="28dp"
-        android:layout_marginTop="2dp"
-        android:src="@drawable/ic_q_mark"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_a_mark"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvDetailTitle"
-        app:layout_constraintBottom_toBottomOf="@id/tvDetailTitle" />
+        app:layout_constraintTop_toTopOf="@id/tvName"
+        app:layout_constraintBottom_toBottomOf="@id/tvName" />
 
-    <!-- 제목 -->
+    <!-- 이름 -->
     <TextView
-        android:id="@+id/tvDetailTitle"
+        android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="질문 제목"
         android:textColor="@color/black"
         android:layout_marginStart="5dp"
-        android:textAppearance="@style/TextAppearance.App.TitleLarge"
+        android:layout_marginVertical="5dp"
+        android:textAppearance="@style/TextAppearance.App.TitleMedium"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/ivDetailQ"
         app:layout_constraintBottom_toBottomOf="@id/ivDetailQ"/>
-    <!-- 질문 내용 + 해시태그 -->
+
+    <!-- 내용 -->
     <TextView
-        android:id="@+id/tvDetailContent"
+        android:id="@+id/tvContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="60dp"
-        android:text="내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용?"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="40dp"
+        android:text="내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용"
         android:textAppearance="@style/TextAppearance.App.BodyMedium"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvDetailTitle" />
+        app:layout_constraintTop_toBottomOf="@id/tvName" />
 
     <!-- 날짜 표시 -->
     <TextView
-        android:id="@+id/tvDetailTime"
+        android:id="@+id/tvTime"
         style="@style/TextAppearance.App.LabelSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,7 +57,7 @@
         android:textColor="@color/gray3"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDetailContent" />
+        app:layout_constraintTop_toBottomOf="@+id/tvContent" />
 
     <LinearLayout
         android:id="@+id/feedbackRow"
@@ -67,7 +68,7 @@
         android:layout_marginTop="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDetailTime">
+        app:layout_constraintTop_toBottomOf="@+id/tvTime">
 
         <!-- 좋아요 영역 -->
         <LinearLayout

@@ -32,7 +32,7 @@ class QuestionFragment : Fragment() {
         val dummyList = listOf(
             QuestionItem(
                 title = "추천 뮤지컬 있을까요?",
-                time = "3분 전",
+                time = "2025/07/14 17:57",
                 content = "요즘 스트레스 많아서 공연 보고 싶어요. 감동적인 뮤지컬 추천 좀 부탁드려요! #뮤지컬 #추천",
                 likeCount = 42,
                 commentCount = 9,
@@ -40,7 +40,7 @@ class QuestionFragment : Fragment() {
             ),
             QuestionItem(
                 title = "레미제라블 처음 보면 어때요?",
-                time = "10분 전",
+                time = "2025/07/15 17:50",
                 content = "뮤지컬 입문인데 레미제라블이 유명하던데 처음 보기에도 괜찮을까요? #레미제라블 #입문",
                 likeCount = 31,
                 commentCount = 5,
@@ -48,21 +48,21 @@ class QuestionFragment : Fragment() {
             ),
             QuestionItem(
                 title = "뮤지컬 앨범 추천해주세요",
-                time = "15분 전",
+                time = "2025/07/14 17:45",
                 content = "요즘 뮤지컬 넘버에 푹 빠졌어요. 음원으로 들을 만한 앨범 있을까요? #뮤지컬넘버 #음악추천",
                 likeCount = 18,
                 commentCount = 3
             ),
             QuestionItem(
                 title = "인터미션 있는 뮤지컬 많나요?",
-                time = "20분 전",
+                time = "2025/06/20 17:40",
                 content = "러닝타임 긴 뮤지컬은 중간 휴식 있던데 보통 다 그런가요? #공연정보",
                 likeCount = 0,
                 commentCount = 1
             ),
             QuestionItem(
                 title = "소극장 뮤지컬도 재밌을까요?",
-                time = "25분 전",
+                time = "2025/07/13 17:35",
                 content = "대극장 말고 대학로나 소극장 공연도 매력 있나요? 처음 가봐서 궁금해요. #소극장",
                 likeCount = 7,
                 commentCount = 0,
@@ -70,7 +70,7 @@ class QuestionFragment : Fragment() {
             ),
             QuestionItem(
                 title = "좌석은 어디가 제일 좋을까요?",
-                time = "30분 전",
+                time = "2025/07/15 17:30",
                 content = "뮤지컬 보러 가는데 시야 좋은 자리 추천 좀 해주세요. #좌석팁",
                 likeCount = 0,
                 commentCount = 0,
@@ -78,14 +78,14 @@ class QuestionFragment : Fragment() {
             ),
             QuestionItem(
                 title = "돌아오는 뮤지컬 뭐 있을까요?",
-                time = "35분 전",
+                time = "2025/3/29 17:25",
                 content = "코로나 이후 다시 올라오는 공연 중 추천할 만한 거 있을까요? #공연추천",
                 likeCount = 15,
                 commentCount = 2
             ),
             QuestionItem(
                 title = "뮤지컬 자막 잘 보이나요?",
-                time = "40분 전",
+                time = "2025/04/01 17:20",
                 content = "외국어 뮤지컬 처음 보는데 자막 위치랑 시야 괜찮은지 궁금해요. #자막",
                 likeCount = 4,
                 commentCount = 0,
@@ -93,14 +93,14 @@ class QuestionFragment : Fragment() {
             ),
             QuestionItem(
                 title = "초등학생이랑 보기 좋은 뮤지컬?",
-                time = "45분 전",
+                time = "2025/01/26 17:15",
                 content = "아이랑 같이 볼 수 있는 밝고 재미있는 뮤지컬 있을까요? #가족공연",
                 likeCount = 22,
                 commentCount = 6
             ),
             QuestionItem(
                 title = "출연 배우 기준으로 골라본 적 있나요?",
-                time = "50분 전",
+                time = "2024/07/15 17:10",
                 content = "스토리보다 배우 보고 예매해본 적 있으신가요? 저만 그런가요ㅎㅎ #출연진",
                 likeCount = 0,
                 commentCount = 4,

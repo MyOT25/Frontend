@@ -14,6 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.ItemQuestionFeedBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+import kotlin.math.floor
 
 class QuestionAdapter(
     private val items: List<QuestionItem>,
@@ -24,6 +29,7 @@ class QuestionAdapter(
         fun bind(item: QuestionItem) {
             binding.tvTitle.text = item.title
             binding.tvTime.text = item.time
+            binding.tvTime.text = getTimeAgo(item.time)
 
             var isLiked = false
             var likeCount = item.likeCount
@@ -102,5 +108,27 @@ class QuestionAdapter(
 
     override fun getItemCount(): Int = items.size
 
+    private fun getTimeAgo(dateStr: String): String {
+        val format = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+        val postTime = format.parse(dateStr) ?: return ""
+
+        val now = Date()
+        val diffMillis = now.time - postTime.time
+
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(diffMillis)
+        val hours = TimeUnit.MILLISECONDS.toHours(diffMillis)
+        val days = TimeUnit.MILLISECONDS.toDays(diffMillis)
+        val months = floor(days / 30.0).toInt()
+        val years = floor(days / 365.0).toInt()
+
+        return when {
+            minutes < 1 -> "방금 전"
+            minutes < 60 -> "${minutes}분 전"
+            hours < 24 -> "${hours}시간 전"
+            days <= 30 -> "${days}일 전"
+            days < 365 -> "${months}개월 전"
+            else -> "${years}년 전"
+        }
+    }
 
 }
