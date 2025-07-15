@@ -54,4 +54,5 @@ dependencies {
     kapt(libs.glideCompiler)
     implementation ("androidx.coordinatorlayout:coordinatorlayout:1.3.0")
     implementation("androidx.fragment:fragment-ktx:1.8.8")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }

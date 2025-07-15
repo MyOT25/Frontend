@@ -14,6 +14,7 @@ import com.example.myot.databinding.FragmentQuestionBinding
 import com.example.myot.question.QuestionAdapter
 import com.example.myot.question.QuestionDetailFragment
 import com.example.myot.question.QuestionItem
+import com.example.myot.question.QuestionSearchFragment
 
 class QuestionFragment : Fragment() {
 
@@ -133,6 +134,7 @@ class QuestionFragment : Fragment() {
                 )
             )
         )
+
         adapter = QuestionAdapter(dummyList) { item ->
             val detailFragment = QuestionDetailFragment.newInstance(item)
             parentFragmentManager.beginTransaction()
@@ -144,6 +146,14 @@ class QuestionFragment : Fragment() {
         binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
 
         binding.btnSortEdit.setOnClickListener { showSortPopup(it) }
+
+        // 질문 검색
+        binding.questionBar.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, QuestionSearchFragment())
+                .addToBackStack(null)
+                .commit()
+        }
 
         // 글쓰기 버튼 스크롤 시 투명도 처리
         val handler = android.os.Handler(android.os.Looper.getMainLooper())
