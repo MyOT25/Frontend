@@ -46,9 +46,21 @@ class QuestionAdapter(
             binding.ivLike.setOnClickListener(likeClickListener)
             binding.tvLikeCount.setOnClickListener(likeClickListener)
 
-            // 댓글 수는 고정 (0이면 GONE)
             binding.tvCommentCount.text = item.commentCount.toString()
-            binding.tvCommentCount.visibility = if (item.commentCount == 0) View.GONE else View.VISIBLE
+
+            if (item.commentCount == 0) {
+                binding.tvCommentCount.visibility = View.GONE
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, R.color.gray3),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            } else {
+                binding.tvCommentCount.visibility = View.VISIBLE
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, R.color.point_green),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            }
 
             // 내용 + 해시태그 컬러 처리
             val spannable = SpannableString(item.content)
@@ -63,11 +75,12 @@ class QuestionAdapter(
             }
             binding.tvContent.text = spannable
 
+
             // 이미지 처리
-            if (!item.imageUrl.isNullOrEmpty()) {
+            if (!item.imageUrls.isNullOrEmpty()) {
                 binding.ivThumbnail.visibility = View.VISIBLE
                 Glide.with(binding.root)
-                    .load(item.imageUrl)
+                    .load(item.imageUrls[0]) // 첫 번째 이미지 사용
                     .centerCrop()
                     .into(binding.ivThumbnail)
             } else {

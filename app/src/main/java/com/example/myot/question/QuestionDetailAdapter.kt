@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.example.myot.R
 import com.example.myot.databinding.ItemQuestionCommentBinding
 import com.example.myot.databinding.ItemQuestionDetailBinding
@@ -30,6 +31,29 @@ class QuestionDetailAdapter(
             binding.tvDetailTitle.text = item.title
             binding.tvDetailTime.text = item.time
 
+            val imageList = item.imageUrls ?: emptyList()
+
+            if (imageList.isNotEmpty()) {
+                binding.vpImages.adapter = QuestionImagePagerAdapter(imageList)
+                binding.vpImages.visibility = View.VISIBLE
+
+                if (imageList.size > 1) {
+                    binding.imageIndicatorContainer.visibility = View.VISIBLE
+                    updateIndicator(0, imageList.size)
+                    binding.vpImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                        override fun onPageSelected(position: Int) {
+                            super.onPageSelected(position)
+                            updateIndicator(position, imageList.size)
+                        }
+                    })
+                } else {
+                    binding.imageIndicatorContainer.visibility = View.GONE
+                }
+            } else {
+                binding.vpImages.visibility = View.GONE
+                binding.imageIndicatorContainer.visibility = View.GONE
+            }
+
             // 좋아요
             var isLiked = false
             var likeCount = item.likeCount
@@ -45,7 +69,20 @@ class QuestionDetailAdapter(
 
             // 댓글 수
             binding.tvCommentCount.text = item.commentCount.toString()
-            binding.tvCommentCount.visibility = if (item.commentCount == 0) View.GONE else View.VISIBLE
+
+            if (item.commentCount == 0) {
+                binding.tvCommentCount.visibility = View.GONE
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, R.color.gray3),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            } else {
+                binding.tvCommentCount.visibility = View.VISIBLE
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, R.color.point_green),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            }
 
             // 내용 + 해시태그 처리
             val spannable = SpannableString(item.content)
@@ -59,6 +96,35 @@ class QuestionDetailAdapter(
                 )
             }
             binding.tvDetailContent.text = spannable
+
+
+            // ViewPager 이미지 처리
+            item.imageUrls?.let { imageList ->
+                if (imageList.isNotEmpty()) {
+                    binding.vpImages.adapter = QuestionImagePagerAdapter(imageList)
+                    binding.vpImages.visibility = View.VISIBLE
+                } else {
+                    binding.vpImages.visibility = View.GONE
+                }
+            } ?: run {
+                binding.vpImages.visibility = View.GONE
+            }
+        }
+
+        private fun updateIndicator(position: Int, itemCount: Int) {
+            val indicator = binding.imageIndicator
+            val container = binding.imageIndicatorContainer
+
+            container.post {
+                val totalWidth = container.width
+                val indicatorWidth = totalWidth / itemCount
+                val indicatorX = indicatorWidth * position
+
+                val layoutParams = indicator.layoutParams
+                layoutParams.width = indicatorWidth
+                indicator.layoutParams = layoutParams
+                indicator.translationX = indicatorX.toFloat()
+            }
         }
 
         private fun updateLikeUI(count: Int, liked: Boolean) {
@@ -84,11 +150,20 @@ class QuestionDetailAdapter(
             binding.tvContent.text = comment.content
             binding.tvTime.text = comment.date
 
-
             binding.tvCommentCount.text = comment.commentCount.toString()
-            binding.tvCommentCount.visibility =
-                if (comment.commentCount == 0) View.GONE else View.VISIBLE
-            binding.ivComment.visibility = View.VISIBLE
+            if (comment.commentCount == 0) {
+                binding.tvCommentCount.visibility = View.GONE
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, R.color.gray3),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            } else {
+                binding.tvCommentCount.visibility = View.VISIBLE
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, R.color.point_green),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            }
 
             var isLiked = false
             var likeCount = comment.likeCount
