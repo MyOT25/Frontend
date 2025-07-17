@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:background="@drawable/bg_popup_menu_overflow"
-    android:layout_width="wrap_content"
+    android:layout_width="155dp"
     android:layout_height="wrap_content">
 
     <!-- 공유 -->
@@ -11,8 +11,8 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="6dp"
-        android:paddingHorizontal="12dp"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="15dp"
         android:gravity="center_vertical">
         <ImageView
             android:layout_width="18dp"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="공유"
             style="@style/TextAppearance.App.LabelMedium"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:textColor="@color/gray2" />
     </LinearLayout>
 
@@ -38,8 +38,8 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="6dp"
-        android:paddingHorizontal="12dp"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="15dp"
         android:gravity="center_vertical">
         <ImageView
             android:layout_width="18dp"
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:text="게시글 신고"
             style="@style/TextAppearance.App.LabelMedium"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:textColor="@color/gray2" />
     </LinearLayout>
 
@@ -65,19 +65,19 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="6dp"
-        android:paddingHorizontal="12dp"
+        android:paddingVertical="5dp"
+        android:paddingStart="15dp"
         android:gravity="center_vertical">
         <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
             android:src="@drawable/ic_popup_profile" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="계정 @abcde 보기"
             style="@style/TextAppearance.App.LabelMedium"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:textColor="@color/gray2" />
     </LinearLayout>
 
@@ -92,8 +92,8 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="6dp"
-        android:paddingHorizontal="12dp"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="15dp"
         android:gravity="center_vertical">
         <ImageView
             android:layout_width="18dp"
@@ -104,7 +104,7 @@
             android:layout_height="wrap_content"
             android:text="삭제"
             style="@style/TextAppearance.App.LabelMedium"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:textColor="@color/point_red" />
     </LinearLayout>
 
