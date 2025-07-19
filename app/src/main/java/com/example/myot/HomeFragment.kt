@@ -1,10 +1,14 @@
 package com.example.myot
 
+import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.Looper
+import android.os.Handler
 import android.view.ViewGroup.LayoutParams
 import android.view.View
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.databinding.FragmentHomeBinding
 import com.example.myot.feed.FeedAdapter
 import com.example.myot.feed.FeedItem
+import kotlin.math.min
 
 
 class HomeFragment : Fragment() {
@@ -23,6 +28,12 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var isExpanded = false
+
+    // 새로고침 변수
+    private var isRefreshing = false
+    private var isDragging = false
+    private var startY = 0f
+    private val triggerDistance = 150f
 
     override fun onCreateView(inflater: LayoutInflater,
           container: ViewGroup?,
@@ -32,8 +43,63 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        // 새로고침 초기화
+        binding.customRefreshView.apply {
+            rotation = 0f
+            alpha = 0f
+            scaleX = 1f
+            scaleY = 1f
+        }
+
+        // 새로고침 작동
+        binding.nestedScrollView.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    if (!binding.nestedScrollView.canScrollVertically(-1)) {
+                        isDragging = true
+                        startY = event.rawY
+                    }
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    if (isDragging && !isRefreshing) {
+                        val dy = event.rawY - startY
+                        if (dy > 0) {
+                            val pullDistance = min(dy / 2f, 200f)  // 최대 200까지만 내려가게
+                            binding.nestedScrollView.translationY = pullDistance
+                            binding.customRefreshView.setProgress(pullDistance / triggerDistance)
+                            return@setOnTouchListener true  // 스크롤 막기
+                        }
+                    }
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (isDragging) {
+                        isDragging = false
+                        val currentY = binding.nestedScrollView.translationY
+                        if (currentY >= triggerDistance) {
+                            isRefreshing = true
+                            binding.customRefreshView.startLoading()
+                            // 새로고침 동작 후 종료 시 reset() 호출
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                binding.nestedScrollView.animate().translationY(0f).setDuration(300).start()
+                                binding.customRefreshView.reset()
+                                isRefreshing = false
+                            }, 1500)
+                        } else {
+                            binding.nestedScrollView.animate().translationY(0f).setDuration(300).start()
+                            binding.customRefreshView.reset()
+                        }
+                    }
+                }
+            }
+            false
+        }
 
         // 커뮤니티 추가/확장/버튼 기능
         // 테스트 데이터
@@ -74,6 +140,7 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
         // RecyclerView 초기 세팅
         binding.rvCommunities.apply {
             // community 테스트를 위한 임시 clickListener

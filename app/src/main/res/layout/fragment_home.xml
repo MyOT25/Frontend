@@ -6,19 +6,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:overScrollMode="always"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            android:paddingTop="90dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="50dp"
             android:orientation="vertical">
+
+            <!-- 새로고침 -->
+            <com.example.myot.ui.CustomRefreshView
+                android:id="@+id/customRefreshView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="15dp"/>
 
             <!-- 커뮤니티 더보기 버튼 -->
             <ImageView
@@ -41,7 +51,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:overScrollMode="never"
+                android:overScrollMode="always"
+                android:nestedScrollingEnabled="true"
                 tools:listitem="@layout/item_community"
                 tools:itemCount="9" />
 
