@@ -1,6 +1,8 @@
-package com.example.myot
+package com.example.myot.question
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -10,10 +12,8 @@ import android.widget.Toast
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myot.R
 import com.example.myot.databinding.FragmentQuestionBinding
-import com.example.myot.question.QuestionAdapter
-import com.example.myot.question.QuestionDetailFragment
-import com.example.myot.question.QuestionItem
 
 class QuestionFragment : Fragment() {
 
@@ -121,7 +121,7 @@ class QuestionFragment : Fragment() {
         binding.btnSortEdit.setOnClickListener { showSortPopup(it) }
 
         // 글쓰기 버튼 스크롤 시 투명도 처리
-        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        val handler = Handler(Looper.getMainLooper())
         val restoreFabAlphaRunnable = Runnable {
             binding.btnEdit.animate().alpha(1f).setDuration(200).start()
         }
