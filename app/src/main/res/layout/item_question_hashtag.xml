@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvHashtag"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingVertical="5dp"
+    android:gravity="center"
+    android:paddingHorizontal="10dp"
+    android:text="#해시태그"
+    android:layout_margin="5dp"
+    style="@style/TextAppearance.App.BodySmall"
+    android:textColor="@android:color/white"
+    android:background="@drawable/bg_hashtag" />
