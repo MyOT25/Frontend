@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.community
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.databinding.ItemCmReviewBinding
 import android.view.View
 import com.bumptech.glide.Glide
+import com.example.myot.R
 
 class CmReviewAdapter (
     private val fragment: Fragment,

@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.community
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

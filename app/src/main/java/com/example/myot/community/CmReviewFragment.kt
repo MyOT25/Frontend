@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.community
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

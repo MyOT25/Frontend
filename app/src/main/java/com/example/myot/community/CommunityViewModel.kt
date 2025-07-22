@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.community
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
