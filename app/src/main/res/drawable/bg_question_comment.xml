@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 전체 흰색 배경 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+        </shape>
+    </item>
+
+    <!-- 하단 회색 선 (gray5, 1dp) -->
+    <item
+        android:top="-1dp"
+        android:bottom="0dp"
+        android:left="0dp"
+        android:right="0dp"
+        android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <size android:height="1dp" />
+            <solid android:color="@color/gray5" />
+        </shape>
+    </item>
+
+</layer-list>
