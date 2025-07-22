@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.MemoryBook
 
 import android.app.Activity
 import android.content.Intent
@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.databinding.FragmentCmMemoryBinding
 
+//메모리북 프래그먼트
 class CmMemoryFragment : Fragment() {
 
     private var _binding: FragmentCmMemoryBinding? = null

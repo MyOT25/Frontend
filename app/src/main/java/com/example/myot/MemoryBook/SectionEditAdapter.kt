@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.MemoryBook
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +7,9 @@ import android.widget.EditText
 import android.widget.ImageButton
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.widget.addTextChangedListener
+import com.example.myot.R
 
+//수정 기능을 위한 어댑터
 class SectionEditAdapter(
     private val items: MutableList<Section> // 수정 가능한 섹션 리스트
 ) : RecyclerView.Adapter<SectionEditAdapter.SectionEditViewHolder>() {

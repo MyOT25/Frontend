@@ -1,9 +1,9 @@
-package com.example.myot
+package com.example.myot.MemoryBook
 
 import java.io.Serializable
 import java.util.UUID
 
-//목차를 정의하는 com.example.myot.Section 클래스
+//목차를 정의하는 Section 클래스
 //목차 박스 내의 목차들과 그 아래 작성 부분의 목차가 일치해야 하므로 하나의 클래스로 관리
 
 data class Section(

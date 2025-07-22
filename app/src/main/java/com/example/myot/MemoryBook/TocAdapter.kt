@@ -1,10 +1,11 @@
-package com.example.myot
+package com.example.myot.MemoryBook
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myot.R
 
 class TocAdapter(
     private var items: List<Section>,
