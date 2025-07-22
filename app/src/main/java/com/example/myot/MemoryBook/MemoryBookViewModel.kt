@@ -1,9 +1,10 @@
-package com.example.myot
+package com.example.myot.MemoryBook
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
+//메모리북 뷰모델
 class MemoryBookViewModel : ViewModel() {
 
     // 메모리북 섹션 데이터 (트리 구조의 루트 섹션 리스트)

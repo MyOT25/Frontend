@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.MemoryBook
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,7 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myot.R
 
+//목차가 보이게 하기 위한 어댑터
 class ContentAdapter(
     private var items: List<Section>,
     private val onToggle: (Section) -> Unit

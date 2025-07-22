@@ -2,7 +2,7 @@ package com.example.myot
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import com.example.myot.Chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
 
 

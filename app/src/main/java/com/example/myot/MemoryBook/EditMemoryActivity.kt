@@ -1,4 +1,4 @@
-package com.example.myot
+package com.example.myot.MemoryBook
 
 import android.app.Activity
 import android.content.Intent
