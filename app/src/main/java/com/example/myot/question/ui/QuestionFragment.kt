@@ -1,8 +1,6 @@
 package com.example.myot.question.ui
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -38,7 +36,9 @@ class QuestionFragment : Fragment() {
                 content = "요즘 스트레스 많아서 공연 보고 싶어요. 감동적인 뮤지컬 추천 좀 부탁드려요! #뮤지컬 #추천",
                 likeCount = 42,
                 commentCount = 9,
-                imageUrl = "https://picsum.photos/300/200?random=1"
+                imageUrls = listOf(
+                    "https://picsum.photos/300/200?random=1"
+                )
             ),
             QuestionItem(
                 title = "레미제라블 처음 보면 어때요?",
@@ -46,7 +46,10 @@ class QuestionFragment : Fragment() {
                 content = "뮤지컬 입문인데 레미제라블이 유명하던데 처음 보기에도 괜찮을까요? #레미제라블 #입문",
                 likeCount = 31,
                 commentCount = 5,
-                imageUrl = "https://picsum.photos/300/200?random=2"
+                imageUrls = listOf(
+                    "https://picsum.photos/300/200?random=2",
+                    "https://picsum.photos/300/200?random=12"
+                )
             ),
             QuestionItem(
                 title = "뮤지컬 앨범 추천해주세요",
@@ -60,15 +63,19 @@ class QuestionFragment : Fragment() {
                 time = "2025/06/20 17:40",
                 content = "러닝타임 긴 뮤지컬은 중간 휴식 있던데 보통 다 그런가요? #공연정보",
                 likeCount = 0,
-                commentCount = 1
+                commentCount = 1,
+                imageUrls = listOf(
+                    "https://picsum.photos/300/200?random=3",
+                    "https://picsum.photos/300/200?random=13",
+                    "https://picsum.photos/300/200?random=23"
+                )
             ),
             QuestionItem(
                 title = "소극장 뮤지컬도 재밌을까요?",
                 time = "2025/07/13 17:35",
                 content = "대극장 말고 대학로나 소극장 공연도 매력 있나요? 처음 가봐서 궁금해요. #소극장",
                 likeCount = 7,
-                commentCount = 0,
-                imageUrl = "https://picsum.photos/300/200?random=5"
+                commentCount = 0
             ),
             QuestionItem(
                 title = "좌석은 어디가 제일 좋을까요?",
@@ -76,29 +83,43 @@ class QuestionFragment : Fragment() {
                 content = "뮤지컬 보러 가는데 시야 좋은 자리 추천 좀 해주세요. #좌석팁",
                 likeCount = 0,
                 commentCount = 0,
-                imageUrl = "https://picsum.photos/300/200?random=6"
+                imageUrls = listOf(
+                    "https://picsum.photos/300/200?random=6",
+                    "https://picsum.photos/300/200?random=16",
+                    "https://picsum.photos/300/200?random=26",
+                    "https://picsum.photos/300/200?random=36"
+                )
             ),
             QuestionItem(
                 title = "돌아오는 뮤지컬 뭐 있을까요?",
-                time = "2025/3/29 17:25",
+                time = "2025/03/29 17:25",
                 content = "코로나 이후 다시 올라오는 공연 중 추천할 만한 거 있을까요? #공연추천",
                 likeCount = 15,
-                commentCount = 2
+                commentCount = 2,
+                imageUrls = listOf(
+                    "https://picsum.photos/300/200?random=7",
+                    "https://picsum.photos/300/200?random=17",
+                    "https://picsum.photos/300/200?random=27",
+                    "https://picsum.photos/300/200?random=37",
+                    "https://picsum.photos/300/200?random=47"
+                )
             ),
             QuestionItem(
                 title = "뮤지컬 자막 잘 보이나요?",
                 time = "2025/04/01 17:20",
                 content = "외국어 뮤지컬 처음 보는데 자막 위치랑 시야 괜찮은지 궁금해요. #자막",
                 likeCount = 4,
-                commentCount = 0,
-                imageUrl = "https://picsum.photos/300/200?random=8"
+                commentCount = 0
             ),
             QuestionItem(
                 title = "초등학생이랑 보기 좋은 뮤지컬?",
                 time = "2025/01/26 17:15",
                 content = "아이랑 같이 볼 수 있는 밝고 재미있는 뮤지컬 있을까요? #가족공연",
                 likeCount = 22,
-                commentCount = 6
+                commentCount = 6,
+                imageUrls = listOf(
+                    "https://picsum.photos/300/200?random=9"
+                )
             ),
             QuestionItem(
                 title = "출연 배우 기준으로 골라본 적 있나요?",
@@ -106,7 +127,10 @@ class QuestionFragment : Fragment() {
                 content = "스토리보다 배우 보고 예매해본 적 있으신가요? 저만 그런가요ㅎㅎ #출연진",
                 likeCount = 0,
                 commentCount = 4,
-                imageUrl = "https://picsum.photos/300/200?random=10"
+                imageUrls = listOf(
+                    "https://picsum.photos/300/200?random=10",
+                    "https://picsum.photos/300/200?random=20"
+                )
             )
         )
 
@@ -122,8 +146,16 @@ class QuestionFragment : Fragment() {
 
         binding.btnSortEdit.setOnClickListener { showSortPopup(it) }
 
+        // 질문 검색
+        binding.questionBar.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, QuestionSearchFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
         // 글쓰기 버튼 스크롤 시 투명도 처리
-        val handler = Handler(Looper.getMainLooper())
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
         val restoreFabAlphaRunnable = Runnable {
             binding.btnEdit.animate().alpha(1f).setDuration(200).start()
         }

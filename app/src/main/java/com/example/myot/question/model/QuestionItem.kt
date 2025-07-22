@@ -10,5 +10,5 @@ data class QuestionItem(
     val content: String,
     val likeCount: Int,
     val commentCount: Int,
-    val imageUrl: String? = null
+    val imageUrls: List<String>? = null
 ) : Parcelable

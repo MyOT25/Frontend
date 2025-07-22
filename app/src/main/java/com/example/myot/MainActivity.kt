@@ -1,15 +1,18 @@
 package com.example.myot
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
+import com.example.myot.question.ui.QuestionSearchFragment
 import com.example.myot.question.ui.QuestionFragment
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var topBar: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +27,17 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setOnItemSelectedListener {
             selectTab(it.itemId)
             true
+        }
+
+        topBar = findViewById(R.id.top_bar)
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container_view)
+            if (currentFragment is QuestionSearchFragment) {
+                topBar.visibility = View.GONE
+            } else {
+                topBar.visibility = View.VISIBLE
+            }
         }
     }
 
