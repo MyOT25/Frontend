@@ -1,7 +1,12 @@
 package com.example.myot.feed
 
+import android.R.attr.startY
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -10,6 +15,7 @@ import androidx.fragment.app.Fragment
 import com.example.myot.databinding.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.R
+import kotlin.math.min
 
 class FeedDetailFragment : Fragment() {
 
@@ -26,6 +32,12 @@ class FeedDetailFragment : Fragment() {
     private lateinit var binding: FragmentFeedDetailBinding
     private lateinit var feedItem: FeedItem
 
+    // 새로고침 변수
+    private var isRefreshing = false
+    private var isDragging = false
+    private var startY = 0f
+    private val triggerDistance = 150f
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -33,7 +45,57 @@ class FeedDetailFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        binding.customRefreshView.apply {
+            rotation = 0f
+            alpha = 0f
+            scaleX = 1f
+            scaleY = 1f
+        }
+
+        binding.nestedScrollView.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    if (!binding.nestedScrollView.canScrollVertically(-1)) {
+                        isDragging = true
+                        startY = event.rawY
+                    }
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    if (isDragging && !isRefreshing) {
+                        val dy = event.rawY - startY
+                        if (dy > 0) {
+                            val pullDistance = min(dy / 2f, 200f)
+                            binding.nestedScrollView.translationY = pullDistance
+                            binding.customRefreshView.setProgress(pullDistance / triggerDistance)
+                            return@setOnTouchListener true
+                        }
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (isDragging) {
+                        isDragging = false
+                        val currentY = binding.nestedScrollView.translationY
+                        if (currentY >= triggerDistance) {
+                            isRefreshing = true
+                            binding.customRefreshView.startLoading()
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                binding.nestedScrollView.animate().translationY(0f).setDuration(300).start()
+                                binding.customRefreshView.reset()
+                                isRefreshing = false
+                            }, 1500)
+                        } else {
+                            binding.nestedScrollView.animate().translationY(0f).setDuration(300).start()
+                            binding.customRefreshView.reset()
+                        }
+                    }
+                }
+            }
+            false
+        }
+
         // 벡엔드 연동시 제거
         feedItem = requireArguments().getParcelable("feedItem")!!
 
@@ -131,16 +193,7 @@ class FeedDetailFragment : Fragment() {
         binding.rvFeedDetail.layoutManager = LinearLayoutManager(requireContext())
         binding.rvFeedDetail.adapter = adapter
 
-        // 첫 아이템(피드) 패딩 추가
-        binding.rvFeedDetail.post {
-            val holder = binding.rvFeedDetail.findViewHolderForAdapterPosition(0)?.itemView
-            holder?.setPadding(
-                holder.paddingLeft,
-                holder.paddingTop + dpToPx(90),
-                holder.paddingRight,
-                holder.paddingBottom
-            )
-        }
+
     }
 
     private fun dpToPx(dp: Int): Int {

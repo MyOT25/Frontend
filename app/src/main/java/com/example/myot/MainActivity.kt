@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.Chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
+import com.example.myot.question.QuestionFragment
 
 
 class MainActivity : AppCompatActivity() {

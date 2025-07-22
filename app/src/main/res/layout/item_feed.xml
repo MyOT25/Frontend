@@ -8,8 +8,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:paddingTop="17dp"
-            android:paddingBottom="20dp"
+            android:paddingVertical="15dp"
             android:paddingHorizontal="15dp">
 
             <!-- 더보기 이미지 -->
@@ -56,7 +55,7 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/iv_community"
                 app:layout_constraintTop_toTopOf="@id/iv_community"
-                android:layout_marginStart="17dp"/>
+                android:layout_marginStart="17dp" />
 
             <!-- 시간 -->
             <TextView
