@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    tools:context=".Chatting.ChatRoom.ChatRoomActivity">
+    tools:context=".chatting.chatroom.ChatRoomActivity">
 
     <!-- 1) 뒤로가기 버튼 -->
 <ImageButton

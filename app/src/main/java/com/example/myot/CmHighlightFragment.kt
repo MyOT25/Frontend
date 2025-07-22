@@ -11,8 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.databinding.FragmentCmHighlightBinding
-import com.example.myot.feed.FeedAdapter
-import com.example.myot.feed.FeedItem
+import com.example.myot.feed.adapter.FeedAdapter
+import com.example.myot.feed.model.FeedItem
 import kotlinx.coroutines.launch
 
 class CmHighlightFragment : Fragment() {

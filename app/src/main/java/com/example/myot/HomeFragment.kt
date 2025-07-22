@@ -18,8 +18,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.databinding.FragmentHomeBinding
-import com.example.myot.feed.FeedAdapter
-import com.example.myot.feed.FeedItem
+import com.example.myot.feed.adapter.FeedAdapter
+import com.example.myot.feed.model.FeedItem
 import kotlin.math.min
 
 

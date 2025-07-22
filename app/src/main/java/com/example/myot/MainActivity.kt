@@ -2,9 +2,9 @@ package com.example.myot
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myot.Chatting.ChatFragment
+import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
-import com.example.myot.question.QuestionFragment
+import com.example.myot.question.ui.QuestionFragment
 
 
 class MainActivity : AppCompatActivity() {

@@ -2,7 +2,7 @@ package com.example.myot
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.myot.MemoryBook.CmMemoryFragment
+import com.example.myot.memorybook.CmMemoryFragment
 
 class CommunityTabAdapter(
     fragment: Fragment,
