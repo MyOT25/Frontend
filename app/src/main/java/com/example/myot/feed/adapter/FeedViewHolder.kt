@@ -23,6 +23,7 @@ import com.example.myot.databinding.ItemFeedBinding
 import com.example.myot.databinding.ItemFeedDetailBinding
 import com.example.myot.feed.ui.FeedDetailFragment
 import com.example.myot.feed.model.FeedItem
+import com.example.myot.feed.ui.ImageDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
@@ -86,19 +87,19 @@ class FeedViewHolder(
         when (item.imageUrls.size) {
             1 -> root.findViewById<ViewGroup>(R.id.layout_image1)?.let {
                 it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls)
+                loadImages(it, item.imageUrls, item)
             }
             2 -> root.findViewById<ViewGroup>(R.id.layout_image2)?.let {
                 it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls)
+                loadImages(it, item.imageUrls, item)
             }
             3 -> root.findViewById<ViewGroup>(R.id.layout_image3)?.let {
                 it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls)
+                loadImages(it, item.imageUrls, item)
             }
             4 -> root.findViewById<ViewGroup>(R.id.layout_image4)?.let {
                 it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls)
+                loadImages(it, item.imageUrls, item)
             }
         }
 
@@ -230,19 +231,19 @@ class FeedViewHolder(
                 when (quoted.imageUrls.size) {
                     1 -> {
                         layoutImage1?.visibility = View.VISIBLE
-                        loadImages(layoutImage1 as ViewGroup, quoted.imageUrls)
+                        loadImages(layoutImage1 as ViewGroup, quoted.imageUrls, quoted)
                     }
                     2 -> {
                         layoutImage2?.visibility = View.VISIBLE
-                        loadImages(layoutImage2 as ViewGroup, quoted.imageUrls)
+                        loadImages(layoutImage2 as ViewGroup, quoted.imageUrls, quoted)
                     }
                     3 -> {
                         layoutImage3?.visibility = View.VISIBLE
-                        loadImages(layoutImage3 as ViewGroup, quoted.imageUrls)
+                        loadImages(layoutImage3 as ViewGroup, quoted.imageUrls, quoted)
                     }
                     4 -> {
                         layoutImage4?.visibility = View.VISIBLE
-                        loadImages(layoutImage4 as ViewGroup, quoted.imageUrls)
+                        loadImages(layoutImage4 as ViewGroup, quoted.imageUrls, quoted)
                     }
                 }
 
@@ -472,7 +473,9 @@ class FeedViewHolder(
             repostUsers,
             quoteFeeds,
             dialog
-        )
+        ) {
+            dialog.dismiss()
+        }
         viewPager.adapter = adapter
 
 
@@ -514,7 +517,7 @@ class FeedViewHolder(
         dialog.show()
     }
 
-    private fun loadImages(layout: ViewGroup, urls: List<String>) {
+    private fun loadImages(layout: ViewGroup, urls: List<String>, item: FeedItem) {
         val ids = listOf(
             R.id.iv_image1,
             R.id.iv_image2,
@@ -531,6 +534,17 @@ class FeedViewHolder(
                 .load(urls[i])
                 .apply(RequestOptions().transform(CenterCrop(), RoundedCorners(cornerRadius)))
                 .into(iv)
+
+            iv.setOnClickListener {
+                val context = iv.context
+                if (context is FragmentActivity) {
+                    val dialog = ImageDialogFragment(
+                        imageUrl = urls[i],
+                        feedItem = item
+                    )
+                    dialog.show(context.supportFragmentManager, "ImageDialog")
+                }
+            }
         }
     }
 }

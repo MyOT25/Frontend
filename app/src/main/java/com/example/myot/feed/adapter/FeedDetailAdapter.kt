@@ -309,7 +309,9 @@ class FeedDetailAdapter(
                 repostUsers,
                 quoteFeeds,
                 dialog
-            )
+            ) {
+                dialog.dismiss()
+            }
             viewPager.adapter = adapter
 
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->

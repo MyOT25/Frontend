@@ -15,8 +15,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class FeedbackQuoteAdapter(
     private val quoteFeeds: List<FeedItem>,
-    private val dialog: BottomSheetDialog
-) : RecyclerView.Adapter<FeedbackQuoteAdapter.QuoteViewHolder>() {
+    private val dialog: BottomSheetDialog,
+    private val onFeedClick: () -> Unit
+)  : RecyclerView.Adapter<FeedbackQuoteAdapter.QuoteViewHolder>() {
 
     inner class QuoteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val tvUsername: TextView = view.findViewById(R.id.tv_username)
@@ -39,6 +40,7 @@ class FeedbackQuoteAdapter(
             // 피드 클릭 시 상세 화면으로 이동
             itemView.setOnClickListener {
                 dialog.dismiss()
+                onFeedClick()
                 val context = itemView.context
                 if (context is FragmentActivity) {
                     val fragment = FeedDetailFragment.Companion.newInstance(feed)
@@ -77,6 +79,7 @@ class FeedbackQuoteAdapter(
 
                 quoteView.setOnClickListener {
                     dialog.dismiss()
+                    onFeedClick()
                     val context = quoteView.context
                     if (context is FragmentActivity) {
                         val fragment = FeedDetailFragment.Companion.newInstance(quoted)
