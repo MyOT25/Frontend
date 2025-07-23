@@ -149,7 +149,7 @@ class ImageDialogFragment(
         }
 
         val longClickAction = {
-            showFeedbackBottomSheet(requireActivity(), "quote", feedItem) {
+            showFeedbackBottomSheet(requireActivity(), type, feedItem) {
                 dismiss()
             }
             true
