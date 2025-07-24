@@ -253,7 +253,7 @@ class HomeFragment : Fragment() {
             FeedItem(
                 username = "유저2",
                 content = "뮤지컬 <헤드윅>은 진짜 미쳤다... 배우의 에너지가 넘침. 특히 'Midnight Radio' 장면 눈물ㅠㅠ",
-                imageUrls = listOf("https://picsum.photos/300/200?random=1"),
+                imageUrls = listOf("https://picsum.photos/270/380?random=11"),
                 date = "2025/06/24 02:09",
                 community = "창작 뮤지컬",
                 commentCount = 7,

@@ -13,16 +13,17 @@ class FeedbackPagerAdapter(
     private val likeUsers: List<String>,
     private val repostUsers: List<String>,
     private val quoteFeeds: List<FeedItem>,
-    private val dialog: BottomSheetDialog
+    private val dialog: BottomSheetDialog,
+    private val onFeedClick: () -> Unit
 ) : FragmentStateAdapter(fa) {
 
     override fun getItemCount(): Int = 3
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> FeedbackListFragment.Companion.newInstance(likeUsers)
-            1 -> FeedbackListFragment.Companion.newInstance(repostUsers)
-            2 -> FeedbackQuoteFragment.Companion.newInstance(quoteFeeds, dialog)
+            0 -> FeedbackListFragment.newInstance(likeUsers)
+            1 -> FeedbackListFragment.newInstance(repostUsers)
+            2 -> FeedbackQuoteFragment.newInstance(quoteFeeds, dialog, onFeedClick)
             else -> throw IllegalArgumentException("Invalid position")
         }
     }

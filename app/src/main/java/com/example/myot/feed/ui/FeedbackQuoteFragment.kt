@@ -12,7 +12,10 @@ import com.example.myot.feed.model.FeedItem
 import com.example.myot.feed.adapter.FeedbackQuoteAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class FeedbackQuoteFragment(private val dialog: BottomSheetDialog) : Fragment() {
+class FeedbackQuoteFragment(
+    private val dialog: BottomSheetDialog,
+    private val onFeedClick: () -> Unit
+) : Fragment() {
 
     private lateinit var quoteFeeds: List<FeedItem>
 
@@ -34,14 +37,18 @@ class FeedbackQuoteFragment(private val dialog: BottomSheetDialog) : Fragment() 
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = FeedbackQuoteAdapter(quoteFeeds, dialog)
+        recyclerView.adapter = FeedbackQuoteAdapter(quoteFeeds, dialog) { onFeedClick() }
         return recyclerView
     }
     companion object {
         private const val ARG_QUOTES = "arg_quotes"
 
-        fun newInstance(quotes: List<FeedItem>, dialog: BottomSheetDialog): FeedbackQuoteFragment {
-            val fragment = FeedbackQuoteFragment(dialog)
+        fun newInstance(
+            quotes: List<FeedItem>,
+            dialog: BottomSheetDialog,
+            onFeedClick: () -> Unit
+        ): FeedbackQuoteFragment {
+            val fragment = FeedbackQuoteFragment(dialog, onFeedClick)
             val bundle = Bundle().apply {
                 putParcelableArrayList(ARG_QUOTES, ArrayList(quotes))
             }
