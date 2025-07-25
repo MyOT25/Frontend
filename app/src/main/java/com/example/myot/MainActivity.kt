@@ -1,7 +1,10 @@
 package com.example.myot
 
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.WindowInsetsController
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
@@ -18,6 +21,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 시스템 상단/하단 바까지 화면 처리
+        setTransparentSystemBars()
 
         // 아이콘 tint 제거 (drawable 원본 색 유지)
         binding.bottomNavigationView.itemIconTintList = null
@@ -38,6 +44,27 @@ class MainActivity : AppCompatActivity() {
             } else {
                 topBar.visibility = View.VISIBLE
             }
+        }
+    }
+
+    @Suppress("DEPRECATION", "NewApi")
+    private fun setTransparentSystemBars() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+
+            window.statusBarColor = Color.TRANSPARENT
+            window.navigationBarColor = Color.TRANSPARENT
+
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                    )
+            window.statusBarColor = Color.TRANSPARENT
+            window.navigationBarColor = Color.TRANSPARENT
         }
     }
 

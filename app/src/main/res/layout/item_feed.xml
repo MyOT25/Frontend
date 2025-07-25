@@ -9,7 +9,7 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:paddingVertical="15dp"
-            android:paddingHorizontal="15dp">
+            android:paddingHorizontal="16dp">
 
             <!-- 더보기 이미지 -->
             <ImageView
@@ -37,8 +37,8 @@
                 android:id="@+id/iv_profile"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="22dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="25dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_no_profile"
                 app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,7 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/iv_community"
                 app:layout_constraintTop_toTopOf="@id/iv_community"
-                android:layout_marginStart="17dp" />
+                android:layout_marginStart="20dp" />
 
             <!-- 시간 -->
             <TextView
@@ -110,7 +110,7 @@
                 app:layout_constraintTop_toBottomOf="@id/tv_more"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="45dp"
+                android:layout_marginStart="46dp"
                 android:layout_marginEnd="10dp">
 
                 <!-- 이미지 레이아웃 1~4 -->
@@ -157,7 +157,7 @@
                 android:text="2025/00/00 00:00"
                 android:textColor="@color/gray3"
                 style="@style/TextAppearance.App.LabelMedium"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginStart="45dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/layout_quote"/>
@@ -170,9 +170,6 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:layout_marginTop="5dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_date">
@@ -187,15 +184,15 @@
 
                     <ImageView
                         android:id="@+id/iv_comment"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="19dp"
+                        android:layout_height="19dp"
                         android:src="@drawable/ic_feed_comment" />
 
                     <TextView
                         android:id="@+id/tv_comment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
                         android:textStyle="bold"
@@ -212,15 +209,15 @@
 
                     <ImageView
                         android:id="@+id/iv_like"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="19dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/ic_feed_like" />
 
                     <TextView
                         android:id="@+id/tv_like"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
                         android:textStyle="bold"
@@ -237,15 +234,15 @@
 
                     <ImageView
                         android:id="@+id/iv_repost"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/ic_feed_repost" />
 
                     <TextView
                         android:id="@+id/tv_repost"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
                         android:textStyle="bold"
@@ -262,15 +259,15 @@
 
                     <ImageView
                         android:id="@+id/iv_quote"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:src="@drawable/ic_feed_quote" />
 
                     <TextView
                         android:id="@+id/tv_quote"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
                         android:textStyle="bold"
