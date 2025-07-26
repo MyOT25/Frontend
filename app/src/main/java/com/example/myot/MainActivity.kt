@@ -1,15 +1,19 @@
 package com.example.myot
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowInsetsController
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
 import com.example.myot.question.ui.QuestionSearchFragment
 import com.example.myot.question.ui.QuestionFragment
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 
 
 class MainActivity : AppCompatActivity() {
@@ -45,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                 topBar.visibility = View.VISIBLE
             }
         }
+
     }
 
     @Suppress("DEPRECATION", "NewApi")
