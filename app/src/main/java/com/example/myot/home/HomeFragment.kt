@@ -1,14 +1,13 @@
-package com.example.myot
+package com.example.myot.home
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Bundle
-import android.os.Looper
 import android.os.Handler
-import android.view.ViewGroup.LayoutParams
-import android.view.View
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -17,12 +16,14 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myot.R
 import com.example.myot.community.CommunityFragment
 import com.example.myot.databinding.FragmentHomeBinding
 import com.example.myot.feed.adapter.FeedAdapter
 import com.example.myot.feed.model.FeedItem
+import kotlin.collections.plusAssign
 import kotlin.math.min
-
+import kotlin.math.round
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
@@ -37,8 +38,8 @@ class HomeFragment : Fragment() {
     private val triggerDistance = 150f
 
     override fun onCreateView(inflater: LayoutInflater,
-          container: ViewGroup?,
-          savedInstanceState: Bundle?
+                              container: ViewGroup?,
+                              savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
@@ -102,108 +103,35 @@ class HomeFragment : Fragment() {
             false
         }
 
-        // 커뮤니티 추가/확장/버튼 기능
-        // 테스트 데이터
-        val rawItems = listOf(
-            CommunityItem(R.drawable.ic_home_add_community, true),
-            CommunityItem(R.drawable.ic_home_no_community, false),
-            CommunityItem(R.drawable.ic_home_no_community, false),
-            CommunityItem(R.drawable.ic_home_no_community, false),
-            CommunityItem(R.drawable.ic_home_no_community, false),
-            CommunityItem(R.drawable.ic_home_no_community, false),
-            CommunityItem(R.drawable.ic_home_no_community, false),
-            CommunityItem(R.drawable.ic_home_no_community, false)
-        )
 
-        val spanCount = 5
-        val colSpacingF = resources.getDimension(R.dimen.rv_column_spacing)
-        val rowSpacingF = resources.getDimension(R.dimen.rv_row_spacing)
+        // 커뮤니티 리사이클러뷰 초기화
+        val communityAdapter = CommunityGroupAdapter()
+        binding.rvCommunities.itemAnimator = null
+        binding.rvCommunities.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.rvCommunities.adapter = communityAdapter
 
-        val deco = object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(
-                outRect: Rect, view: View,
-                parent: RecyclerView, state: RecyclerView.State
-            ) {
-                val pos = parent.getChildAdapterPosition(view)
-                if (pos == RecyclerView.NO_POSITION) return
+        communityAdapter.setTotalItems(8) // 원하는 개수 입력 + 1
 
-                val col = pos % spanCount
-                val row = pos / spanCount
-
-                // 1) 가로 간격: 항상 col>0
-                if (col > 0) {
-                    outRect.left = kotlin.math.round(colSpacingF).toInt()
-                }
-
-                // 2) 세로 간격: 펼침 모드 && row>0
-                if (isExpanded && row > 0) {
-                    outRect.top = kotlin.math.round(rowSpacingF).toInt()
-                }
-            }
-        }
-
-        // RecyclerView 초기 세팅
-        binding.rvCommunities.apply {
-            // community 테스트를 위한 임시 clickListener
-            adapter = CommunityAdapter(rawItems) {
-                    clickedItem ->
-                val fragment = CommunityFragment.newInstance("MUSICAL")
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container_view, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
-            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-            layoutParams = layoutParams.apply {
-                height = resources.getDimensionPixelSize(R.dimen.rv_collapsed_height)
-            }
-            removeItemDecoration(deco)
-            addItemDecoration(deco)
-        }
-
-        val expandedItems = mutableListOf<CommunityItem>()
-        expandedItems += rawItems.take(spanCount)
-        var idx = spanCount
-        while (idx < rawItems.size) {
-            expandedItems += CommunityItem(0, false, isPlaceholder = true)
-            val end = (idx + spanCount - 1).coerceAtMost(rawItems.size)
-            expandedItems += rawItems.subList(idx, end)
-            idx += (spanCount - 1)
-        }
-
-        // 어댑터 생성
-        val collapseAdapter = CommunityAdapter(rawItems) { item ->
-            /* TODO: 클릭 처리 */
-        }
-        val expandAdapter = CommunityAdapter(expandedItems) { item ->
-            /* TODO: 클릭 처리 */
-        }
-
-        // 확장 토글
         binding.ivExpand.setOnClickListener {
             isExpanded = !isExpanded
-            binding.ivExpand.animate()
-                .rotation(if(isExpanded) 90f else 0f)
-                .setDuration(200).start()
 
-            binding.rvCommunities.apply {
-                if (isExpanded) {
-                    adapter = expandAdapter
-                    layoutManager = GridLayoutManager(context, spanCount)
-                    layoutParams = layoutParams.apply {
-                        height = LayoutParams.WRAP_CONTENT
-                    }
-                } else {
-                    adapter = collapseAdapter
-                    layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-                    layoutParams = layoutParams.apply {
-                        height = resources.getDimensionPixelSize(R.dimen.rv_collapsed_height)
-                    }
-                }
-                // Decoration 계산이 바뀌었음을 알려주기
-                invalidateItemDecorations()
-                requestLayout()
-            }
+            // 회전 애니메이션 처리
+            binding.ivExpand.animate()
+                .rotation(if (isExpanded) 90f else 0f)
+                .setDuration(200)
+                .start()
+
+            communityAdapter.isExpanded = isExpanded
+            communityAdapter.notifyItemChanged(0)
+        }
+
+        /// 커뮤니티 임시 이동 코드
+        communityAdapter.onCommunityClick = { clickedIndex ->
+            val fragment = CommunityFragment.newInstance("MUSICAL")
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, fragment)
+                .addToBackStack(null)
+                .commit()
         }
 
         // 피드 더미 데이터 생성
@@ -336,7 +264,7 @@ class HomeFragment : Fragment() {
         }
 
         // 글쓰기 버튼 스크롤 시 투명도 처리
-        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        val handler = Handler(Looper.getMainLooper())
         val restoreFabAlphaRunnable = Runnable {
             binding.btnEdit.animate().alpha(1f).setDuration(200).start()
         }
