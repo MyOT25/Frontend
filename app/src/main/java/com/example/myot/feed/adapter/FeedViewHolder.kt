@@ -327,7 +327,7 @@ class FeedViewHolder(
         popupWindow.elevation = 20f
 
         // X 좌표를 anchor의 오른쪽 기준에서 왼쪽으로 이동시킴
-        val offsetX = anchor.width - popupWidth - 50
+        val offsetX = anchor.width - popupWidth - 20
         val offsetY = anchor.height + 7
 
         popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
@@ -385,8 +385,8 @@ class FeedViewHolder(
 
         popupWindow.elevation = 20f
 
-        val offsetX = anchor.width - popupWidth + 430
-        val offsetY = anchor.height - 10
+        val offsetX = anchor.width - popupWidth + 380
+        val offsetY = anchor.height + 20
 
         popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
 

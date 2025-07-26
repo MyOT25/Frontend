@@ -18,7 +18,7 @@
             android:layout_height="18dp"
             android:layout_marginTop="-5dp"
             android:src="@drawable/ic_feed_overflow"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,7 +29,7 @@
             android:layout_height="37dp"
             android:layout_marginTop="10dp"
             android:scaleType="centerCrop"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="16dp"
             android:src="@drawable/ic_no_profile"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -66,7 +66,7 @@
             style="@style/TextAppearance.App.BodyMedium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="12dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="7dp"
             android:text="텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트"
             android:textColor="@color/black"
@@ -130,7 +130,7 @@
             android:textColor="@color/gray3"
             style="@style/TextAppearance.App.LabelMedium"
             android:layout_marginTop="7dp"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layout_quote"/>
 
@@ -165,7 +165,7 @@
                     android:id="@+id/tv_comment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="9dp"
                     android:text="000"
                     style="@style/TextAppearance.App.BodySmall"
                     android:textStyle="bold"
@@ -190,7 +190,7 @@
                     android:id="@+id/tv_like"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="9dp"
                     android:text="000"
                     style="@style/TextAppearance.App.BodySmall"
                     android:textStyle="bold"
@@ -207,15 +207,15 @@
 
                 <ImageView
                     android:id="@+id/iv_repost"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/ic_feed_repost" />
 
                 <TextView
                     android:id="@+id/tv_repost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="9dp"
                     android:text="000"
                     style="@style/TextAppearance.App.BodySmall"
                     android:textStyle="bold"
@@ -232,15 +232,15 @@
 
                 <ImageView
                     android:id="@+id/iv_quote"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="21dp"
+                    android:layout_height="21dp"
                     android:src="@drawable/ic_feed_quote" />
 
                 <TextView
                     android:id="@+id/tv_quote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="9dp"
                     android:text="000"
                     style="@style/TextAppearance.App.BodySmall"
                     android:textStyle="bold"

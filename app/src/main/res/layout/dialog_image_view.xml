@@ -47,8 +47,8 @@
 
             <ImageView
                 android:id="@+id/iv_comment"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="19dp"
+                android:layout_height="19dp"
                 android:src="@drawable/ic_feed_comment"
                 app:tint="@android:color/white" />
 
@@ -57,7 +57,7 @@
                 android:id="@+id/tv_comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="9dp"
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:textStyle="bold"
@@ -74,8 +74,8 @@
 
             <ImageView
                 android:id="@+id/iv_like"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="19dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_feed_like"
                 app:tint="@android:color/white" />
 
@@ -83,7 +83,7 @@
                 android:id="@+id/tv_like"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="9dp"
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:textStyle="bold"
@@ -100,8 +100,8 @@
 
             <ImageView
                 android:id="@+id/iv_repost"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_feed_repost"
                 app:tint="@android:color/white"/>
 
@@ -109,7 +109,7 @@
                 android:id="@+id/tv_repost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="9dp"
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:textStyle="bold"
@@ -126,8 +126,8 @@
 
             <ImageView
                 android:id="@+id/iv_quote"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
                 android:src="@drawable/ic_feed_quote"
                 app:tint="@android:color/white" />
 
@@ -135,7 +135,7 @@
                 android:id="@+id/tv_quote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="9dp"
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:textStyle="bold"

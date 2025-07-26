@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="false">
 
     <!-- 프래그먼트 컨테이너 (전체를 차지) -->
     <androidx.fragment.app.FragmentContainerView
@@ -42,8 +42,11 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation_view"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="90dp"
             android:background="@color/white"
+            android:layout_marginBottom="-17dp"
+            android:paddingTop="-5dp"
+            app:itemIconSize="40dp"
             app:menu="@menu/bottom_nav_menu"
             app:labelVisibilityMode="unlabeled"
             app:itemBackground="@android:color/transparent"
