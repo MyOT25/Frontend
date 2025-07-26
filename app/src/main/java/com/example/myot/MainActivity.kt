@@ -1,20 +1,18 @@
 package com.example.myot
 
-import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
-import android.view.WindowInsetsController
-import android.widget.ImageView
+import android.view.ViewGroup
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
 import com.example.myot.question.ui.QuestionSearchFragment
 import com.example.myot.question.ui.QuestionFragment
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +23,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 네비게이션 바 종류에 맞게 바텀 네비 크기 변경
+        adjustBottomNavMargin()
 
         // 시스템 상단/하단 바까지 화면 처리
         setTransparentSystemBars()
@@ -51,6 +52,40 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun adjustBottomNavMargin() {
+        val bottomNav = binding.bottomNavigationView
+        val params = bottomNav.layoutParams as ViewGroup.MarginLayoutParams
+
+        if (isGestureNavigation()) {
+            // 제스처 내비게이션일 때
+            params.bottomMargin = (-17).dpToPx()
+            params.height = 90.dpToPx()
+        } else {
+            // 버튼 내비게이션일 때
+            params.bottomMargin = (-7).dpToPx()
+            params.height = 110.dpToPx()
+        }
+
+        bottomNav.layoutParams = params
+    }
+
+    private fun isGestureNavigation(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Settings.Secure.getInt(contentResolver, "navigation_mode", 0) == 2
+        } else {
+            false
+        }
+    }
+
+    private fun Int.dpToPx(): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            this.toFloat(),
+            Resources.getSystem().displayMetrics
+        ).toInt()
+    }
+
 
     @Suppress("DEPRECATION", "NewApi")
     private fun setTransparentSystemBars() {
