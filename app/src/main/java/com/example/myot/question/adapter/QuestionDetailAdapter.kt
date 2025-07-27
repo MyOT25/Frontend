@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.ItemQuestionCommentBinding
 import com.example.myot.databinding.ItemQuestionDetailBinding
@@ -31,6 +32,17 @@ class QuestionDetailAdapter(
         fun bind() {
             binding.tvDetailTitle.text = item.title
             binding.tvDetailTime.text = item.time
+
+            // 사용자 표시 처리
+            if (item.isAnonymous) {
+                binding.ivProfile.visibility = View.GONE
+                binding.tvUsername.text = "익명 질문"
+                binding.tvUsername.setTextColor(ContextCompat.getColor(binding.root.context, R.color.point_green))
+            } else {
+                binding.ivProfile.visibility = View.VISIBLE
+                binding.tvUsername.text = item.username ?: "사용자"
+                binding.tvUsername.setTextColor(ContextCompat.getColor(binding.root.context, R.color.point_purple))
+            }
 
             val imageList = item.imageUrls ?: emptyList()
 
@@ -129,17 +141,33 @@ class QuestionDetailAdapter(
         }
 
         private fun updateLikeUI(count: Int, liked: Boolean) {
+            val context = binding.root.context
+
             binding.tvLikeCount.text = count.toString()
             binding.tvLikeCount.visibility = if (count == 0) View.GONE else View.VISIBLE
+
             binding.ivLike.setImageResource(
                 if (liked) R.drawable.ic_question_like_selected else R.drawable.ic_question_like_unselected
             )
-            binding.tvLikeCount.setTextColor(
-                ContextCompat.getColor(
-                    binding.root.context,
-                    if (liked) R.color.point_pink else R.color.gray2
-                )
-            )
+
+            val countColor = when {
+                liked -> R.color.point_pink
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+            binding.tvLikeCount.setTextColor(ContextCompat.getColor(context, countColor))
+
+            val iconTint = when {
+                liked -> null
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+
+            if (iconTint != null) {
+                binding.ivLike.setColorFilter(ContextCompat.getColor(context, iconTint), android.graphics.PorterDuff.Mode.SRC_IN)
+            } else {
+                binding.ivLike.clearColorFilter()
+            }
         }
     }
 
@@ -147,23 +175,45 @@ class QuestionDetailAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(comment: CommentItem) {
-            binding.tvName.text = comment.username
+            val context = binding.root.context
+
+            // 이름 + 아이콘 표시 분기
+            val layoutParams = binding.ivProfile.layoutParams as ViewGroup.MarginLayoutParams
+
+            if (comment.isAnonymous) {
+                // 익명
+                binding.tvName.text = "익명의 해결사"
+                binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.point_green))
+                binding.ivProfile.setImageResource(R.drawable.ic_a_mark)
+
+                layoutParams.width = context.resources.getDimensionPixelSize(R.dimen.dp_16)
+                layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.dp_16)
+                layoutParams.topMargin = context.resources.getDimensionPixelSize(R.dimen.dp_3)
+            } else {
+                // 실명
+                binding.tvName.text = comment.username ?: "사용자"
+                binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.point_purple))
+                binding.ivProfile.setImageResource(R.drawable.ic_profile)
+
+                layoutParams.width = context.resources.getDimensionPixelSize(R.dimen.dp_20)
+                layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.dp_20)
+                layoutParams.topMargin = context.resources.getDimensionPixelSize(R.dimen.dp_2)
+            }
+
+            binding.ivProfile.layoutParams = layoutParams
+
+            // 댓글 본문 및 날짜
             binding.tvContent.text = comment.content
             binding.tvTime.text = comment.date
 
+            // 좋아요/댓글 수 (기존 그대로 유지)
             binding.tvCommentCount.text = comment.commentCount.toString()
             if (comment.commentCount == 0) {
                 binding.tvCommentCount.visibility = View.GONE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.gray3),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
+                binding.ivComment.setColorFilter(ContextCompat.getColor(context, R.color.gray3), android.graphics.PorterDuff.Mode.SRC_IN)
             } else {
                 binding.tvCommentCount.visibility = View.VISIBLE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.point_green),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
+                binding.ivComment.setColorFilter(ContextCompat.getColor(context, R.color.point_green), android.graphics.PorterDuff.Mode.SRC_IN)
             }
 
             var isLiked = false
@@ -175,22 +225,39 @@ class QuestionDetailAdapter(
                 likeCount = if (isLiked) likeCount + 1 else likeCount - 1
                 updateLikeUI(likeCount, isLiked)
             }
+
             binding.ivLike.setOnClickListener(likeClickListener)
             binding.tvLikeCount.setOnClickListener(likeClickListener)
         }
 
         private fun updateLikeUI(count: Int, liked: Boolean) {
+            val context = binding.root.context
+
             binding.tvLikeCount.text = count.toString()
             binding.tvLikeCount.visibility = if (count == 0) View.GONE else View.VISIBLE
+
             binding.ivLike.setImageResource(
                 if (liked) R.drawable.ic_question_like_selected else R.drawable.ic_question_like_unselected
             )
-            binding.tvLikeCount.setTextColor(
-                ContextCompat.getColor(
-                    binding.root.context,
-                    if (liked) R.color.point_pink else R.color.gray2
-                )
-            )
+
+            val countColor = when {
+                liked -> R.color.point_pink
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+            binding.tvLikeCount.setTextColor(ContextCompat.getColor(context, countColor))
+
+            val iconTint = when {
+                liked -> null
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+
+            if (iconTint != null) {
+                binding.ivLike.setColorFilter(ContextCompat.getColor(context, iconTint), android.graphics.PorterDuff.Mode.SRC_IN)
+            } else {
+                binding.ivLike.clearColorFilter()
+            }
         }
     }
 

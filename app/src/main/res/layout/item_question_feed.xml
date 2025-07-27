@@ -96,7 +96,7 @@
                 android:layout_marginStart="10dp"
                 android:text="100"
                 android:textAppearance="@style/TextAppearance.App.LabelTiny"
-                android:textColor="@color/gray2" />
+                android:textColor="@color/point_pink" />
         </LinearLayout>
 
         <!-- 댓글 영역 -->

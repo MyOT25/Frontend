@@ -12,5 +12,7 @@ data class CommentItem(
 
     var isLiked: Boolean = false,
     var isReposted: Boolean = false,
-    var isQuoted: Boolean = false
+    var isQuoted: Boolean = false,
+
+    val isAnonymous: Boolean = false
 )

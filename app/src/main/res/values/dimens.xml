@@ -5,4 +5,9 @@
     <dimen name="rv_column_spacing">-3.2dp</dimen>
     <dimen name="rv_row_spacing">-5dp</dimen>
 
+    <dimen name="dp_2">2dp</dimen>
+    <dimen name="dp_3">3dp</dimen>
+    <dimen name="dp_16">16dp</dimen>
+    <dimen name="dp_20">20dp</dimen>
+
 </resources>
