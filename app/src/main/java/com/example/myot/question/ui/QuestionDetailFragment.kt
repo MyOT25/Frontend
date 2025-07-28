@@ -48,7 +48,7 @@ class QuestionDetailFragment : Fragment() {
             ),
             CommentItem(
                 username = "익명1",
-                content = "정말 좋은 질문이에요. 저도 오늘부터 실천해보려구요!",
+                content = "정말 좋은 질문이에요. 저도 오늘부터 실천해보려구요!".repeat(6),
                 date = "2025/07/15 11:20",
                 commentCount = 1, likeCount = 1, repostCount = 0, quoteCount = 0,
                 isAnonymous = true

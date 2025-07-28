@@ -9,5 +9,6 @@
     <dimen name="dp_3">3dp</dimen>
     <dimen name="dp_16">16dp</dimen>
     <dimen name="dp_20">20dp</dimen>
+    <dimen name="dp_50">50dp</dimen>
 
 </resources>

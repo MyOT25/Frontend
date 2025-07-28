@@ -22,6 +22,7 @@ class QuestionDetailAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
+        private const val TYPE_PADDING = 2
         private const val TYPE_DETAIL = 0
         private const val TYPE_COMMENT = 1
     }
@@ -206,16 +207,8 @@ class QuestionDetailAdapter(
             binding.tvContent.text = comment.content
             binding.tvTime.text = comment.date
 
-            // 좋아요/댓글 수 (기존 그대로 유지)
-            binding.tvCommentCount.text = comment.commentCount.toString()
-            if (comment.commentCount == 0) {
-                binding.tvCommentCount.visibility = View.GONE
-                binding.ivComment.setColorFilter(ContextCompat.getColor(context, R.color.gray3), android.graphics.PorterDuff.Mode.SRC_IN)
-            } else {
-                binding.tvCommentCount.visibility = View.VISIBLE
-                binding.ivComment.setColorFilter(ContextCompat.getColor(context, R.color.point_green), android.graphics.PorterDuff.Mode.SRC_IN)
-            }
 
+            // 좋아요 처리
             var isLiked = false
             var likeCount = comment.likeCount
             updateLikeUI(likeCount, isLiked)
@@ -261,27 +254,48 @@ class QuestionDetailAdapter(
         }
     }
 
-    override fun getItemCount(): Int = 1 + comments.size
+    override fun getItemCount(): Int = 1 + comments.size + 1
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == 0) TYPE_DETAIL else TYPE_COMMENT
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == TYPE_DETAIL) {
-            val binding = ItemQuestionDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            DetailViewHolder(binding)
-        } else {
-            val binding = ItemQuestionCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            CommentViewHolder(binding)
+        return when (position) {
+            0 -> TYPE_DETAIL
+            itemCount - 1 -> TYPE_PADDING
+            else -> TYPE_COMMENT
         }
     }
 
+    inner class PaddingViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_DETAIL -> {
+                val binding = ItemQuestionDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                DetailViewHolder(binding)
+            }
+            TYPE_COMMENT -> {
+                val binding = ItemQuestionCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                CommentViewHolder(binding)
+            }
+            TYPE_PADDING -> {
+                // 50dp 높이의 빈 View 생성
+                val view = View(parent.context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        parent.context.resources.getDimensionPixelSize(R.dimen.dp_50)
+                    )
+                }
+                PaddingViewHolder(view)
+            }
+            else -> throw IllegalArgumentException("Invalid view type")
+        }
+    }
+
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is DetailViewHolder) {
-            holder.bind()
-        } else if (holder is CommentViewHolder) {
-            holder.bind(comments[position - 1])
+        when (holder) {
+            is DetailViewHolder -> holder.bind()
+            is CommentViewHolder -> holder.bind(comments[position - 1])
+            is PaddingViewHolder -> Unit
         }
     }
 }

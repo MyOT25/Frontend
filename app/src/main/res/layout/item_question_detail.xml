@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
     android:background="@drawable/bg_question_detail"
-    android:paddingStart="15dp"
+    android:paddingStart="16dp"
     android:paddingEnd="20dp"
     android:paddingVertical="10dp">
 
@@ -46,7 +46,7 @@
         android:id="@+id/ivDetailQ"
         android:layout_width="20dp"
         android:layout_height="28dp"
-        android:layout_marginTop="2dp"
+
         android:src="@drawable/ic_q_mark"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/tvDetailTitle"
@@ -58,6 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
+        android:layout_marginTop="4dp"
         android:text="질문 제목"
         android:textAppearance="@style/TextAppearance.App.TitleLarge"
         android:textColor="@color/black"
@@ -70,7 +71,7 @@
         android:id="@+id/tvDetailContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         android:text="내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용?"
         android:textAppearance="@style/TextAppearance.App.BodyMedium"
         android:textColor="@color/black"
@@ -94,7 +95,7 @@
         android:id="@+id/imageIndicatorContainer"
         android:layout_width="0dp"
         android:layout_height="3dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         android:background="#F1F1F1"
         app:layout_constraintTop_toBottomOf="@id/vpImages"
         app:layout_constraintStart_toStartOf="parent"
@@ -117,7 +118,7 @@
         android:layout_height="wrap_content"
         android:text="2025/00/00 00:00"
         android:textColor="@color/gray3"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageIndicatorContainer" />
 
@@ -127,7 +128,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDetailTime">
@@ -141,8 +142,8 @@
 
             <ImageView
                 android:id="@+id/ivLike"
-                android:layout_width="16dp"
-                android:layout_height="13dp"
+                android:layout_width="19dp"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_question_like_unselected" />
 
             <TextView
@@ -152,7 +153,7 @@
                 android:layout_marginStart="10dp"
                 android:text="100"
                 android:textAppearance="@style/TextAppearance.App.LabelTiny"
-                android:textColor="@color/gray2" />
+                android:textColor="@color/point_pink" />
         </LinearLayout>
 
         <!-- 댓글 영역 -->
