@@ -4,7 +4,7 @@
     android:id="@+id/containerQuestionDetail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="100dp">
+    android:paddingTop="117dp">
 
     <!-- 뒤로가기 버튼 -->
     <ImageView

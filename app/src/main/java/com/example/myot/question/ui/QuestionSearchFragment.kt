@@ -29,6 +29,7 @@ class QuestionSearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().findViewById<View>(R.id.top_bar).visibility = View.GONE
 
         binding.etSearchInput.requestFocus()
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -79,7 +80,7 @@ class QuestionSearchFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        requireActivity().findViewById<View>(R.id.top_bar).visibility = View.VISIBLE
     }
 
     private fun setupDummyHashtags() {
