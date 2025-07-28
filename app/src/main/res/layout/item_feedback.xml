@@ -5,20 +5,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="9dp"
+        android:paddingStart="16dp"
+        android:paddingVertical="8dp"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
         <!-- 프로필 이미지 -->
         <ImageView
             android:id="@+id/iv_profile"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@drawable/ic_no_profile"
             android:scaleType="centerCrop"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="7dp"/>
+            android:layout_gravity="top"
+            android:layout_marginEnd="8dp" />
 
         <!-- 유저 정보 -->
         <LinearLayout
@@ -33,14 +33,19 @@
                 android:layout_height="wrap_content"
                 android:text="유저1"
                 style="@style/TextAppearance.App.LabelLarge"
+                android:includeFontPadding="false"
                 android:textStyle="bold"
+                android:layout_marginTop="-2dp"
                 android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/tv_userid"
                 style="@style/TextAppearance.App.LabelSmall"
+                android:fontFamily="@font/roboto_medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:layout_marginTop="-2dp"
                 android:text="\@user1"
                 android:textColor="@color/gray2" />
 
@@ -55,14 +60,21 @@
         </LinearLayout>
 
         <!-- 팔로우 버튼 -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_follow"
-            android:layout_width="85dp"
-            android:layout_height="28dp"
+        <TextView
+            android:id="@+id/tv_follow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@drawable/btn_follow_selector"
             android:text="팔로우"
-            android:layout_marginBottom="10dp"
-            android:textColor="@color/btn_follow_text_selector" />
+            style="@style/TextAppearance.App.BodySmall"
+            android:layout_gravity="top"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/btn_follow_text_selector"
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="8dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true" />
 
     </LinearLayout>
     <View

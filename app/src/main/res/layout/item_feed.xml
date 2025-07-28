@@ -157,7 +157,8 @@
                 android:layout_height="wrap_content"
                 android:text="2025/00/00 00:00"
                 android:textColor="@color/gray3"
-                style="@style/TextAppearance.App.LabelMedium"
+                android:textAppearance="@style/TextAppearance.App.LabelMedium"
+                android:fontFamily="@font/roboto_medium"
                 android:layout_marginTop="5dp"
                 android:layout_marginStart="70dp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -196,7 +197,7 @@
                         android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/roboto_semibold"
                         android:textColor="@color/gray2"/>
                 </LinearLayout>
 
@@ -221,7 +222,7 @@
                         android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/roboto_semibold"
                         android:textColor="@color/gray2" />
                 </LinearLayout>
 
@@ -246,7 +247,7 @@
                         android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/roboto_semibold"
                         android:textColor="@color/gray2" />
                 </LinearLayout>
 
@@ -271,7 +272,7 @@
                         android:layout_marginStart="9dp"
                         android:text="000"
                         style="@style/TextAppearance.App.LabelSmall"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/roboto_semibold"
                         android:textColor="@color/gray2" />
                 </LinearLayout>
             </LinearLayout>

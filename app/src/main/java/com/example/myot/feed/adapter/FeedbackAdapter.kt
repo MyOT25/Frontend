@@ -15,7 +15,7 @@ class FeedbackAdapter(private val users: List<String>) :
         val tvUsername = itemView.findViewById<TextView>(R.id.tv_username)
         val tvUserid = itemView.findViewById<TextView>(R.id.tv_userid)
         val tvDescription = itemView.findViewById<TextView>(R.id.tv_description)
-        val btnFollow = itemView.findViewById<Button>(R.id.btn_follow)
+        val btnFollow = itemView.findViewById<TextView>(R.id.tv_follow)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

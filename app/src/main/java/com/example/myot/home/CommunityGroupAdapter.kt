@@ -84,7 +84,7 @@ class CommunityGroupAdapter : RecyclerView.Adapter<CommunityGroupAdapter.Communi
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
                         ).apply {
-                            topMargin = (-4 * context.resources.displayMetrics.density).toInt()  // ← 이 줄 추가
+                            topMargin = (-2 * context.resources.displayMetrics.density).toInt()  // ← 이 줄 추가
                         }
                     }
                     val iv = LayoutInflater.from(context).inflate(R.layout.item_community, null) as ImageView
