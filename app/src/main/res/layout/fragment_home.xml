@@ -39,23 +39,21 @@
                 android:layout_gravity="end"
                 android:src="@drawable/ic_home_extend"
                 android:layout_marginTop="5dp"
-                android:layout_marginEnd="7dp"
+                android:layout_marginEnd="17dp"
                 android:background="@null"
                 android:clickable="true"
                 android:focusable="true" />
 
-            <!-- 커뮤니티 그리드/리스트 -->
+            <!-- 커뮤니티 리스트 -->
             <androidx.recyclerview.widget.RecyclerView
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
                 android:id="@+id/rv_communities"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
                 android:clipToPadding="false"
                 android:overScrollMode="always"
-                android:nestedScrollingEnabled="true"
-                tools:listitem="@layout/item_community"
-                tools:itemCount="9" />
+                tools:listitem="@layout/item_community_group"
+                tools:itemCount="1" />
 
             <!-- 피드 리스트 -->
             <androidx.recyclerview.widget.RecyclerView
