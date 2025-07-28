@@ -15,6 +15,7 @@ import com.example.myot.R
 import com.example.myot.databinding.*
 import com.example.myot.feed.model.CommentItem
 import com.example.myot.feed.model.FeedItem
+import com.example.myot.profile.ProfileFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
@@ -210,7 +211,12 @@ class FeedDetailAdapter(
             }
             popupView.findViewById<View>(R.id.btn_user_profile).setOnClickListener {
                 popupWindow.dismiss()
-                Toast.makeText(context, "@abcde 프로필 이동", Toast.LENGTH_SHORT).show()
+
+                val activity = anchor.context as? FragmentActivity ?: return@setOnClickListener
+                val transaction = activity.supportFragmentManager.beginTransaction()
+                transaction.replace(R.id.fragment_container_view, ProfileFragment())
+                transaction.addToBackStack(null)
+                transaction.commit()
             }
         }
 

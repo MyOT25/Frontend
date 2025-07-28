@@ -10,130 +10,125 @@
         <item name="android:fontFamily">@font/roboto_regular</item>
         <item name="android:textSize">14sp</item>
     </style>
+
+
     <!-- Display -->
     <style name="TextAppearance.App.DisplayLarge">
-        <item name="android:fontFamily">@font/roboto_family</item>
         <item name="android:textSize">57sp</item>
-        <item name="android:lineHeight">64sp</item>
+        <item name="android:lineHeight">51sp</item> <!-- 64px / 1.25 -->
         <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
+
     <style name="TextAppearance.App.DisplayMedium">
-        <item name="android:fontFamily">@font/roboto_family</item>
         <item name="android:textSize">45sp</item>
-        <item name="android:lineHeight">52sp</item>
+        <item name="android:lineHeight">42sp</item> <!-- 52 / 1.25 -->
         <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
+
     <style name="TextAppearance.App.DisplaySmall">
-        <item name="android:fontFamily">@font/roboto_family</item>
         <item name="android:textSize">36sp</item>
-        <item name="android:lineHeight">44sp</item>
+        <item name="android:lineHeight">35sp</item> <!-- 44 / 1.25 -->
         <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
 
     <!-- Headline -->
     <style name="TextAppearance.App.HeadlineLarge">
-        <item name="android:fontFamily">@font/roboto_family</item>
         <item name="android:textSize">32sp</item>
-        <item name="android:lineHeight">40sp</item>
+        <item name="android:lineHeight">32sp</item> <!-- 40 / 1.25 -->
         <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
+
     <style name="TextAppearance.App.HeadlineMedium">
-        <item name="android:fontFamily">@font/roboto_family</item>
         <item name="android:textSize">28sp</item>
-        <item name="android:lineHeight">36sp</item>
+        <item name="android:lineHeight">29sp</item> <!-- 36 / 1.25 -->
         <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
+
     <style name="TextAppearance.App.HeadlineSmall">
-        <item name="android:fontFamily">@font/roboto_family</item>
         <item name="android:textSize">24sp</item>
-        <item name="android:lineHeight">32sp</item>
+        <item name="android:lineHeight">26sp</item> <!-- 32 / 1.25 -->
         <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
 
     <!-- Title -->
     <style name="TextAppearance.App.TitleLarge">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">400</item>
         <item name="android:textSize">22sp</item>
-        <item name="android:lineHeight">28sp</item>
+        <item name="android:lineHeight">22sp</item> <!-- 28 / 1.25 -->
         <item name="android:letterSpacing">0</item>
-    </style>
-    <style name="TextAppearance.App.TitleMedium">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">500</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:lineHeight">24sp</item>
-        <!-- 0.15px ÷ 16px = 0.009375 → 0.0094 -->
-        <item name="android:letterSpacing">0.0094</item>
-    </style>
-    <style name="TextAppearance.App.TitleSmall">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">500</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:lineHeight">20sp</item>
-        <!-- 0.1px ÷ 14px = 0.00714 → 0.0071 -->
-        <item name="android:letterSpacing">0.0071</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
 
-    <!-- Label -->
-    <style name="TextAppearance.App.LabelLarge">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">500</item>
+    <style name="TextAppearance.App.TitleMedium">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">19sp</item> <!-- 24 / 1.25 -->
+        <item name="android:letterSpacing">0.009</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
+    </style>
+
+    <style name="TextAppearance.App.TitleSmall">
         <item name="android:textSize">14sp</item>
-        <item name="android:lineHeight">20sp</item>
-        <!-- 0.1px ÷ 14px = 0.0071 -->
-        <item name="android:letterSpacing">0.0071</item>
-    </style>
-    <style name="TextAppearance.App.LabelMedium">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">500</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:lineHeight">16sp</item>
-        <!-- 0.5px ÷ 12px = 0.0417 -->
-        <item name="android:letterSpacing">0.0417</item>
-    </style>
-    <style name="TextAppearance.App.LabelSmall">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">500</item>
-        <item name="android:textSize">11sp</item>
-        <item name="android:lineHeight">16sp</item>
-        <!-- 0.5px ÷ 11px = 0.0455 -->
-        <item name="android:letterSpacing">0.0455</item>
-    </style>
-    <style name="TextAppearance.App.LabelTiny">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">400</item>
-        <item name="android:textSize">10sp</item>
-        <item name="android:lineHeight">10sp</item>
-        <item name="android:letterSpacing">0</item>
+        <item name="android:lineHeight">16sp</item> <!-- 20 / 1.25 -->
+        <item name="android:letterSpacing">0.007</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
     </style>
 
     <!-- Body -->
     <style name="TextAppearance.App.BodyLarge">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">400</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:lineHeight">24sp</item>
-        <!-- 0.5px ÷ 16px = 0.03125 -->
-        <item name="android:letterSpacing">0.0313</item>
-    </style>
-    <style name="TextAppearance.App.BodyMedium">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">400</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:lineHeight">20sp</item>
-        <!-- 0.25px ÷ 14px = 0.0179 -->
-        <item name="android:letterSpacing">0.0179</item>
-    </style>
-    <style name="TextAppearance.App.BodySmall">
-        <item name="android:fontFamily">@font/roboto_family</item>
-        <item name="android:fontWeight">400</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:lineHeight">16sp</item>
-        <!-- 0.4px ÷ 12px = 0.0333 -->
-        <item name="android:letterSpacing">0.0333</item>
+        <item name="android:lineHeight">19sp</item> <!-- 24 / 1.25 -->
+        <item name="android:letterSpacing">0.031</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
 
+    <style name="TextAppearance.App.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">16sp</item> <!-- 20 / 1.25 -->
+        <item name="android:letterSpacing">0.018</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <style name="TextAppearance.App.BodySmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">13sp</item> <!-- 16 / 1.25 -->
+        <item name="android:letterSpacing">0.033</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <!-- Label -->
+    <style name="TextAppearance.App.LabelLarge">
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">16sp</item> <!-- 20 / 1.25 -->
+        <item name="android:letterSpacing">0.007</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
+    </style>
+
+    <style name="TextAppearance.App.LabelMedium">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">13sp</item> <!-- 16 / 1.25 -->
+        <item name="android:letterSpacing">0.041</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
+    </style>
+
+    <style name="TextAppearance.App.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight">13sp</item> <!-- 16 / 1.25 -->
+        <item name="android:letterSpacing">0.045</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
+    </style>
+
+    <!-- Label Tiny -->
+    <style name="TextAppearance.App.LabelTiny">
+        <item name="android:textSize">10sp</item>
+        <item name="android:lineHeight">8sp</item> <!-- 10 / 1.25 -->
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
     <!-- 플로팅 버튼을 원형으로 변경 -->
     <style name="FabShape">
         <item name="cornerSize">50%</item>
