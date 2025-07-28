@@ -4,15 +4,15 @@
     android:id="@+id/containerQuestionDetail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="100dp">
+    android:paddingTop="112dp">
 
     <!-- 뒤로가기 버튼 -->
     <ImageView
         android:id="@+id/btnBack"
-        android:layout_width="10dp"
-        android:layout_height="16dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginVertical="2dp"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginVertical="3dp"
         android:src="@drawable/ic_back"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/rvQuestionDetail"
@@ -24,7 +24,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:padding="5dp"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="16dp"
         android:overScrollMode="never"
         app:layout_constraintTop_toBottomOf="@id/btnBack"
         app:layout_constraintBottom_toBottomOf="parent"

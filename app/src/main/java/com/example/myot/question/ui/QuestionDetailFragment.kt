@@ -37,7 +37,8 @@ class QuestionDetailFragment : Fragment() {
                 username = "답변러1",
                 content = "정말 공감되는 질문이에요. 저도 비슷한 생각을 했어요!",
                 date = "2025/07/15 09:12",
-                commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0
+                commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0,
+                isAnonymous = true
             ),
             CommentItem(
                 username = "고민상담",
@@ -47,15 +48,17 @@ class QuestionDetailFragment : Fragment() {
             ),
             CommentItem(
                 username = "익명1",
-                content = "정말 좋은 질문이에요. 저도 오늘부터 실천해보려구요!",
+                content = "정말 좋은 질문이에요. 저도 오늘부터 실천해보려구요!".repeat(6),
                 date = "2025/07/15 11:20",
-                commentCount = 1, likeCount = 1, repostCount = 0, quoteCount = 0
+                commentCount = 1, likeCount = 1, repostCount = 0, quoteCount = 0,
+                isAnonymous = true
             ),
             CommentItem(
                 username = "익명2",
                 content = "생각할 거리를 주는 글이네요. 감사합니다.",
                 date = "2025/07/15 12:45",
-                commentCount = 0, likeCount = 3, repostCount = 0, quoteCount = 0
+                commentCount = 0, likeCount = 3, repostCount = 0, quoteCount = 0,
+                isAnonymous = true
             ),
             CommentItem(
                 username = "힐링중",
@@ -67,7 +70,8 @@ class QuestionDetailFragment : Fragment() {
                 username = "익명상담소",
                 content = "저도 비슷한 고민 중이었는데 도움이 되네요.",
                 date = "2025/07/15 14:12",
-                commentCount = 3, likeCount = 2, repostCount = 0, quoteCount = 0
+                commentCount = 3, likeCount = 2, repostCount = 0, quoteCount = 0,
+                isAnonymous = true
             ),
             CommentItem(
                 username = "라떼",
@@ -79,13 +83,15 @@ class QuestionDetailFragment : Fragment() {
                 username = "감성충전",
                 content = "이 질문을 보고 제 일기를 다시 꺼냈어요.",
                 date = "2025/07/15 16:25",
-                commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0
+                commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0,
+                isAnonymous = true
             ),
             CommentItem(
                 username = "공감왕",
                 content = "100% 공감합니다. 함께 힘내요!",
                 date = "2025/07/15 17:40",
-                commentCount = 1, likeCount = 6, repostCount = 0, quoteCount = 0
+                commentCount = 1, likeCount = 6, repostCount = 0, quoteCount = 0,
+                isAnonymous = true
             ),
             CommentItem(
                 username = "익명10",

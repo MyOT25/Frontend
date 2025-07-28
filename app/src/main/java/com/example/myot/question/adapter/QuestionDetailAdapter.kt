@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.ItemQuestionCommentBinding
 import com.example.myot.databinding.ItemQuestionDetailBinding
@@ -21,6 +22,7 @@ class QuestionDetailAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
+        private const val TYPE_PADDING = 2
         private const val TYPE_DETAIL = 0
         private const val TYPE_COMMENT = 1
     }
@@ -31,6 +33,17 @@ class QuestionDetailAdapter(
         fun bind() {
             binding.tvDetailTitle.text = item.title
             binding.tvDetailTime.text = item.time
+
+            // 사용자 표시 처리
+            if (item.isAnonymous) {
+                binding.ivProfile.visibility = View.GONE
+                binding.tvUsername.text = "익명 질문"
+                binding.tvUsername.setTextColor(ContextCompat.getColor(binding.root.context, R.color.point_green))
+            } else {
+                binding.ivProfile.visibility = View.VISIBLE
+                binding.tvUsername.text = item.username ?: "사용자"
+                binding.tvUsername.setTextColor(ContextCompat.getColor(binding.root.context, R.color.point_purple))
+            }
 
             val imageList = item.imageUrls ?: emptyList()
 
@@ -129,17 +142,33 @@ class QuestionDetailAdapter(
         }
 
         private fun updateLikeUI(count: Int, liked: Boolean) {
+            val context = binding.root.context
+
             binding.tvLikeCount.text = count.toString()
             binding.tvLikeCount.visibility = if (count == 0) View.GONE else View.VISIBLE
+
             binding.ivLike.setImageResource(
                 if (liked) R.drawable.ic_question_like_selected else R.drawable.ic_question_like_unselected
             )
-            binding.tvLikeCount.setTextColor(
-                ContextCompat.getColor(
-                    binding.root.context,
-                    if (liked) R.color.point_pink else R.color.gray2
-                )
-            )
+
+            val countColor = when {
+                liked -> R.color.point_pink
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+            binding.tvLikeCount.setTextColor(ContextCompat.getColor(context, countColor))
+
+            val iconTint = when {
+                liked -> null
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+
+            if (iconTint != null) {
+                binding.ivLike.setColorFilter(ContextCompat.getColor(context, iconTint), android.graphics.PorterDuff.Mode.SRC_IN)
+            } else {
+                binding.ivLike.clearColorFilter()
+            }
         }
     }
 
@@ -147,25 +176,39 @@ class QuestionDetailAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(comment: CommentItem) {
-            binding.tvName.text = comment.username
+            val context = binding.root.context
+
+            // 이름 + 아이콘 표시 분기
+            val layoutParams = binding.ivProfile.layoutParams as ViewGroup.MarginLayoutParams
+
+            if (comment.isAnonymous) {
+                // 익명
+                binding.tvName.text = "익명의 해결사"
+                binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.point_green))
+                binding.ivProfile.setImageResource(R.drawable.ic_a_mark)
+
+                layoutParams.width = context.resources.getDimensionPixelSize(R.dimen.dp_16)
+                layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.dp_16)
+                layoutParams.topMargin = context.resources.getDimensionPixelSize(R.dimen.dp_3)
+            } else {
+                // 실명
+                binding.tvName.text = comment.username ?: "사용자"
+                binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.point_purple))
+                binding.ivProfile.setImageResource(R.drawable.ic_profile)
+
+                layoutParams.width = context.resources.getDimensionPixelSize(R.dimen.dp_20)
+                layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.dp_20)
+                layoutParams.topMargin = context.resources.getDimensionPixelSize(R.dimen.dp_2)
+            }
+
+            binding.ivProfile.layoutParams = layoutParams
+
+            // 댓글 본문 및 날짜
             binding.tvContent.text = comment.content
             binding.tvTime.text = comment.date
 
-            binding.tvCommentCount.text = comment.commentCount.toString()
-            if (comment.commentCount == 0) {
-                binding.tvCommentCount.visibility = View.GONE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.gray3),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
-            } else {
-                binding.tvCommentCount.visibility = View.VISIBLE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.point_green),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
-            }
 
+            // 좋아요 처리
             var isLiked = false
             var likeCount = comment.likeCount
             updateLikeUI(likeCount, isLiked)
@@ -175,46 +218,84 @@ class QuestionDetailAdapter(
                 likeCount = if (isLiked) likeCount + 1 else likeCount - 1
                 updateLikeUI(likeCount, isLiked)
             }
+
             binding.ivLike.setOnClickListener(likeClickListener)
             binding.tvLikeCount.setOnClickListener(likeClickListener)
         }
 
         private fun updateLikeUI(count: Int, liked: Boolean) {
+            val context = binding.root.context
+
             binding.tvLikeCount.text = count.toString()
             binding.tvLikeCount.visibility = if (count == 0) View.GONE else View.VISIBLE
+
             binding.ivLike.setImageResource(
                 if (liked) R.drawable.ic_question_like_selected else R.drawable.ic_question_like_unselected
             )
-            binding.tvLikeCount.setTextColor(
-                ContextCompat.getColor(
-                    binding.root.context,
-                    if (liked) R.color.point_pink else R.color.gray2
-                )
-            )
+
+            val countColor = when {
+                liked -> R.color.point_pink
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+            binding.tvLikeCount.setTextColor(ContextCompat.getColor(context, countColor))
+
+            val iconTint = when {
+                liked -> null
+                count > 0 -> R.color.point_pink
+                else -> R.color.gray2
+            }
+
+            if (iconTint != null) {
+                binding.ivLike.setColorFilter(ContextCompat.getColor(context, iconTint), android.graphics.PorterDuff.Mode.SRC_IN)
+            } else {
+                binding.ivLike.clearColorFilter()
+            }
         }
     }
 
-    override fun getItemCount(): Int = 1 + comments.size
+    override fun getItemCount(): Int = 1 + comments.size + 1
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == 0) TYPE_DETAIL else TYPE_COMMENT
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == TYPE_DETAIL) {
-            val binding = ItemQuestionDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            DetailViewHolder(binding)
-        } else {
-            val binding = ItemQuestionCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            CommentViewHolder(binding)
+        return when (position) {
+            0 -> TYPE_DETAIL
+            itemCount - 1 -> TYPE_PADDING
+            else -> TYPE_COMMENT
         }
     }
 
+    inner class PaddingViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_DETAIL -> {
+                val binding = ItemQuestionDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                DetailViewHolder(binding)
+            }
+            TYPE_COMMENT -> {
+                val binding = ItemQuestionCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                CommentViewHolder(binding)
+            }
+            TYPE_PADDING -> {
+                // 50dp 높이의 빈 View 생성
+                val view = View(parent.context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        parent.context.resources.getDimensionPixelSize(R.dimen.dp_50)
+                    )
+                }
+                PaddingViewHolder(view)
+            }
+            else -> throw IllegalArgumentException("Invalid view type")
+        }
+    }
+
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is DetailViewHolder) {
-            holder.bind()
-        } else if (holder is CommentViewHolder) {
-            holder.bind(comments[position - 1])
+        when (holder) {
+            is DetailViewHolder -> holder.bind()
+            is CommentViewHolder -> holder.bind(comments[position - 1])
+            is PaddingViewHolder -> Unit
         }
     }
 }

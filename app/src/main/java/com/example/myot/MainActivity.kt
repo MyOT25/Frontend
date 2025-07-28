@@ -40,18 +40,7 @@ class MainActivity : AppCompatActivity() {
             selectTab(it.itemId)
             true
         }
-
         topBar = findViewById(R.id.top_bar)
-
-        supportFragmentManager.addOnBackStackChangedListener {
-            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container_view)
-            if (currentFragment is QuestionSearchFragment) {
-                topBar.visibility = View.GONE
-            } else {
-                topBar.visibility = View.VISIBLE
-            }
-        }
-
     }
 
     private fun adjustBottomNavMargin() {

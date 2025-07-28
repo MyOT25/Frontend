@@ -29,6 +29,7 @@ class QuestionSearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().findViewById<View>(R.id.top_bar).visibility = View.GONE
 
         binding.etSearchInput.requestFocus()
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -41,6 +42,7 @@ class QuestionSearchFragment : Fragment() {
 
         val dummyList = listOf(
             QuestionItem(
+                isAnonymous = true,
                 title = "추천 뮤지컬 있을까요?",
                 time = "2025/07/14 17:57",
                 content = "요즘 스트레스 많아서 공연 보고 싶어요. 감동적인 뮤지컬 추천 좀 부탁드려요! #뮤지컬 #추천",
@@ -51,6 +53,8 @@ class QuestionSearchFragment : Fragment() {
                 )
             ),
             QuestionItem(
+                isAnonymous = false,
+                username = "질문하는 다람쥐",
                 title = "레미제라블 처음 보면 어때요?",
                 time = "2025/07/15 17:50",
                 content = "뮤지컬 입문인데 레미제라블이 유명하던데 처음 보기에도 괜찮을까요? #레미제라블 #입문",
@@ -76,7 +80,7 @@ class QuestionSearchFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        requireActivity().findViewById<View>(R.id.top_bar).visibility = View.VISIBLE
     }
 
     private fun setupDummyHashtags() {

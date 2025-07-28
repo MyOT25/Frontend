@@ -7,38 +7,38 @@
     android:layout_marginBottom="10dp"
     android:background="@drawable/bg_question_comment"
     android:paddingHorizontal="15dp"
-    android:paddingVertical="8dp">
+    android:paddingVertical="10dp">
 
-    <!-- A 아이콘 -->
+    <!-- 아이콘 -->
     <ImageView
-        android:id="@+id/ivDetailQ"
+        android:id="@+id/ivProfile"
         android:layout_width="16dp"
         android:layout_height="16dp"
+        android:layout_marginTop="3dp"
         android:src="@drawable/ic_a_mark"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvName"
-        app:layout_constraintBottom_toBottomOf="@id/tvName" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- 이름 -->
     <TextView
         android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="사용자 이름"
-        android:textColor="@color/black"
+        android:text="익명의 해결사"
+        android:textColor="@color/point_green"
         android:layout_marginStart="5dp"
         android:layout_marginVertical="5dp"
         android:textAppearance="@style/TextAppearance.App.TitleMedium"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/ivDetailQ"
-        app:layout_constraintBottom_toBottomOf="@id/ivDetailQ"/>
+        app:layout_constraintStart_toEndOf="@id/ivProfile"
+        app:layout_constraintBottom_toBottomOf="@id/ivProfile"/>
 
     <!-- 내용 -->
     <TextView
         android:id="@+id/tvContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="5dp"
         android:text="내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용?내용내용내용내용내용내용내용내용내용내용"
         android:textAppearance="@style/TextAppearance.App.BodyMedium"
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTime">
@@ -79,8 +79,8 @@
 
             <ImageView
                 android:id="@+id/ivLike"
-                android:layout_width="16dp"
-                android:layout_height="13dp"
+                android:layout_width="19dp"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_question_like_unselected" />
 
             <TextView
@@ -90,30 +90,7 @@
                 android:layout_marginStart="10dp"
                 android:text="100"
                 android:textAppearance="@style/TextAppearance.App.LabelTiny"
-                android:textColor="@color/gray2" />
-        </LinearLayout>
-
-        <!-- 댓글 영역 -->
-        <LinearLayout
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/ivComment"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_question_comment" />
-
-            <TextView
-                android:id="@+id/tvCommentCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="100"
-                android:textAppearance="@style/TextAppearance.App.LabelTiny"
-                android:textColor="@color/point_green" />
+                android:textColor="@color/point_pink" />
         </LinearLayout>
 
     </LinearLayout>
