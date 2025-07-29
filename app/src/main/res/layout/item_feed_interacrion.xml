@@ -5,129 +5,126 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:paddingTop="1dp"
-            android:paddingBottom="10dp"
-            android:paddingHorizontal="5dp">
-
-            <!-- 프로필 이미지 -->
-            <ImageView
-                android:id="@+id/iv_profile"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_no_profile"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <!-- 유저 이름 -->
-            <TextView
-                android:id="@+id/tv_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="유저1"
-                android:textColor="@color/black"
-                style="@style/TextAppearance.App.LabelLarge"
-                android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@id/iv_profile"
-                app:layout_constraintTop_toTopOf="@id/iv_profile"
-                android:layout_marginStart="9dp"/>
-
-            <!-- 유저 아이디 -->
-            <TextView
-                android:id="@+id/tv_userid"
-                style="@style/TextAppearance.App.LabelSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="\@user1"
-                android:textColor="@color/gray2"
-                android:layout_marginStart="3dp"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_username"
-                app:layout_constraintStart_toEndOf="@+id/tv_username"
-                app:layout_constraintTop_toTopOf="@+id/tv_username" />
-
-
-            <!-- 본문 텍스트 -->
-            <TextView
-                android:id="@+id/tv_content"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="7dp"
-                android:layout_marginEnd="25dp"
-                android:textColor="@color/black"
-                android:text="텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트"
-                style="@style/TextAppearance.App.BodySmall"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toEndOf="@+id/iv_profile"
-                app:layout_constraintTop_toBottomOf="@+id/tv_username" />
-
-            <!-- 더보기 버튼 -->
-            <TextView
-                android:id="@+id/tv_more"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="더 보기"
-                android:textColor="@color/point_blue"
-                android:fontFamily="@font/roboto_semibold"
-                android:textSize="12sp"
-                android:lineHeight="16sp"
-                android:letterSpacing="0.0333"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/tv_content"
-                app:layout_constraintStart_toStartOf="@id/tv_content"
-                android:layout_marginTop="4dp"/>
-
-            <!-- 이미지 포함 -->
-            <LinearLayout
-                android:id="@+id/layout_image_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="@+id/tv_content"
-                app:layout_constraintTop_toBottomOf="@id/tv_more">
-
-                <ImageView
-                    android:id="@+id/iv_image_icon"
-                    android:layout_width="11dp"
-                    android:layout_height="11dp"
-                    android:layout_marginEnd="2dp"
-                    android:src="@drawable/ic_include_img" />
-
-                <TextView
-                    android:id="@+id/tv_image_info"
-                    style="@style/TextAppearance.App.LabelTiny"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진 포함"
-                    android:textColor="@color/point_pink" />
-            </LinearLayout>
-
-            <!-- 인용 피드 컨테이너 -->
-            <FrameLayout
-                android:id="@+id/layout_quote"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="45dp"
-                android:layout_marginEnd="25dp"
-                android:layout_marginTop="5dp"
-                app:layout_constraintTop_toBottomOf="@id/layout_image_info"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
     <!-- 구분선  -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <!-- 프로필 이미지 -->
+        <ImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_no_profile"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 유저 이름 -->
+        <TextView
+            android:id="@+id/tv_username"
+            style="@style/TextAppearance.App.LabelLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="9dp"
+            android:layout_marginTop="-2dp"
+            android:text="유저1"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/iv_profile"
+            app:layout_constraintTop_toTopOf="@id/iv_profile" />
+
+        <!-- 유저 아이디 -->
+        <TextView
+            android:id="@+id/tv_userid"
+            style="@style/TextAppearance.App.LabelSmall"
+            android:fontFamily="@font/roboto_medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\@user1"
+            android:textColor="@color/gray2"
+            android:layout_marginTop="-3dp"
+            app:layout_constraintStart_toStartOf="@+id/tv_username"
+            app:layout_constraintTop_toBottomOf="@+id/tv_username" />
+
+
+        <!-- 본문 텍스트 -->
+        <TextView
+            android:id="@+id/tv_content"
+            style="@style/TextAppearance.App.BodySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_userid" />
+
+        <!-- 더보기 버튼 -->
+        <TextView
+            android:id="@+id/tv_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/roboto_semibold"
+            android:letterSpacing="0.0333"
+            android:lineHeight="16sp"
+            android:text="더 보기"
+            android:textColor="@color/point_blue"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@id/tv_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_content" />
+
+        <!-- 이미지 포함 -->
+        <LinearLayout
+            android:id="@+id/layout_image_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/tv_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_more">
+
+            <ImageView
+                android:id="@+id/iv_image_icon"
+                android:layout_width="11dp"
+                android:layout_height="11dp"
+                android:layout_marginEnd="2dp"
+                android:src="@drawable/ic_include_img" />
+
+            <TextView
+                android:id="@+id/tv_image_info"
+                style="@style/TextAppearance.App.LabelTiny"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="사진 포함"
+                android:textColor="@color/point_pink" />
+        </LinearLayout>
+
+        <!-- 인용 피드 컨테이너 -->
+        <FrameLayout
+            android:id="@+id/layout_quote"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_image_info" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
