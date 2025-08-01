@@ -3,13 +3,14 @@ package com.example.myot.feed.adapter
 import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
-import android.util.Log
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.PopupWindow
@@ -17,11 +18,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.example.myot.R
-import com.example.myot.comment.ui.CommentDetailFragment
-import com.example.myot.databinding.*
+import com.example.myot.databinding.ItemCommentDetailBinding
+import com.example.myot.databinding.ItemCommentReplyBinding
 import com.example.myot.feed.model.CommentItem
 import com.example.myot.feed.model.FeedItem
 import com.example.myot.profile.ProfileFragment
@@ -33,164 +33,100 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class FeedDetailAdapter(
-    private val feedItem: FeedItem,
-    private val comments: List<CommentItem>
+class CommentDetailAdapter(
+    private val parentComment: CommentItem,
+    private val parentFeed: FeedItem,
+    private val replies: List<CommentItem> // 대댓글 리스트
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-
-    private val underlineHiddenPositions = mutableSetOf<Int>()
-
-    init {
-        for (i in 1 until comments.size) {
-            if (extractMentionedUserid(comments[i].content) != null) {
-                underlineHiddenPositions.add(i - 1)
-            }
-        }
-    }
-
-    private fun extractMentionedUserid(text: String): String? {
-        val regex = Regex("@\\w+")
-        return regex.find(text)?.value
-    }
-
     companion object {
-        private const val TYPE_FEED = 0
-        private const val TYPE_COMMENT = 1
+        private const val TYPE_HEADER = 0
+        private const val TYPE_REPLY = 1
     }
 
-    override fun getItemCount(): Int = 1 + comments.size
-
-    override fun getItemViewType(position: Int): Int {
-        return if (position == 0) TYPE_FEED else TYPE_COMMENT
-    }
+    override fun getItemCount(): Int = 1 + replies.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        return when (viewType) {
-            TYPE_FEED -> {
-                val binding = ItemFeedDetailBinding.inflate(inflater, parent, false)
-                FeedViewHolder(binding)
-            }
-            else -> {
-                val binding = ItemCommentBinding.inflate(inflater, parent, false)
-                CommentViewHolder(binding, feedItem)
-            }
+        return if (viewType == TYPE_HEADER) {
+            val binding = ItemCommentDetailBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
+            HeaderViewHolder(binding)
+        } else {
+            val binding = ItemCommentReplyBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
+            ReplyViewHolder(binding)
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is CommentViewHolder) {
-            val commentPos = position - 1
-            val isLast = commentPos == comments.size - 1
-            val hideUnderline = underlineHiddenPositions.contains(commentPos)
-            holder.bind(comments[commentPos], isLast, hideUnderline)
-        } else if (holder is FeedViewHolder) {
-            holder.bind(feedItem, isLastItem = false)
+        if (holder is HeaderViewHolder) {
+            holder.bind(parentFeed, parentComment)
+        } else if (holder is ReplyViewHolder) {
+            holder.bind(replies[position - 1]) // -1 보정
         }
     }
 
 
-    class FeedViewHolder(private val binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: FeedItem, isLastItem: Boolean) {
-            if (binding is ItemFeedDetailBinding) {
-                com.example.myot.feed.adapter.FeedViewHolder(binding).bind(item, isLastItem)
-            }
-        }
-    }
+    inner class HeaderViewHolder(private val binding: ItemCommentDetailBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    class CommentViewHolder(
-        private val binding: ItemCommentBinding,
-        private val feedItem: FeedItem
-    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(feed: FeedItem, comment: CommentItem) {
 
-        private var isExpanded = false
-
-        fun bind(item: CommentItem, isLast: Boolean, hideUnderline: Boolean)  {
-            binding.tvUsername.text = item.username
-            binding.tvDate.text = item.date
-            binding.tvUserid.text = item.userid
-
-            val text = item.content
-            val isLongText = text.length > 160
-
-            val displayText = if (!isExpanded && isLongText) text.take(160) + "..." else text
-            binding.tvContent.text = styleMentionText(displayText, binding.root.context)
-            binding.tvMore.visibility = if (isLongText && !isExpanded) View.VISIBLE else View.GONE
-
-            binding.tvMore.setOnClickListener {
-                isExpanded = true
-                binding.tvContent.text = text
-                binding.tvMore.visibility = View.GONE
+            binding.tvFeedUsername.text = feed.username
+            binding.tvFeedContent.text = if (feed.content.length > 31) {
+                feed.content.substring(0, 31) + "..."
+            } else {
+                feed.content
             }
 
-            binding.tvComment.text = item.commentCount.toString()
-            binding.tvLike.text = item.likeCount.toString()
-            binding.tvRepost.text = item.repostCount.toString()
-            binding.tvQuote.text = item.quoteCount.toString()
+            binding.tvUsername.text = comment.username
+            binding.tvDate.text = comment.date
+            binding.tvUserid.text = comment.userid
+            binding.tvContent.text = styleMentionText(comment.content, binding.root.context)
 
-            updateColor(binding.tvLike, binding.ivLike, item.isLiked, R.color.point_pink)
-            updateColor(binding.tvRepost, binding.ivRepost, item.isReposted, R.color.point_blue)
-            updateColor(binding.tvQuote, binding.ivQuote, item.isQuoted, R.color.point_purple)
+            binding.tvComment.text = comment.commentCount.toString()
+            binding.tvLike.text = comment.likeCount.toString()
+            binding.tvRepost.text = comment.repostCount.toString()
+            binding.tvQuote.text = comment.quoteCount.toString()
 
-            binding.tvLike.setOnClickListener { toggleLike(item) }
-            binding.ivLike.setOnClickListener { toggleLike(item) }
-            binding.tvRepost.setOnClickListener { toggleRepost(item) }
-            binding.ivRepost.setOnClickListener { toggleRepost(item) }
-            binding.tvQuote.setOnClickListener { toggleQuote(item) }
-            binding.ivQuote.setOnClickListener { toggleQuote(item) }
+            // 추후 답글이 존재하면 안 보이게 해야함
+            binding.tvNoReply.visibility = View.VISIBLE
+
+            updateColor(binding.tvLike, binding.ivLike, comment.isLiked, R.color.point_pink)
+            updateColor(binding.tvRepost, binding.ivRepost, comment.isReposted, R.color.point_blue)
+            updateColor(binding.tvQuote, binding.ivQuote, comment.isQuoted, R.color.point_purple)
+
+            binding.tvLike.setOnClickListener { toggleLike(comment) }
+            binding.ivLike.setOnClickListener { toggleLike(comment) }
+            binding.tvRepost.setOnClickListener { toggleRepost(comment) }
+            binding.ivRepost.setOnClickListener { toggleRepost(comment) }
+            binding.tvQuote.setOnClickListener { toggleQuote(comment) }
+            binding.ivQuote.setOnClickListener { toggleQuote(comment) }
 
             val context = binding.root.context as Activity
-            val quotedCommentFeed = FeedItem(
-                username = item.username,
-                community = feedItem.community,
-                date = item.date,
-                content = item.content
+            val quotedFeed = FeedItem(
+                username = comment.username,
+                community = feed.community,
+                date = comment.date,
+                content = comment.content
             )
 
-            setFeedbackLongClick(context, binding.tvLike, "like", quotedCommentFeed)
-            setFeedbackLongClick(context, binding.ivLike, "like", quotedCommentFeed)
-            setFeedbackLongClick(context, binding.tvRepost, "repost", quotedCommentFeed)
-            setFeedbackLongClick(context, binding.ivRepost, "repost", quotedCommentFeed)
-            setFeedbackLongClick(context, binding.tvQuote, "quote", quotedCommentFeed)
-            setFeedbackLongClick(context, binding.ivQuote, "quote", quotedCommentFeed)
+            setFeedbackLongClick(context, binding.tvLike, "like", quotedFeed)
+            setFeedbackLongClick(context, binding.ivLike, "like", quotedFeed)
+            setFeedbackLongClick(context, binding.tvRepost, "repost", quotedFeed)
+            setFeedbackLongClick(context, binding.ivRepost, "repost", quotedFeed)
+            setFeedbackLongClick(context, binding.tvQuote, "quote", quotedFeed)
+            setFeedbackLongClick(context, binding.ivQuote, "quote", quotedFeed)
+
             binding.ivProfile.setOnClickListener { showProfilePopup(binding.ivProfile) }
+            binding.ivOverflow.setOnClickListener { showOverflowPopup(binding.ivOverflow) }
 
-            binding.viewUnderline.visibility = if (hideUnderline) View.GONE else View.VISIBLE
-
-            binding.root.setOnClickListener {
-                val context = binding.root.context
-                if (context is FragmentActivity) {
-                    val fragment = CommentDetailFragment.newInstance(item, feedItem)
-                    context.supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container_view, fragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
+            binding.ivBack.setOnClickListener {
+                val activity = it.context as? FragmentActivity
+                activity?.supportFragmentManager?.popBackStack()
             }
-        }
-
-        private fun styleMentionText(text: String, context: Context): SpannableString {
-            val spannable = SpannableString(text)
-            val regex = Regex("@\\w+")
-
-            regex.findAll(text).forEach { match ->
-                val start = match.range.first
-                val end = match.range.last + 1
-
-                spannable.setSpan(
-                    ForegroundColorSpan(context.getColor(R.color.point_purple)),
-                    start, end,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                spannable.setSpan(
-                    StyleSpan(Typeface.BOLD),
-                    start, end,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-
-            return spannable
         }
 
         private fun toggleLike(item: CommentItem) {
@@ -224,6 +160,71 @@ class FeedDetailAdapter(
             view.setOnLongClickListener {
                 showFeedbackBottomSheet(context, type, feedItem)
                 true
+            }
+        }
+
+        private fun showOverflowPopup(anchor: View) {
+            val context = anchor.context
+            val inflater = LayoutInflater.from(context)
+            val popupView = inflater.inflate(R.layout.menu_popup_overflow, null)
+
+            val popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            )
+
+            // 팝업뷰 먼저 측정
+            popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            val popupWidth = popupView.measuredWidth
+
+            // anchor 위치 가져오기
+            val location = IntArray(2)
+            anchor.getLocationOnScreen(location)
+            val anchorX = location[0]
+            val anchorY = location[1]
+
+            // 배경 어둡게
+            val rootView = (anchor.rootView as? ViewGroup) ?: return
+            val dimView = View(context).apply {
+                setBackgroundColor(0x22000000.toInt()) // 연한 어두운 배경
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            }
+            rootView.addView(dimView)
+            popupWindow.setOnDismissListener { rootView.removeView(dimView) }
+
+            popupWindow.setBackgroundDrawable(null)
+            popupWindow.isOutsideTouchable = true
+            popupWindow.isFocusable = true
+
+            popupWindow.elevation = 20f
+
+            // X 좌표를 anchor의 오른쪽 기준에서 왼쪽으로 이동시킴
+            val offsetX = anchor.width - popupWidth - 20
+            val offsetY = anchor.height + 7
+
+            popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
+
+            // 버튼 리스너
+            popupView.findViewById<View>(R.id.btn_share).setOnClickListener {
+                popupWindow.dismiss()
+                Toast.makeText(context, "공유 클릭", Toast.LENGTH_SHORT).show()
+            }
+            popupView.findViewById<View>(R.id.btn_report).setOnClickListener {
+                popupWindow.dismiss()
+                Toast.makeText(context, "신고 클릭", Toast.LENGTH_SHORT).show()
+            }
+            popupView.findViewById<View>(R.id.btn_profile).setOnClickListener {
+                popupWindow.dismiss()
+                Toast.makeText(context, "프로필 보기 클릭", Toast.LENGTH_SHORT).show()
+            }
+            popupView.findViewById<View>(R.id.btn_delete).setOnClickListener {
+                popupWindow.dismiss()
+                Toast.makeText(context, "삭제 클릭", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -362,6 +363,39 @@ class FeedDetailAdapter(
             dialog.show()
         }
 
+        private fun styleMentionText(text: String, context: Context): SpannableString {
+            val spannable = SpannableString(text)
+            val regex = Regex("@\\w+")
 
+            regex.findAll(text).forEach { match ->
+                val start = match.range.first
+                val end = match.range.last + 1
+
+                spannable.setSpan(
+                    ForegroundColorSpan(context.getColor(R.color.point_purple)),
+                    start, end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    start, end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            return spannable
+        }
     }
+
+    inner class ReplyViewHolder(private val binding: ItemCommentReplyBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(reply: CommentItem) {
+            binding.tvUsername.text = reply.username
+            binding.tvUserid.text = "@${reply.userid}"
+            binding.tvDate.text = reply.date
+            binding.tvContent.text = reply.content
+        }
+    }
+
 }
