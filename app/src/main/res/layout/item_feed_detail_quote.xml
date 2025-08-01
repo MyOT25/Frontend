@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="7dp"
+    android:background="@drawable/bg_feed_detail_quote"
+    android:paddingHorizontal="12dp">
+
+    <!-- 커뮤니티 이미지 -->
+    <ImageView
+        android:id="@+id/iv_community"
+        android:scaleX="0.9"
+        android:scaleY="0.9"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_no_community"
+        android:layout_marginTop="13dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- 프로필 이미지 -->
+    <ImageView
+        android:id="@+id/iv_profile"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="21dp"
+        android:scaleType="centerCrop"
+        android:scaleX="0.9"
+        android:scaleY="0.9"
+        android:src="@drawable/ic_no_profile"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_community"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/iv_community" />
+
+    <!-- 유저 이름 -->
+    <TextView
+        android:id="@+id/tv_username"
+        style="@style/TextAppearance.App.LabelMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="유저1"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_profile"
+        app:layout_constraintStart_toEndOf="@+id/iv_profile"
+        app:layout_constraintTop_toTopOf="@+id/iv_profile" />
+
+    <!-- 본문 텍스트 -->
+    <TextView
+        android:id="@+id/tv_content"
+        style="@style/TextAppearance.App.BodySmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="5dp"
+        android:layout_marginTop="4dp"
+        android:text="텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_profile" />
+
+    <!-- 더보기 버튼 -->
+    <TextView
+        android:id="@+id/tv_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="더 보기"
+        android:textColor="@color/point_blue"
+        android:fontFamily="@font/roboto_semibold"
+        android:textSize="12sp"
+        android:lineHeight="16sp"
+        android:letterSpacing="0.0333"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tv_content"
+        app:layout_constraintStart_toStartOf="@id/tv_content"
+        android:layout_marginTop="4dp"/>
+
+    <!-- 이미지 컨테이너 -->
+    <FrameLayout
+        android:id="@+id/layout_image_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tv_more"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="5dp"
+        android:layout_marginTop="4dp">
+
+        <!-- 이미지 레이아웃 1~4 -->
+        <include
+            android:id="@+id/layout_image1"
+            layout="@layout/item_feed_image1"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/layout_image2"
+            layout="@layout/item_feed_image2"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/layout_image3"
+            layout="@layout/item_feed_image3"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/layout_image4"
+            layout="@layout/item_feed_image4"
+            android:visibility="gone" />
+    </FrameLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
