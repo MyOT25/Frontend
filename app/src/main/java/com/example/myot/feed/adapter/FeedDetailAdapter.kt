@@ -125,12 +125,7 @@ class FeedDetailAdapter(
             setFeedbackLongClick(context, binding.ivRepost, "repost", quotedCommentFeed)
             setFeedbackLongClick(context, binding.tvQuote, "quote", quotedCommentFeed)
             setFeedbackLongClick(context, binding.ivQuote, "quote", quotedCommentFeed)
-
-            binding.ivOverflow.setOnClickListener { showOverflowPopup(binding.ivOverflow) }
             binding.ivProfile.setOnClickListener { showProfilePopup(binding.ivProfile) }
-
-            // 마지막 댓글이면 직선 숨기기
-            binding.viewLine.visibility = if (isLast) View.GONE else View.VISIBLE
         }
 
         private fun toggleLike(item: CommentItem) {
@@ -155,7 +150,7 @@ class FeedDetailAdapter(
         }
 
         private fun updateColor(tv: TextView, iv: ImageView, active: Boolean, colorRes: Int) {
-            val color = tv.context.getColor(if (active) colorRes else R.color.gray2)
+            val color = tv.context.getColor(if (active) colorRes else R.color.gray3)
             tv.setTextColor(color)
             iv.setColorFilter(color)
         }
@@ -217,62 +212,6 @@ class FeedDetailAdapter(
                 transaction.replace(R.id.fragment_container_view, ProfileFragment())
                 transaction.addToBackStack(null)
                 transaction.commit()
-            }
-        }
-
-        private fun showOverflowPopup(anchor: View) {
-            val context = anchor.context
-            val inflater = LayoutInflater.from(context)
-            val popupView = inflater.inflate(R.layout.menu_popup_overflow, null)
-
-            val popupWindow = PopupWindow(
-                popupView,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                true
-            )
-
-            popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            val popupWidth = popupView.measuredWidth
-
-            val location = IntArray(2)
-            anchor.getLocationOnScreen(location)
-            val anchorX = location[0]
-            val anchorY = location[1]
-
-            val rootView = (anchor.rootView as? ViewGroup) ?: return
-            val dimView = View(context).apply {
-                setBackgroundColor(0x22000000.toInt())
-                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            }
-            rootView.addView(dimView)
-            popupWindow.setOnDismissListener { rootView.removeView(dimView) }
-
-            popupWindow.setBackgroundDrawable(null)
-            popupWindow.isOutsideTouchable = true
-            popupWindow.isFocusable = true
-
-            popupWindow.elevation = 20f
-
-            val offsetX = anchor.width - popupWidth - 50
-            val offsetY = anchor.height + 7
-            popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
-
-            popupView.findViewById<View>(R.id.btn_share).setOnClickListener {
-                popupWindow.dismiss()
-                Toast.makeText(context, "공유 클릭", Toast.LENGTH_SHORT).show()
-            }
-            popupView.findViewById<View>(R.id.btn_report).setOnClickListener {
-                popupWindow.dismiss()
-                Toast.makeText(context, "신고 클릭", Toast.LENGTH_SHORT).show()
-            }
-            popupView.findViewById<View>(R.id.btn_profile).setOnClickListener {
-                popupWindow.dismiss()
-                Toast.makeText(context, "프로필 보기 클릭", Toast.LENGTH_SHORT).show()
-            }
-            popupView.findViewById<View>(R.id.btn_delete).setOnClickListener {
-                popupWindow.dismiss()
-                Toast.makeText(context, "삭제 클릭", Toast.LENGTH_SHORT).show()
             }
         }
 

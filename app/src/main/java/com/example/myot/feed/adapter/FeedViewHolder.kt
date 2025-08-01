@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -195,6 +196,15 @@ class FeedViewHolder(
             }
         }
 
+        val isDetail = binding is ItemFeedDetailBinding
+
+        if (isDetail) {
+            val backButton = b.root.findViewById<ImageView>(R.id.iv_back)
+            backButton?.setOnClickListener {
+                (b.root.context as? AppCompatActivity)?.supportFragmentManager?.popBackStack()
+            }
+        }
+
         // --- 인용 피드 처리 ---
         if (b is ItemFeedBinding || b is ItemFeedDetailBinding) {
             val quoteLayout = b.root.findViewById<ViewGroup>(R.id.layout_quote)
@@ -204,10 +214,15 @@ class FeedViewHolder(
                 quoteLayout.visibility = View.VISIBLE
                 quoteLayout.removeAllViews()
 
+                val isDetail = binding is ItemFeedDetailBinding
                 val inflater = LayoutInflater.from(b.root.context)
-                val quoteView = inflater.inflate(R.layout.item_feed_quote, quoteLayout, false)
+                val layoutResId = if (isDetail) {
+                    R.layout.item_feed_detail_quote
+                } else {
+                    R.layout.item_feed_quote
+                }
+                val quoteView = inflater.inflate(layoutResId, quoteLayout, false)
                 quoteLayout.addView(quoteView)
-
                 // 텍스트 설정
                 quoteView.findViewById<TextView>(R.id.tv_username)?.text = quoted.username
                 quoteView.findViewById<TextView>(R.id.tv_content)?.let { tv ->
@@ -268,21 +283,26 @@ class FeedViewHolder(
 
     private fun updateLikeColor(textView: TextView?, imageView: ImageView?, liked: Boolean) {
         val context = textView?.context ?: return
-        val color = context.getColor(if (liked) R.color.point_pink else R.color.gray2)
+        val isDetail = binding is ItemFeedDetailBinding
+        val inactiveColor = if (isDetail) R.color.gray3 else R.color.gray2
+        val color = context.getColor(if (liked) R.color.point_pink else inactiveColor)
         textView.setTextColor(color)
         imageView?.setColorFilter(color)
     }
-
     private fun updateRepostColor(textView: TextView?, imageView: ImageView?, reposted: Boolean) {
         val context = textView?.context ?: return
-        val color = context.getColor(if (reposted) R.color.point_blue else R.color.gray2)
+        val isDetail = binding is ItemFeedDetailBinding
+        val inactiveColor = if (isDetail) R.color.gray3 else R.color.gray2
+        val color = context.getColor(if (reposted) R.color.point_blue else inactiveColor)
         textView.setTextColor(color)
         imageView?.setColorFilter(color)
     }
 
     private fun updateQuoteColor(textView: TextView?, imageView: ImageView?, quoted: Boolean) {
         val context = textView?.context ?: return
-        val color = context.getColor(if (quoted) R.color.point_purple else R.color.gray2)
+        val isDetail = binding is ItemFeedDetailBinding
+        val inactiveColor = if (isDetail) R.color.gray3 else R.color.gray2
+        val color = context.getColor(if (quoted) R.color.point_purple else inactiveColor)
         textView.setTextColor(color)
         imageView?.setColorFilter(color)
     }

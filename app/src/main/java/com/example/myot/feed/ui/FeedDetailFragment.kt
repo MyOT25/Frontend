@@ -49,6 +49,8 @@ class FeedDetailFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().findViewById<View>(R.id.top_bar).visibility = View.GONE
 
         binding.customRefreshView.apply {
             rotation = 0f
@@ -100,20 +102,6 @@ class FeedDetailFragment : Fragment() {
 
         // 벡엔드 연동시 제거
         feedItem = requireArguments().getParcelable("feedItem")!!
-
-        val topBar = requireActivity().findViewById<View>(R.id.top_bar)
-        val ivLogo = topBar.findViewById<ImageView>(R.id.iv_logo)
-        val tvCommunityName = topBar.findViewById<TextView>(R.id.tv_community_name)
-        val ivClose = topBar.findViewById<ImageView>(R.id.iv_close)
-
-        ivLogo.visibility = View.GONE
-        tvCommunityName.visibility = View.VISIBLE
-        tvCommunityName.text = feedItem.community
-        ivClose.visibility = View.VISIBLE
-
-        ivClose.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
 
         // 더미 데이터
         val commentList = listOf(
@@ -195,7 +183,16 @@ class FeedDetailFragment : Fragment() {
         binding.rvFeedDetail.layoutManager = LinearLayoutManager(requireContext())
         binding.rvFeedDetail.adapter = adapter
 
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().findViewById<View>(R.id.top_bar).visibility = View.VISIBLE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().findViewById<View>(R.id.top_bar).visibility = View.GONE
     }
 
     private fun dpToPx(dp: Int): Int {
