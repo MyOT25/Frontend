@@ -186,8 +186,8 @@
 
                     <ImageView
                         android:id="@+id/iv_comment"
-                        android:layout_width="19dp"
-                        android:layout_height="19dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/ic_feed_comment" />
 
                     <TextView
@@ -211,7 +211,7 @@
 
                     <ImageView
                         android:id="@+id/iv_like"
-                        android:layout_width="19dp"
+                        android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_feed_like" />
 
@@ -236,8 +236,8 @@
 
                     <ImageView
                         android:id="@+id/iv_repost"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:src="@drawable/ic_feed_repost" />
 
                     <TextView
@@ -261,8 +261,8 @@
 
                     <ImageView
                         android:id="@+id/iv_quote"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="23dp"
+                        android:layout_height="23dp"
                         android:src="@drawable/ic_feed_quote" />
 
                     <TextView
