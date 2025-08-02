@@ -1,5 +1,6 @@
 package com.example.myot.question.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -11,9 +12,11 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.R
+import com.example.myot.write.WriteActivity
 import com.example.myot.databinding.FragmentQuestionBinding
 import com.example.myot.question.adapter.QuestionAdapter
 import com.example.myot.question.model.QuestionItem
+import kotlin.jvm.java
 
 class QuestionFragment : Fragment() {
 
@@ -169,6 +172,11 @@ class QuestionFragment : Fragment() {
         val handler = android.os.Handler(android.os.Looper.getMainLooper())
         val restoreFabAlphaRunnable = Runnable {
             binding.btnEdit.animate().alpha(1f).setDuration(200).start()
+        }
+
+        binding.btnEdit.setOnClickListener {
+            val intent = Intent(requireContext(), WriteActivity::class.java)
+            startActivity(intent)
         }
 
         binding.nestedScrollView.setOnScrollChangeListener { v, _, scrollY, _, oldScrollY ->

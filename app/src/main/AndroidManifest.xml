@@ -30,6 +30,10 @@
         <!-- 채팅 생성을 위한 액티비티-->
 
         <activity
+            android:name=".write.WriteActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
