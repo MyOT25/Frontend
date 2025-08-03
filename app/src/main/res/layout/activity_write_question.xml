@@ -40,49 +40,25 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- 이미지 추가 + 썸네일 라인 -->
-    <LinearLayout
-        android:id="@+id/layout_image_container"
-        android:layout_width="0dp"
+    <HorizontalScrollView
+        android:id="@+id/scroll_image_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginTop="17dp"
-        android:clipChildren="false"
-        android:clipToPadding="false"
+        android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/tv_cancel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- 기존 추가 버튼은 이 안으로 이동 -->
         <LinearLayout
-            android:id="@+id/btn_add_image"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:background="@drawable/bg_write_img"
-            android:layout_marginTop="3dp"
-            android:paddingTop="4dp"
-            android:layout_marginEnd="12dp">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_add_img"
-                android:layout_marginBottom="4dp"
-                android:contentDescription="이미지 추가" />
-
-            <TextView
-                android:id="@+id/tv_image_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0/5"
-                android:includeFontPadding="false"
-                style="@style/TextAppearance.App.LabelTiny"
-                android:textColor="@color/gray3"/>
+            android:id="@+id/layout_image_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:clipChildren="false"
+            android:clipToPadding="false">
         </LinearLayout>
-
-        <!-- 여기에 썸네일이 동적으로 addView 됨 -->
-    </LinearLayout>
+    </HorizontalScrollView>
 
     <!-- 익명 질문 Chip -->
     <LinearLayout
@@ -93,7 +69,7 @@
         android:gravity="center_vertical"
         android:layout_marginTop="14dp"
         android:layout_marginStart="6dp"
-        app:layout_constraintTop_toBottomOf="@id/layout_image_container"
+        app:layout_constraintTop_toBottomOf="@id/scroll_image_container"
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageView

@@ -55,7 +55,7 @@ class WriteFeedActivity : AppCompatActivity() {
 
         // 1. 이미지 추가 버튼을 먼저 추가
         val addButtonView = LayoutInflater.from(this)
-            .inflate(R.layout.item_write_add_img, binding.layoutImageContainer, false)
+            .inflate(R.layout.item_write_add_feed_img, binding.layoutImageContainer, false)
         val tvCount = addButtonView.findViewById<TextView>(R.id.tv_image_count)
         tvCount.text = "${selectedImageUris.size}/4"
 

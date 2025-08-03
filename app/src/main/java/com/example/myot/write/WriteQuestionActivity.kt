@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.R
@@ -20,12 +21,13 @@ class WriteQuestionActivity : AppCompatActivity() {
 
     private var isAnonymous = true
     private val selectedImageUris = mutableListOf<Uri>()
-    private val MAX_IMAGE_COUNT = 5
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWriteQuestionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        updateImageThumbnails()
 
         // 닫기 기능
         binding.tvCancel.setOnClickListener {
@@ -35,14 +37,6 @@ class WriteQuestionActivity : AppCompatActivity() {
         // 팝업 메뉴 기능
         binding.tvAnonymous.setOnClickListener {
             showAnonymousPopup(it)
-        }
-
-        // 사진 추가
-        binding.btnAddImage.setOnClickListener {
-            if (selectedImageUris.size >= MAX_IMAGE_COUNT) {
-                return@setOnClickListener
-            }
-            pickImagesLauncher.launch("image/*")
         }
 
         // 글쓰기
@@ -62,38 +56,49 @@ class WriteQuestionActivity : AppCompatActivity() {
         }
     }
 
-    private val pickImagesLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-        if (uris != null) {
-            for (uri in uris) {
-                if (selectedImageUris.size >= MAX_IMAGE_COUNT) break
-                selectedImageUris.add(uri)
-                addImageThumbnail(uri)
+    private fun updateImageThumbnails() {
+        binding.layoutImageContainer.removeAllViews()
+
+        // 1. 이미지 추가 버튼을 먼저 추가
+        val addButtonView = LayoutInflater.from(this)
+            .inflate(R.layout.item_write_add_question_img, binding.layoutImageContainer, false)
+        val tvCount = addButtonView.findViewById<TextView>(R.id.tv_image_count)
+        tvCount.text = "${selectedImageUris.size}/5"
+
+        addButtonView.setOnClickListener {
+            imagePickerLauncher.launch("image/*")
+        }
+
+        binding.layoutImageContainer.addView(addButtonView)
+
+        // 2. 그다음 이미지들을 오른쪽에 추가
+        selectedImageUris.forEach { uri ->
+            val thumbnailView = LayoutInflater.from(this)
+                .inflate(R.layout.item_write_question_img, binding.layoutImageContainer, false)
+
+            val ivThumbnail = thumbnailView.findViewById<ImageView>(R.id.iv_thumbnail)
+            val btnDelete = thumbnailView.findViewById<ImageView>(R.id.btn_remove)
+
+            ivThumbnail.setImageURI(uri)
+
+            thumbnailView.tag = uri
+            btnDelete.setOnClickListener {
+                selectedImageUris.remove(uri)
+                updateImageThumbnails()
             }
-            updateImageCount()
+
+            binding.layoutImageContainer.addView(thumbnailView)
         }
     }
 
-    private fun addImageThumbnail(uri: Uri) {
-        val imageContainer = binding.layoutImageContainer
-
-        val imageLayout = LayoutInflater.from(this).inflate(R.layout.item_write_question_img, imageContainer, false)
-
-        val imageView = imageLayout.findViewById<ImageView>(R.id.iv_thumbnail)
-        val btnRemove = imageLayout.findViewById<ImageView>(R.id.btn_remove)
-
-        imageView.setImageURI(uri)
-        btnRemove.setOnClickListener {
-            imageContainer.removeView(imageLayout)
-            selectedImageUris.remove(uri)
-            updateImageCount()
+    private val imagePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+            if (uris != null) {
+                val remaining = 5 - selectedImageUris.size
+                selectedImageUris.addAll(uris.take(remaining))
+                updateImageThumbnails()
+            }
         }
-
-        imageContainer.addView(imageLayout)
-    }
-
-    private fun updateImageCount() {
-        binding.tvImageCount.text = "${selectedImageUris.size}/$MAX_IMAGE_COUNT"
-    }
 
     private fun showAnonymousPopup(anchor: View) {
         val context = anchor.context
