@@ -8,6 +8,9 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.provider.Settings
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
@@ -40,7 +43,40 @@ class MainActivity : AppCompatActivity() {
             selectTab(it.itemId)
             true
         }
-        topBar = findViewById(R.id.top_bar)
+
+
+        // 알림창 기능
+        val topContainer = findViewById<View>(R.id.top_bar)
+        val alarmBtn = findViewById<ImageView>(R.id.iv_notification)
+
+        var isDown = false
+
+        topContainer.post {
+            val screenHeight = resources.displayMetrics.heightPixels.toFloat()
+            val referenceScreenHeight = 2400f
+
+            val hideRatio = 2090f / referenceScreenHeight
+            val showRatio = 180f / referenceScreenHeight
+
+            val hideY = -screenHeight * hideRatio
+            var showY = -screenHeight * showRatio
+
+            if (!isGestureNavigation()) {
+                showY -= 29.dpToPx()
+            }
+
+            topContainer.translationY = hideY
+
+            alarmBtn.setOnClickListener {
+                val targetY = if (!isDown) showY else hideY
+                topContainer.animate()
+                    .translationY(targetY)
+                    .setDuration(300)
+                    .start()
+                isDown = !isDown
+            }
+        }
+
     }
 
     private fun adjustBottomNavMargin() {
