@@ -1,5 +1,6 @@
 package com.example.myot.question.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
@@ -8,20 +9,44 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.R
-import com.example.myot.write.WriteActivity
+import com.example.myot.write.WriteQuestionActivity
 import com.example.myot.databinding.FragmentQuestionBinding
 import com.example.myot.question.adapter.QuestionAdapter
 import com.example.myot.question.model.QuestionItem
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.jvm.java
 
 class QuestionFragment : Fragment() {
 
     private lateinit var binding: FragmentQuestionBinding
     private lateinit var adapter: QuestionAdapter
+    private val questionList = mutableListOf<QuestionItem>()
+
+    private val writeResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data ?: return@registerForActivityResult
+            val newItem = QuestionItem(
+                isAnonymous = data.getBooleanExtra("isAnonymous", true),
+                title = "질문 있어요", // 임시 타이틀
+                time = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                content = data.getStringExtra("content") ?: "",
+                likeCount = 0,
+                commentCount = 0,
+                imageUrls = data.getStringArrayListExtra("imageUrls")
+            )
+
+            questionList.add(0, newItem)
+            adapter.notifyItemInserted(0)
+            binding.rvFeeds.scrollToPosition(0)
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentQuestionBinding.inflate(inflater, container, false)
@@ -147,8 +172,9 @@ class QuestionFragment : Fragment() {
                 )
             )
         )
+        questionList.addAll(dummyList)
 
-        adapter = QuestionAdapter(dummyList) { item ->
+        adapter = QuestionAdapter(questionList) { item ->
             val detailFragment = QuestionDetailFragment.newInstance(item)
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container_view, detailFragment)
@@ -174,9 +200,10 @@ class QuestionFragment : Fragment() {
             binding.btnEdit.animate().alpha(1f).setDuration(200).start()
         }
 
+        // 질문 글쓰기
         binding.btnEdit.setOnClickListener {
-            val intent = Intent(requireContext(), WriteActivity::class.java)
-            startActivity(intent)
+            val intent = Intent(requireContext(), WriteQuestionActivity::class.java)
+            writeResultLauncher.launch(intent)
         }
 
         binding.nestedScrollView.setOnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
