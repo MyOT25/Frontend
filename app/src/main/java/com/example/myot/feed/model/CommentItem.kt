@@ -1,7 +1,12 @@
 package com.example.myot.feed.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class CommentItem(
     val username: String,
+    val userid: String,
     val content: String,
     val date: String,
 
@@ -15,4 +20,4 @@ data class CommentItem(
     var isQuoted: Boolean = false,
 
     val isAnonymous: Boolean = false
-)
+) : Parcelable

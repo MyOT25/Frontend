@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/btn_add_image"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_write_img"
+    android:layout_marginTop="3dp"
+    android:layout_marginEnd="12dp"
+    android:paddingTop="4dp">
+
+    <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:src="@drawable/ic_add_img"
+        android:layout_marginBottom="4dp"
+        android:contentDescription="이미지 추가" />
+
+    <TextView
+        android:id="@+id/tv_image_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0/5"
+        android:includeFontPadding="false"
+        style="@style/TextAppearance.App.LabelTiny"
+        android:textColor="@color/gray3"/>
+</LinearLayout>
