@@ -1,9 +1,10 @@
-package com.example.myot.community
+package com.example.myot.community.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myot.community.model.ReviewFilterItem
 import com.example.myot.databinding.ItemFilteringCheckboxBinding
 
 class ReviewFilterAdapter(private val items: List<ReviewFilterItem>) : RecyclerView.Adapter<ReviewFilterAdapter.ViewHolder>() {

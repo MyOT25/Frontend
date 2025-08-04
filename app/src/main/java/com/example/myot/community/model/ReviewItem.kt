@@ -1,4 +1,4 @@
-package com.example.myot.community
+package com.example.myot.community.model
 
 data class ReviewItem(
     val userName: String,

@@ -1,4 +1,4 @@
-package com.example.myot.community
+package com.example.myot.community.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,14 +10,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myot.databinding.FragmentCmHomeBinding
+import com.example.myot.community.model.CommunityMode
+import com.example.myot.community.model.CommunityViewModel
+import com.example.myot.databinding.FragmentCmHighlightBinding
 import com.example.myot.feed.adapter.FeedAdapter
 import com.example.myot.feed.model.FeedItem
 import kotlinx.coroutines.launch
 
-class CmHomeFragment : Fragment() {
+class CmHighlightFragment : Fragment() {
 
-    private var _binding: FragmentCmHomeBinding? = null
+    private var _binding: FragmentCmHighlightBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: CommunityViewModel by viewModels({ requireParentFragment() })
@@ -26,21 +28,21 @@ class CmHomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentCmHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentCmHighlightBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.communityMode.collect { mode ->
-                    binding.btnCmHomeEdit.visibility =
+                    binding.btnCmHighlightEdit.visibility =
                         if (mode == CommunityMode.MEMBER) View.VISIBLE else View.GONE
                 }
             }
         }
-
         // 피드 더미 데이터 생성
         val dummyFeeds = listOf(
             FeedItem(
@@ -107,9 +109,10 @@ class CmHomeFragment : Fragment() {
         )
 
         // 피드 리사이클러뷰 초기화
-        binding.rvHomes.apply {
+        binding.rvHighlights.apply {
             adapter = FeedAdapter(dummyFeeds)
             layoutManager = LinearLayoutManager(requireContext())
         }
     }
+
 }

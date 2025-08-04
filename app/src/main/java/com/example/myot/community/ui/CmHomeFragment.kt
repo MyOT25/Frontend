@@ -1,4 +1,4 @@
-package com.example.myot.community
+package com.example.myot.community.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,14 +10,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myot.databinding.FragmentCmMediaBinding
+import com.example.myot.community.model.CommunityMode
+import com.example.myot.community.model.CommunityViewModel
+import com.example.myot.databinding.FragmentCmHomeBinding
 import com.example.myot.feed.adapter.FeedAdapter
 import com.example.myot.feed.model.FeedItem
 import kotlinx.coroutines.launch
 
-class CmMediaFragment : Fragment() {
+class CmHomeFragment : Fragment() {
 
-    private var _binding: FragmentCmMediaBinding? = null
+    private var _binding: FragmentCmHomeBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: CommunityViewModel by viewModels({ requireParentFragment() })
@@ -26,7 +28,7 @@ class CmMediaFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentCmMediaBinding.inflate(inflater, container, false)
+        _binding = FragmentCmHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -35,7 +37,7 @@ class CmMediaFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.communityMode.collect { mode ->
-                    binding.btnCmMediaEdit.visibility =
+                    binding.btnCmHomeEdit.visibility =
                         if (mode == CommunityMode.MEMBER) View.VISIBLE else View.GONE
                 }
             }
@@ -107,7 +109,7 @@ class CmMediaFragment : Fragment() {
         )
 
         // 피드 리사이클러뷰 초기화
-        binding.rvMedias.apply {
+        binding.rvHomes.apply {
             adapter = FeedAdapter(dummyFeeds)
             layoutManager = LinearLayoutManager(requireContext())
         }

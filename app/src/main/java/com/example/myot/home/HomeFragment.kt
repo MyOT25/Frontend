@@ -1,7 +1,6 @@
 package com.example.myot.home
 
 import android.annotation.SuppressLint
-import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,17 +12,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.R
-import com.example.myot.community.CommunityFragment
+import com.example.myot.community.ui.CommunityFragment
 import com.example.myot.databinding.FragmentHomeBinding
 import com.example.myot.feed.adapter.FeedAdapter
 import com.example.myot.feed.model.FeedItem
-import kotlin.collections.plusAssign
 import kotlin.math.min
-import kotlin.math.round
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null

@@ -1,7 +1,11 @@
-package com.example.myot.community
+package com.example.myot.community.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.myot.community.ui.CmHighlightFragment
+import com.example.myot.community.ui.CmHomeFragment
+import com.example.myot.community.ui.CmMediaFragment
+import com.example.myot.community.ui.CmReviewFragment
 import com.example.myot.memorybook.CmMemoryFragment
 
 class CommunityTabAdapter(
