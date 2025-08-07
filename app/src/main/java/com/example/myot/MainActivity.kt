@@ -11,7 +11,10 @@ import android.provider.Settings
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.updateLayoutParams
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
 import com.example.myot.home.HomeFragment
@@ -48,22 +51,16 @@ class MainActivity : AppCompatActivity() {
         // 알림창 기능
         val topContainer = findViewById<View>(R.id.top_bar)
         val alarmBtn = findViewById<ImageView>(R.id.iv_notification)
+        val bg = findViewById<View>(R.id.iv_top_bg)
 
         var isDown = false
 
         topContainer.post {
-            val screenHeight = resources.displayMetrics.heightPixels.toFloat()
-            val referenceScreenHeight = 2400f
+            val bgHeight = bg.height.toFloat()
+            val topBarHeight = topContainer.height.toFloat()
 
-            val hideRatio = 2090f / referenceScreenHeight
-            val showRatio = 180f / referenceScreenHeight
-
-            val hideY = -screenHeight * hideRatio
-            var showY = -screenHeight * showRatio
-
-            if (!isGestureNavigation()) {
-                showY -= 29.dpToPx()
-            }
+            val hideY = -(topBarHeight - bgHeight + 10.dpToPx())
+            val showY = 0f
 
             topContainer.translationY = hideY
 
@@ -76,7 +73,6 @@ class MainActivity : AppCompatActivity() {
                 isDown = !isDown
             }
         }
-
     }
 
     private fun adjustBottomNavMargin() {
