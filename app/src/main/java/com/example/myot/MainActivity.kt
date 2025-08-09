@@ -8,17 +8,15 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.provider.Settings
-import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.updateLayoutParams
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
 import com.example.myot.home.HomeFragment
-import com.example.myot.question.ui.QuestionSearchFragment
+import com.example.myot.notification.NotificationAdapter
+import com.example.myot.notification.NotificationItem
 import com.example.myot.question.ui.QuestionFragment
 
 class MainActivity : AppCompatActivity() {
@@ -53,6 +51,20 @@ class MainActivity : AppCompatActivity() {
         val alarmBtn = findViewById<ImageView>(R.id.iv_notification)
         val bg = findViewById<View>(R.id.iv_top_bg)
 
+        val dummyList = mutableListOf(
+            NotificationItem(1, "user1, user2 님 외 여러 명이 회원님의 피드를 좋아합니다.", R.drawable.ic_profile_over, true),
+            NotificationItem(2, "user2 님이 회원님의 피드에 댓글을 남겼습니다.", R.drawable.ic_profile_outline, false),
+            NotificationItem(3, "user2 님이 회원님의 피드를 리포스트 했습니다.", R.drawable.ic_profile_outline, false)
+        )
+
+
+        fun updateAlarmIcon() {
+            val hasNew = dummyList.any { it.isNew }
+            alarmBtn.setImageResource(
+                if (hasNew) R.drawable.ic_alarm_new else R.drawable.ic_alarm_no
+            )
+        }
+
         var isDown = false
 
         topContainer.post {
@@ -65,15 +77,41 @@ class MainActivity : AppCompatActivity() {
             topContainer.translationY = hideY
 
             alarmBtn.setOnClickListener {
-                val targetY = if (!isDown) showY else hideY
+                val goingDown = !isDown
+                val targetY = if (goingDown) showY else hideY
+
                 topContainer.animate()
                     .translationY(targetY)
                     .setDuration(300)
+                    .withEndAction {
+                        isDown = goingDown
+                        if (isDown) {
+                            updateAlarmIcon()
+                        } else {
+                            alarmBtn.setImageResource(R.drawable.ic_alarm)
+                        }
+                    }
                     .start()
-                isDown = !isDown
             }
         }
+
+        val rv = findViewById<RecyclerView>(R.id.rv_notifications).apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+        }
+
+        lateinit var adapter: NotificationAdapter
+        adapter = NotificationAdapter(dummyList) { pos ->
+
+            val item = dummyList.getOrNull(pos) ?: return@NotificationAdapter
+            if (item.isNew) {
+                item.isNew = false
+                adapter.notifyItemChanged(pos)
+                if (isDown) updateAlarmIcon()
+            }
+        }
+        rv.adapter = adapter
     }
+
 
     private fun adjustBottomNavMargin() {
         val bottomNav = binding.bottomNavigationView
@@ -91,6 +129,8 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav.layoutParams = params
     }
+
+
 
     private fun isGestureNavigation(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
