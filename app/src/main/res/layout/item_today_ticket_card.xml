@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="10dp"
+    android:background="@drawable/bg_ticket_today"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="5dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:id="@+id/iv_today_poster"
+            android:layout_width="135dp"
+            android:layout_height="190dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_today_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:fontFamily="@font/roboto_semibold"
+            android:text="킹키 부츠"
+            android:textColor="@color/gray1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/iv_today_poster"
+            app:layout_constraintTop_toTopOf="@+id/iv_today_poster" />
+
+        <!-- 장소 -->
+        <TextView
+            android:id="@+id/tv_today_theater_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="장소:"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/tv_today_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_today_title" />
+
+        <TextView
+            android:id="@+id/tv_today_theater"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_today_theater_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_today_theater_title"
+            app:layout_constraintTop_toTopOf="@+id/tv_today_theater_title" />
+
+        <!-- 기간 -->
+        <TextView
+            android:id="@+id/tv_today_period_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="기간:"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/tv_today_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_today_theater_title" />
+
+        <TextView
+            android:id="@+id/tv_today_period"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_today_period_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_today_period_title"
+            app:layout_constraintTop_toTopOf="@+id/tv_today_period_title" />
+
+        <!-- 배우 -->
+        <TextView
+            android:id="@+id/tv_today_casting_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:text="배우:"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/tv_today_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_today_period_title" />
+
+        <TextView
+            android:id="@+id/tv_today_casting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_today_casting_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_today_casting_title"
+            app:layout_constraintTop_toTopOf="@+id/tv_today_casting_title" />
+
+        <!-- 평균 별점 -->
+        <TextView
+            android:id="@+id/tv_today_rating_avg_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:text="평균 별점:"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/tv_today_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_today_casting_title" />
+
+        <TextView
+            android:id="@+id/tv_today_rating_avg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_today_rating_avg_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_today_rating_avg_title"
+            app:layout_constraintTop_toTopOf="@+id/tv_today_rating_avg_title" />
+
+        <!-- 나의 별점 -->
+        <TextView
+            android:id="@+id/tv_today_my_rating_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:text="나의 별점:"
+            android:textColor="@color/gray1"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/tv_today_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_today_rating_avg_title" />
+
+        <TextView
+            android:id="@+id/tv_today_my_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="4.5"
+            android:textColor="#A56AFD"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/tv_today_my_rating_title"
+            app:layout_constraintTop_toTopOf="@+id/tv_today_my_rating_title" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

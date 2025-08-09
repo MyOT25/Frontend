@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.community.model.Profile
-import com.example.myot.community.adapter.MultiProfileAdapter
+import com.example.myot.community.ui.adapter.MultiProfileAdapter
 import com.example.myot.databinding.FragmentCmMultiProfileListBinding
 import com.example.myot.databinding.FragmentCmMultiProfileNewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

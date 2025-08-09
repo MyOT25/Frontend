@@ -17,7 +17,7 @@ import com.example.myot.R
 import com.example.myot.community.model.CommunityMode
 import com.example.myot.community.model.CommunityViewModel
 import com.example.myot.community.model.ProfileRequest
-import com.example.myot.community.adapter.CommunityTabAdapter
+import com.example.myot.community.ui.adapter.CommunityTabAdapter
 import com.example.myot.retrofit2.RetrofitClient
 import kotlinx.coroutines.launch
 

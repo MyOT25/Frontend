@@ -1,4 +1,4 @@
-package com.example.myot.community.adapter
+package com.example.myot.community.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

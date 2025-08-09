@@ -1,4 +1,4 @@
-package com.example.myot.community.adapter
+package com.example.myot.community.ui.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter

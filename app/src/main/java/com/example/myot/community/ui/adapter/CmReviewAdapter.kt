@@ -1,4 +1,4 @@
-package com.example.myot.community.ui
+package com.example.myot.community.ui.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -11,6 +11,7 @@ import android.view.View
 import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.community.model.ReviewItem
+import com.example.myot.community.ui.ReviewDetailDialogFragment
 
 class CmReviewAdapter (
     private val fragment: Fragment,
