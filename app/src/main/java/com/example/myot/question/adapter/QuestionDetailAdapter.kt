@@ -18,6 +18,7 @@ import com.example.myot.question.model.QuestionItem
 
 class QuestionDetailAdapter(
     private val item: QuestionItem,
+    private val imageUrls: List<String>,
     private val comments: List<CommentItem>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -32,32 +33,61 @@ class QuestionDetailAdapter(
 
         fun bind() {
             binding.tvDetailTitle.text = item.title
-            binding.tvDetailTime.text = item.time
+            binding.tvDetailTime.text = item.createdAt
 
-            // 사용자 표시 처리
-            if (item.isAnonymous) {
+            // 익명 분기 (현재는 항상 실명 표시)
+            val isAnonymous = false // 나중에 API에 isAnonymous 오면 여기로 분기
+
+            if (isAnonymous) {
                 binding.ivProfile.visibility = View.GONE
                 binding.tvUsername.text = "익명 질문"
                 binding.tvUsername.setTextColor(ContextCompat.getColor(binding.root.context, R.color.point_green))
             } else {
                 binding.ivProfile.visibility = View.VISIBLE
-                binding.tvUsername.text = item.username ?: "사용자"
+                binding.tvUsername.text = item.username
                 binding.tvUsername.setTextColor(ContextCompat.getColor(binding.root.context, R.color.point_purple))
+                if (item.profileImage != null) {
+                    Glide.with(binding.root)
+                        .load(item.profileImage)
+                        .circleCrop()
+                        .into(binding.ivProfile)
+                } else {
+                    binding.ivProfile.setImageResource(R.drawable.ic_profile_outline)
+                }
             }
 
-            val imageList = item.imageUrls ?: emptyList()
+            // 내용 + 태그 처리
+            val content = item.content
+            val tagsText = if (item.tags.isNotEmpty()) item.tags.joinToString(prefix = "\n#", separator = " #") else ""
+            val full = content + tagsText
+            val spannable = SpannableString(full)
+            if (item.tags.isNotEmpty()) {
+                item.tags.forEach { tag ->
+                    val hash = "#$tag"
+                    val start = full.indexOf(hash)
+                    if (start >= 0) {
+                        spannable.setSpan(
+                            ForegroundColorSpan(ContextCompat.getColor(binding.root.context, R.color.point_blue)),
+                            start, start + hash.length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                }
+            }
+            binding.tvDetailContent.text = spannable
 
-            if (imageList.isNotEmpty()) {
-                binding.vpImages.adapter = QuestionImagePagerAdapter(imageList)
+            // 이미지 처리 (기존 로직 그대로)
+            if (imageUrls.isNotEmpty()) {
+                binding.vpImages.adapter = QuestionImagePagerAdapter(imageUrls)
                 binding.vpImages.visibility = View.VISIBLE
 
-                if (imageList.size > 1) {
+                if (imageUrls.size > 1) {
                     binding.imageIndicatorContainer.visibility = View.VISIBLE
-                    updateIndicator(0, imageList.size)
+                    updateIndicator(0, imageUrls.size)
                     binding.vpImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {
                             super.onPageSelected(position)
-                            updateIndicator(position, imageList.size)
+                            updateIndicator(position, imageUrls.size)
                         }
                     })
                 } else {
@@ -68,61 +98,14 @@ class QuestionDetailAdapter(
                 binding.imageIndicatorContainer.visibility = View.GONE
             }
 
-            // 좋아요
-            var isLiked = false
-            var likeCount = item.likeCount
-            updateLikeUI(likeCount, isLiked)
-
-            val likeClickListener = View.OnClickListener {
-                isLiked = !isLiked
-                likeCount = if (isLiked) likeCount + 1 else likeCount - 1
-                updateLikeUI(likeCount, isLiked)
-            }
-            binding.ivLike.setOnClickListener(likeClickListener)
-            binding.tvLikeCount.setOnClickListener(likeClickListener)
-
-            // 댓글 수
-            binding.tvCommentCount.text = item.commentCount.toString()
-
-            if (item.commentCount == 0) {
-                binding.tvCommentCount.visibility = View.GONE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.gray3),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
-            } else {
-                binding.tvCommentCount.visibility = View.VISIBLE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.point_green),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
-            }
-
-            // 내용 + 해시태그 처리
-            val spannable = SpannableString(item.content)
-            val hashtagPattern = "#\\S+".toRegex()
-            hashtagPattern.findAll(item.content).forEach { match ->
-                spannable.setSpan(
-                    ForegroundColorSpan(ContextCompat.getColor(binding.root.context, R.color.point_blue)),
-                    match.range.first,
-                    match.range.last + 1,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-            binding.tvDetailContent.text = spannable
-
-
-            // ViewPager 이미지 처리
-            item.imageUrls?.let { imageList ->
-                if (imageList.isNotEmpty()) {
-                    binding.vpImages.adapter = QuestionImagePagerAdapter(imageList)
-                    binding.vpImages.visibility = View.VISIBLE
-                } else {
-                    binding.vpImages.visibility = View.GONE
-                }
-            } ?: run {
-                binding.vpImages.visibility = View.GONE
-            }
+            // 좋아요/댓글 수는 추후 API 연결
+            binding.tvLikeCount.visibility = View.GONE
+            binding.ivLike.setImageResource(R.drawable.ic_question_like_unselected)
+            binding.tvCommentCount.visibility = View.GONE
+            binding.ivComment.setColorFilter(
+                ContextCompat.getColor(binding.root.context, R.color.gray3),
+                android.graphics.PorterDuff.Mode.SRC_IN
+            )
         }
 
         private fun updateIndicator(position: Int, itemCount: Int) {
@@ -289,7 +272,6 @@ class QuestionDetailAdapter(
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
-
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {

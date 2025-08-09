@@ -40,17 +40,17 @@ class QuestionSearchFragment : Fragment() {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
-        val dummyList = emptyList<QuestionItem>()
-        val adapter = QuestionAdapter(dummyList) { item ->
-            val fragment = QuestionDetailFragment.newInstance(item)
-
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container_view, fragment)
-                .addToBackStack(null)
-                .commit()
-        }
-        binding.rvSearchResults.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvSearchResults.adapter = adapter
+//        val dummyList = emptyList<QuestionItem>()
+//        val adapter = QuestionAdapter(dummyList) { item ->
+//            val fragment = QuestionDetailFragment.newInstance(item)
+//
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.fragment_container_view, fragment)
+//                .addToBackStack(null)
+//                .commit()
+//        }
+//        binding.rvSearchResults.layoutManager = LinearLayoutManager(requireContext())
+//        binding.rvSearchResults.adapter = adapter
     }
 
     override fun onDestroyView() {
