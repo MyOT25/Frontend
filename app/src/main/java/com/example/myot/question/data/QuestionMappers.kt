@@ -25,3 +25,21 @@ fun QuestionListItemDto.toDomain(): QuestionItem {
         tags = questionTags?.map { it.tag.tagName } ?: emptyList()
     )
 }
+
+fun QuestionDetailDto.toDomain(): QuestionItem {
+    val displayTime = try {
+        OffsetDateTime.parse(createdAt).format(VIEW_TIME_FORMATTER)
+    } catch (_: Exception) {
+        createdAt
+    }
+
+    return QuestionItem(
+        id = id,
+        title = title,
+        content = content,
+        username = user.username,            // DetailUserDto는 username
+        profileImage = user.profileImage,
+        createdAt = displayTime,
+        tags = tagList
+    )
+}

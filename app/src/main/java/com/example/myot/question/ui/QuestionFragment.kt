@@ -26,12 +26,13 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.example.myot.retrofit2.RetrofitClient
 import com.example.myot.question.data.QuestionRepository
+import com.example.myot.retrofit2.AuthStore
 
 class QuestionFragment : Fragment() {
 
     private lateinit var binding: FragmentQuestionBinding
     private lateinit var adapter: QuestionAdapter
-    private val repository by lazy { QuestionRepository(RetrofitClient.questionService) }
+    private lateinit var repository: QuestionRepository
     private val questionList = mutableListOf<QuestionItem>()
 
     private val likedSet = mutableSetOf<Long>()
@@ -69,6 +70,11 @@ class QuestionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        repository = QuestionRepository(
+            service = RetrofitClient.questionService,
+            contentResolver = requireContext().contentResolver
+        )
+
         adapter = QuestionAdapter(
             items = questionList,
             onItemClick = { item ->
@@ -78,11 +84,15 @@ class QuestionFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             },
-            onLikeClick = { questionId, isLikedNow ->
-                // 토글 누르면 here에서 네트워크 호출
+            onLikeClick = { questionId, _  ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    if (!isLikedNow) {
-                        // 좋아요 등록
+                    val hasToken = AuthStore.bearerOrNull() != null
+                    val currentlyLiked = likedSet.contains(questionId)
+
+                    if (!hasToken) {
+                        return@launch
+                    }
+                    if (!currentlyLiked) {
                         val likeRes = repository.like(questionId)
                         likeRes.onSuccess {
                             likedSet.add(questionId)
@@ -91,7 +101,6 @@ class QuestionFragment : Fragment() {
                             return@launch
                         }
                     } else {
-                        // 좋아요 취소
                         val unlikeRes = repository.unlike(questionId)
                         unlikeRes.onSuccess {
                             likedSet.remove(questionId)
@@ -101,10 +110,9 @@ class QuestionFragment : Fragment() {
                         }
                     }
 
-                    // 최신 카운트 가져와 UI 업데이트
                     val count = repository.getLikeCount(questionId).getOrElse { 0 }
                     likeCountMap[questionId] = count
-                    adapter.updateLikeState(questionId, likedSet.contains(questionId), count)
+                    adapter.notifyDataSetChanged()
                 }
             },
             getLiked = { id -> likedSet.contains(id) },
@@ -160,6 +168,15 @@ class QuestionFragment : Fragment() {
             res.onSuccess { items ->
                 questionList.clear()
                 questionList.addAll(items)
+
+                items.forEach { item ->
+                    launch {
+                        val count = repository.getLikeCount(item.id).getOrElse { 0 }
+                        likeCountMap[item.id] = count
+                        adapter.updateLikeState(item.id, likedSet.contains(item.id), count)
+                    }
+                }
+
                 adapter.notifyDataSetChanged()
             }.onFailure { e ->
                 Toast.makeText(requireContext(), "불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()

@@ -10,10 +10,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.myot.R
 import com.example.myot.databinding.ActivityWriteQuestionBinding
+import com.example.myot.question.data.QuestionRepository
+import com.example.myot.retrofit2.RetrofitClient
+import kotlinx.coroutines.launch
 
 class WriteQuestionActivity : AppCompatActivity() {
 
@@ -21,6 +26,12 @@ class WriteQuestionActivity : AppCompatActivity() {
 
     private var isAnonymous = true
     private val selectedImageUris = mutableListOf<Uri>()
+    private val repo by lazy {
+        QuestionRepository(
+            service = RetrofitClient.questionService,
+            contentResolver = contentResolver
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,18 +52,40 @@ class WriteQuestionActivity : AppCompatActivity() {
 
         // 글쓰기
         binding.tvPost.setOnClickListener {
+            val title = "질문 있어요!"
             val content = binding.etContent.text.toString()
+            if (content.isBlank()) return@setOnClickListener
 
-            val resultIntent = Intent().apply {
-                putExtra("isAnonymous", isAnonymous)
-                putExtra("content", content)
-                putStringArrayListExtra(
-                    "imageUrls",
-                    selectedImageUris.map { it.toString() } as ArrayList<String>
+            val tagIds: List<Long> = emptyList()
+            val imageUris = selectedImageUris
+
+            binding.tvPost.isEnabled = false
+            lifecycleScope.launch {
+                val result = repo.postQuestionMultipart(
+                    title = title,
+                    content = content,
+                    tagIds = tagIds,
+                    imageUris = imageUris,
+                    anonymous = isAnonymous
                 )
+                binding.tvPost.isEnabled = true
+
+                result.onSuccess { created ->
+                    Toast.makeText(this@WriteQuestionActivity, "질문이 등록되었습니다.", Toast.LENGTH_SHORT).show()
+                    val intent = Intent().apply {
+                        putExtra("createdQuestionId", created.id)
+                        putExtra("title", created.title)
+                        putExtra("content", created.content)
+                        putStringArrayListExtra("tags", ArrayList(created.tags))
+                        putExtra("authorName", created.username)
+                        putExtra("createdAt", created.createdAt)
+                    }
+                    setResult(RESULT_OK, intent)
+                    finish()
+                }.onFailure { e ->
+                    Toast.makeText(this@WriteQuestionActivity, "등록 실패: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
-            setResult(RESULT_OK, resultIntent)
-            finish()
         }
     }
 

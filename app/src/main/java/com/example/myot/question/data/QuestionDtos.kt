@@ -90,3 +90,20 @@ data class AnswerLikeCountDto(
     @SerializedName("answerId") val answerId: Long?,
     @SerializedName("likeCount") val likeCount: Int?
 )
+
+data class AnswerLikeActionDto(
+    @SerializedName("id") val id: Long?,
+    @SerializedName("answerId") val answerId: Long?,
+    @SerializedName("userId") val userId: Long?,
+    @SerializedName("questionId") val questionId: Long?,
+    @SerializedName("createdAt") val createdAt: String?
+)
+
+data class CreateQuestionRequestDto(
+    val title: String,
+    val content: String,
+    val imageUrl: List<String> = emptyList(),
+    val tagList: List<String> = emptyList(),
+    val userId: Long,
+    val anonymous: Boolean = true
+)

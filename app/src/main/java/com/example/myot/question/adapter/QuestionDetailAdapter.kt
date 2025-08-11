@@ -13,13 +13,22 @@ import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.ItemQuestionCommentBinding
 import com.example.myot.databinding.ItemQuestionDetailBinding
-import com.example.myot.feed.model.CommentItem
+import com.example.myot.question.model.AnswerItem
 import com.example.myot.question.model.QuestionItem
+
 
 class QuestionDetailAdapter(
     private val item: QuestionItem,
     private val imageUrls: List<String>,
-    private val comments: List<CommentItem>
+    private val answers: List<AnswerItem>,
+
+    private val onQuestionLikeClick: (questionId: Long, isLikedNow: Boolean) -> Unit,
+    private val getQuestionLiked: (questionId: Long) -> Boolean,
+    private val getQuestionLikeCount: (questionId: Long) -> Int,
+
+    private val onAnswerLikeClick: (answerId: Long, isLikedNow: Boolean) -> Unit,
+    private val getAnswerLiked: (answerId: Long) -> Boolean,
+    private val getAnswerLikeCount: (answerId: Long) -> Int
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -98,9 +107,18 @@ class QuestionDetailAdapter(
                 binding.imageIndicatorContainer.visibility = View.GONE
             }
 
-            // 좋아요/댓글 수는 추후 API 연결
-            binding.tvLikeCount.visibility = View.GONE
-            binding.ivLike.setImageResource(R.drawable.ic_question_like_unselected)
+            val likedAtBind = getQuestionLiked(item.id)
+            val countAtBind = getQuestionLikeCount(item.id)
+            updateLikeUI(countAtBind, likedAtBind)
+
+            val click = View.OnClickListener {
+                val current = getQuestionLiked(item.id)
+                onQuestionLikeClick(item.id, current)
+            }
+            binding.ivLike.setOnClickListener(click)
+            binding.tvLikeCount.setOnClickListener(click)
+
+            // 댓글 수는 서버 연동 전이면 숨김 유지
             binding.tvCommentCount.visibility = View.GONE
             binding.ivComment.setColorFilter(
                 ContextCompat.getColor(binding.root.context, R.color.gray3),
@@ -155,55 +173,47 @@ class QuestionDetailAdapter(
         }
     }
 
-    inner class CommentViewHolder(val binding: ItemQuestionCommentBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    inner class CommentViewHolder(val binding: ItemQuestionCommentBinding)
+        : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(comment: CommentItem) {
+        fun bind(answer: AnswerItem) {
             val context = binding.root.context
 
-            // 이름 + 아이콘 표시 분기
+            // 이름/프로필
             val layoutParams = binding.ivProfile.layoutParams as ViewGroup.MarginLayoutParams
-
-            if (comment.isAnonymous) {
-                // 익명
+            if (answer.isAnonymous) {
                 binding.tvName.text = "익명의 해결사"
                 binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.point_green))
                 binding.ivProfile.setImageResource(R.drawable.ic_a_mark)
-
                 layoutParams.width = context.resources.getDimensionPixelSize(R.dimen.dp_16)
                 layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.dp_16)
                 layoutParams.topMargin = context.resources.getDimensionPixelSize(R.dimen.dp_3)
             } else {
-                // 실명
-                binding.tvName.text = comment.username ?: "사용자"
+                binding.tvName.text = answer.authorName
                 binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.point_purple))
                 binding.ivProfile.setImageResource(R.drawable.ic_profile)
-
                 layoutParams.width = context.resources.getDimensionPixelSize(R.dimen.dp_20)
                 layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.dp_20)
                 layoutParams.topMargin = context.resources.getDimensionPixelSize(R.dimen.dp_2)
             }
-
             binding.ivProfile.layoutParams = layoutParams
 
-            // 댓글 본문 및 날짜
-            binding.tvContent.text = comment.content
-            binding.tvTime.text = comment.date
+            // 본문/날짜
+            binding.tvContent.text = answer.content
+            binding.tvTime.text = answer.createdAt
 
 
-            // 좋아요 처리
-            var isLiked = false
-            var likeCount = comment.likeCount
-            updateLikeUI(likeCount, isLiked)
+            val aid = answer.id
+            val liked = getAnswerLiked(aid)
+            val count = getAnswerLikeCount(aid)
+            updateLikeUI(count, liked)
 
-            val likeClickListener = View.OnClickListener {
-                isLiked = !isLiked
-                likeCount = if (isLiked) likeCount + 1 else likeCount - 1
-                updateLikeUI(likeCount, isLiked)
+            val click = View.OnClickListener {
+                val current = getAnswerLiked(aid)
+                onAnswerLikeClick(aid, current)
             }
-
-            binding.ivLike.setOnClickListener(likeClickListener)
-            binding.tvLikeCount.setOnClickListener(likeClickListener)
+            binding.ivLike.setOnClickListener(click)
+            binding.tvLikeCount.setOnClickListener(click)
         }
 
         private fun updateLikeUI(count: Int, liked: Boolean) {
@@ -237,7 +247,8 @@ class QuestionDetailAdapter(
         }
     }
 
-    override fun getItemCount(): Int = 1 + comments.size + 1
+
+    override fun getItemCount(): Int = 1 + answers.size + 1
 
     override fun getItemViewType(position: Int): Int {
         return when (position) {
@@ -276,8 +287,12 @@ class QuestionDetailAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is DetailViewHolder -> holder.bind()
-            is CommentViewHolder -> holder.bind(comments[position - 1])
+            is CommentViewHolder -> holder.bind(answers[position - 1])
             is PaddingViewHolder -> Unit
         }
+    }
+
+    fun notifyHeaderChanged() {
+        notifyItemChanged(0)
     }
 }

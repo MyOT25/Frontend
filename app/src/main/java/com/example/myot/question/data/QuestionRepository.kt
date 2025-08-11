@@ -9,12 +9,22 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import android.content.ContentResolver
+import android.database.Cursor
+import android.net.Uri
+import android.provider.OpenableColumns
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
+import java.io.InputStream
 
 class QuestionRepository(
-    private val service: QuestionService
+    private val service: QuestionService,
+    private val contentResolver: ContentResolver
 ) {
-    private val viewTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
-
     suspend fun fetchQuestions(page: Int?, limit: Int?): Result<List<QuestionItem>> {
         return try {
             val res = service.getQuestions(page, limit)
@@ -60,17 +70,21 @@ class QuestionRepository(
     }
 
     suspend fun like(questionId: Long): Result<LikeActionDto> = runCatching {
-        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
-        val res = service.likeQuestion(questionId, AuthStore.bearer())
-        val data = res.success?.data ?: error("Like failed: ${res.error}")
-        data
+        val token = AuthStore.accessToken
+            ?: error("로그인이 필요합니다")
+        val auth = "Bearer $token"
+
+        val res = service.likeQuestion(questionId, auth)
+        res.success?.data ?: error("Like failed: ${res.error}")
     }
 
     suspend fun unlike(questionId: Long): Result<Unit> = runCatching {
-        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
-        val res = service.unlikeQuestion(questionId, AuthStore.bearer())
-        if (res.resultType != "SUCCESS") error("Unlike failed: ${res.error}")
-        Unit
+        val token = AuthStore.accessToken
+            ?: error("로그인이 필요합니다")
+        val auth = "Bearer $token"
+
+        val res = service.unlikeQuestion(questionId, auth)
+        if (res.resultType == "SUCCESS") Unit else error("Unlike failed: ${res.error}")
     }
 
     suspend fun getLikeCount(questionId: Long): Result<Int> {
@@ -172,5 +186,94 @@ class QuestionRepository(
     suspend fun fetchAnswerLikeCount(answerId: Long): Result<Int> = runCatching {
         val res = service.getAnswerLikeCount(answerId)
         res.success?.data?.likeCount ?: 0
+    }
+
+    suspend fun likeAnswer(answerId: Long): Result<AnswerLikeActionDto> = runCatching {
+        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
+        val auth = "Bearer $token"
+        val res = service.likeAnswer(answerId, auth)
+        res.success?.data ?: error("답변 좋아요 실패: ${res.error}")
+    }
+
+    suspend fun unlikeAnswer(answerId: Long): Result<Unit> = runCatching {
+        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
+        val auth = "Bearer $token"
+        val res = service.unlikeAnswer(answerId, auth)
+        if (res.resultType == "SUCCESS") Unit else error("답변 좋아요 취소 실패: ${res.error}")
+    }
+
+    suspend fun getAnswerLikeCount(answerId: Long): Result<Int> = runCatching {
+        val res = service.getAnswerLikeCount(answerId)
+        res.success?.data?.likeCount ?: 0
+    }
+
+    suspend fun postQuestionMultipart(
+        title: String,
+        content: String,
+        tagIds: List<Long>,
+        imageUris: List<Uri>,
+        anonymous: Boolean?
+    ): Result<QuestionItem> = runCatching {
+        val titleRb = title.toRequestBody(TEXT)
+        val contentRb = content.toRequestBody(TEXT)
+        val tagIdsJson = tagIds.toString().toRequestBody(TEXT)
+        val anonymousRb = anonymous.toString().toRequestBody(TEXT)
+
+        val parts = imageUris.take(5).mapNotNull { uri ->
+            uriToPart(uri, formFieldName = "imageFiles")
+        }
+
+        val res = service.createQuestion(
+            title = titleRb,
+            content = contentRb,
+            tagIdsJson = tagIdsJson,
+            anonymous = anonymousRb,
+            imageFiles = parts,
+            auth = AuthStore.bearerOrThrow()
+        )
+        val dto = res.success?.data ?: error("서버 응답에 data 없음")
+        dto.toDomain()
+    }
+
+    private val TEXT: MediaType = "text/plain".toMediaType()
+
+    private fun uriToPart(uri: Uri, formFieldName: String): MultipartBody.Part? {
+        return try {
+            val fileName = queryFileName(uri) ?: "image_${System.currentTimeMillis()}.jpg"
+            val tempFile = copyToTemp(uri, fileName)
+            val mime = guessMime(fileName)
+            val rb = tempFile.asRequestBody(mime)
+            MultipartBody.Part.createFormData(formFieldName, fileName, rb)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun copyToTemp(uri: Uri, fileName: String): File {
+        val input: InputStream = contentResolver.openInputStream(uri)!!
+        val ext = fileName.substringAfterLast('.', "jpg")
+        val temp = File.createTempFile("upload_", ".$ext")
+        temp.outputStream().use { out -> input.copyTo(out) }
+        input.close()
+        return temp
+    }
+
+    private fun queryFileName(uri: Uri): String? {
+        var name: String? = null
+        val cursor: Cursor? = contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (idx >= 0 && it.moveToFirst()) name = it.getString(idx)
+        }
+        return name
+    }
+
+    private fun guessMime(fileName: String): MediaType {
+        return when (fileName.substringAfterLast('.', "").lowercase()) {
+            "png" -> "image/png".toMediaType()
+            "webp" -> "image/webp".toMediaType()
+            "jpg", "jpeg" -> "image/jpeg".toMediaType()
+            else -> "application/octet-stream".toMediaType()
+        }
     }
 }

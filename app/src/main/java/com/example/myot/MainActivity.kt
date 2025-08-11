@@ -18,6 +18,7 @@ import com.example.myot.home.HomeFragment
 import com.example.myot.notification.NotificationAdapter
 import com.example.myot.notification.NotificationItem
 import com.example.myot.question.ui.QuestionFragment
+import com.example.myot.retrofit2.AuthStore
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +27,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        AuthStore.accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExMywibG9naW5JZCI6Im11bXUiLCJpYXQiOjE3NTQ5MDEwMTUsImV4cCI6MTc1NTUwNTgxNX0.zatWNXS5KSZUkRP67bDAamWmOzESAQC1aeMHhQPRDeY"
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
