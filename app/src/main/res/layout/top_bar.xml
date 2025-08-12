@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/top_bar"
-    android:clickable="true"
-    android:focusable="true"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true">
 
     <!-- 상단 바 배경 이미지 -->
     <ImageView
@@ -20,13 +20,13 @@
         android:id="@+id/iv_close"
         android:layout_width="17dp"
         android:layout_height="14dp"
+        android:layout_gravity="start"
         android:layout_marginStart="17dp"
         android:layout_marginTop="25dp"
         android:src="@drawable/ic_top_bar_close"
         android:visibility="gone" />
 
-
-    <!-- 프로필 버튼 -->
+    <!-- 프로필 버튼 (햄버거 메뉴 버튼으로 사용) -->
     <ImageView
         android:id="@+id/iv_profile"
         android:layout_width="33dp"
@@ -41,8 +41,8 @@
         android:id="@+id/iv_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-15dp"
         android:layout_gravity="center"
+        android:layout_marginTop="-15dp"
         android:src="@drawable/ic_logo" />
 
     <!-- 커뮤니티 이름 -->
@@ -50,13 +50,13 @@
         android:id="@+id/tv_community_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
         android:text="커뮤니티명"
         android:textColor="@color/gray2"
-        style="@style/TextAppearance.App.TitleLarge"
         android:textStyle="bold"
-        android:visibility="gone" />
+        android:visibility="gone"
+        style="@style/TextAppearance.App.TitleLarge" />
 
     <!-- 알람 버튼 -->
     <ImageView
@@ -64,8 +64,8 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_gravity="end|center_vertical"
-        android:layout_marginTop="5dp"
         android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
         android:src="@drawable/ic_alarm" />
 
 </FrameLayout>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_ticket"
+            android:icon="@drawable/ic_bookmark_icon"
+            android:background="@android:color/white"
+            android:title="티켓 마크" />
+        <item
+            android:id="@+id/nav_community"
+            android:icon="@drawable/ic_community_people_icon"
+            android:background="@android:color/white"
+            android:title="커뮤니티" />
+        <item
+            android:id="@+id/nav_notice"
+            android:icon="@drawable/ic_notification_icon"
+            android:background="@android:color/white"
+            android:title="공지" />
+        <item
+            android:id="@+id/nav_subscribe"
+            android:icon="@drawable/ic_subscribe_icon"
+            android:background="@android:color/white"
+            android:title="구독" />
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_setting_option_icon"
+            android:background="@android:color/white"
+            android:title="설정" />
+        <item
+            android:id="@+id/nav_support"
+            android:icon="@drawable/ic_customer_service_icon"
+            android:background="@android:color/white"
+            android:title="고객센터" />
+    </group>
+</menu>

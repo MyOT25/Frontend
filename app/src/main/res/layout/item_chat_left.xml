@@ -21,5 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_chat_left"
+        android:layout_marginStart="13dp"
         android:textColor="@android:color/black"/>
 </LinearLayout>

@@ -1,11 +1,14 @@
 import org.gradle.kotlin.dsl.implementation
 
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.kapt")
     id("kotlin-parcelize")
 }
+
+
 
 android {
     namespace = "com.example.myot"
@@ -57,4 +60,5 @@ dependencies {
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     implementation ("com.squareup.retrofit2:retrofit:3.0.0")
     implementation ("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation ("com.google.code.gson:gson:2.9.0") //로그 검사용 json implementation
 }

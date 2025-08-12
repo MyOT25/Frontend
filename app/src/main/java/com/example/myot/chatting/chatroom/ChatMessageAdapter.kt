@@ -8,24 +8,20 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.R
 
-/**
- * 채팅 메시지 데이터 모델
- *
- * @param senderId 메시지 보낸 사람의 고유 ID
- * @param content 메시지 본문 텍스트
- * @param profileUrl 프로필 이미지 URL (null 이면 기본 이미지 사용)
- */
+//채팅 메시지 데이터 모델
+//@param senderId 메시지 보낸 사람의 고유 ID
+//@param content 메시지 본문 텍스트
+//@param profileUrl 프로필 이미지 URL (null 이면 기본 이미지 사용)
 data class ChatMessage(
     val senderId: String,
     val content: String,
     val profileUrl: String? = null
 )
 
-/**
- * RecyclerView.Adapter
- * - 같은 발화자 메시지를 묶어서
- * - 그룹의 마지막 메시지에만 꼬리(tail)가 붙도록 4개 뷰 타입으로 분기
- */
+
+ //RecyclerView.Adapter
+ //같은 발화자 메시지를 묶어서
+ //그룹의 마지막 메시지에만 꼬리(tail)가 붙도록 4개 뷰 타입으로 분기
 class ChatMessageAdapter(
     private val messageList: List<ChatMessage>, // 보여줄 메시지 목록
     private val currentUserId: String            // 현재 사용자 ID
@@ -38,15 +34,11 @@ class ChatMessageAdapter(
         private const val VIEW_TYPE_RIGHT_TAIL  = 3  // 내 메시지, 꼬리 있음
     }
 
-    /**
-     * 총 메시지 개수 반환
-     */
+    //총 메시지 개수 반환
     override fun getItemCount(): Int = messageList.size
 
-    /**
-     * 각 position 의 뷰 타입 결정
-     * - 같은 발화자의 메시지 그룹 마지막이면 “TAIL” 타입 반환
-     */
+     //각 position 의 뷰 타입 결정
+     //같은 발화자의 메시지 그룹 마지막이면 “TAIL” 타입 반환
     override fun getItemViewType(position: Int): Int {
         val msg = messageList[position]
         val isMe = msg.senderId == currentUserId
@@ -62,9 +54,8 @@ class ChatMessageAdapter(
         }
     }
 
-    /**
-     * 뷰 타입에 따라 알맞은 레이아웃(item_chat_...)을 inflate
-     */
+    //뷰 타입에 따라 알맞은 레이아웃(item_chat_...)을 inflate
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inf = LayoutInflater.from(parent.context)
         return when (viewType) {
@@ -87,9 +78,7 @@ class ChatMessageAdapter(
         }
     }
 
-    /**
-     * ViewHolder 에 메시지 데이터 바인딩
-     */
+    //ViewHolder 에 메시지 데이터 바인딩
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val msg = messageList[position]
         when (holder) {
@@ -100,7 +89,7 @@ class ChatMessageAdapter(
         }
     }
 
-    /** 상대방 일반 메시지 ViewHolder */
+    // 상대방 일반 메시지 ViewHolder
     inner class LeftViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
         private val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
@@ -111,7 +100,7 @@ class ChatMessageAdapter(
         }
     }
 
-    /** 상대방 꼬리 메시지 ViewHolder */
+    // 상대방 꼬리 메시지 ViewHolder
     inner class LeftTailViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
         private val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
@@ -124,7 +113,7 @@ class ChatMessageAdapter(
         }
     }
 
-    /** 내 일반 메시지 ViewHolder */
+    // 내 일반 메시지 ViewHolder
     inner class RightViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
         private val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
@@ -135,7 +124,7 @@ class ChatMessageAdapter(
         }
     }
 
-    /** 내 꼬리 메시지 ViewHolder */
+    // 내 꼬리 메시지 ViewHolder
     inner class RightTailViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
         private val tvMessage = view.findViewById<TextView>(R.id.tvMessage)

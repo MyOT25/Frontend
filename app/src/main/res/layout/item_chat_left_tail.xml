@@ -10,8 +10,8 @@
     <!-- 1) 상대방 프로필 -->
     <ImageView
         android:id="@+id/ivProfile"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginEnd="8dp"
         android:src="@drawable/ic_profile" />
 
