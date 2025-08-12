@@ -125,4 +125,19 @@ class CommunityViewModel @Inject constructor (
             _profiles.value = profileManager.getProfiles()
         }
     }
+
+    fun deleteProfile(profile: Profile) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.communityService.deleteMultiProfile("Bearer $token", profile.id)
+                if (response.isSuccessful && response.body()?.success == true) {
+
+                } else {
+                    _error.value = "응답 실패: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _error.value = "오류: ${e.message}"
+            }
+        }
+    }
 }

@@ -25,9 +25,14 @@ class MultiProfileBottomSheet(
     private val bindingNew get() = _bindingNew!!
 
     private var onProfileSelected: ((String) -> Unit)? = null
+    private var onProfileDeleted: ((Profile) -> Unit)? = null
 
     fun setOnProfileSelectedListener(listener: (String) -> Unit) {
         onProfileSelected = listener
+    }
+
+    fun setOnProfileDeletedListener(listener: (Profile) -> Unit) {
+        onProfileDeleted = listener
     }
 
     override fun onCreateView(
@@ -48,10 +53,17 @@ class MultiProfileBottomSheet(
         if (hasMultiProfile && !profileList.isNullOrEmpty()) {
             bindingList.rvMultiProfiles.apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = MultiProfileAdapter(profileList) { profile ->
-                    onProfileSelected?.invoke(profile.id.toString()) // 선택 시 콜백 실행
-                    dismiss()
-                }
+                adapter = MultiProfileAdapter(
+                    profileList,
+                    onProfileSelected = { profile ->
+                        onProfileSelected?.invoke(profile.id.toString()) // 선택 시 콜백 실행
+                        dismiss()
+                    },
+                    onProfileDeleted = { profile ->
+                        onProfileDeleted?.invoke(profile)
+                        dismiss()
+                    }
+                )
             }
         } else {
             bindingNew.btnJoin.setOnClickListener {

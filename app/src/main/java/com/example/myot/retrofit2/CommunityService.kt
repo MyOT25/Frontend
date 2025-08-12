@@ -1,6 +1,7 @@
 package com.example.myot.retrofit2
 
 import com.example.myot.community.model.CommunityResponse
+import com.example.myot.community.model.DeleteProfileResponse
 import com.example.myot.community.model.JoinLeaveRequest
 import com.example.myot.community.model.JoinLeaveResponse
 import com.example.myot.community.model.MultiProfilesResponse
@@ -8,6 +9,7 @@ import com.example.myot.community.model.ProfileRequest
 import com.example.myot.community.model.ProfileResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -44,4 +46,10 @@ interface CommunityService {
         @Header("Authorization") token: String,
         @Path("communityId") communityId: Int
     ): Response<MultiProfilesResponse>
+
+    @DELETE("api/community/profile/{profileId}")
+    suspend fun deleteMultiProfile(
+        @Header("Authorization") token: String,
+        @Path("profileId") profileId: Int
+    ): Response<DeleteProfileResponse>
 }

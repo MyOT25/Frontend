@@ -183,6 +183,10 @@ class CommunityFragment : Fragment() {
                             val selected = profileList.find { it.id == profileId.toIntOrNull() }
                             selected?.let { viewModel.selectProfile(it) }
                         }
+                        bottomSheet.setOnProfileDeletedListener { profile ->
+                            val deleted = profileList.find { it.id == profile.id }
+                            deleted?.let { viewModel.deleteProfile(it) }
+                        }
                         bottomSheet.show(parentFragmentManager, bottomSheet.tag)
                     } else {
                         val bottomSheet = MultiProfileBottomSheet(false, null)

@@ -56,3 +56,8 @@ data class Profile(
     val bio: String,
     val communityId: Int
 )
+data class DeleteProfileResponse(
+    val success: Boolean,
+    val message: String,
+    val deletedProfile: Profile
+)
