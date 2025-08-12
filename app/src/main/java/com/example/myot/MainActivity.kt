@@ -14,7 +14,9 @@ import com.example.myot.databinding.ActivityMainBinding
 import com.example.myot.home.HomeFragment
 import com.example.myot.question.ui.QuestionFragment
 import com.example.myot.ticket.ui.TicketFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

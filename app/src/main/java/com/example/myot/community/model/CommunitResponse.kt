@@ -2,7 +2,9 @@ package com.example.myot.community.model
 
 data class CommunityResponse(
     val success: Boolean,
-    val community: Community
+    val community: Community,
+    val isJoined: Boolean,
+    val joinedProfile: Profile?
 )
 
 data class Community(

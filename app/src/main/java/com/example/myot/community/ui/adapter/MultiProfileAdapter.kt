@@ -6,10 +6,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.community.model.Profile
 import com.example.myot.databinding.ItemMultiProfileBinding
 
-class MultiProfileAdapter(private val profiles: List<Profile>) :
+class MultiProfileAdapter(
+    private var profiles: List<Profile>,
+    private val onClick: (Profile) -> Unit
+) :
     RecyclerView.Adapter<MultiProfileAdapter.ProfileViewHolder>() {
 
-    inner class ProfileViewHolder(val binding: ItemMultiProfileBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class ProfileViewHolder(val binding: ItemMultiProfileBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(profile: Profile) {
+            binding.tvMultiProfileNickName.text = profile.nickname
+            binding.tvMultiProfileIntroduce.text = profile.bio
+            binding.layoutMultiProfile.setOnClickListener {
+                onClick(profile)
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -18,11 +29,13 @@ class MultiProfileAdapter(private val profiles: List<Profile>) :
     }
 
     override fun onBindViewHolder(holder: ProfileViewHolder, position: Int) {
-        val profile = profiles[position]
-        //holder.binding.ivMultiProfileImage.setImageResource(profile.profileImage)
-        holder.binding.tvMultiProfileNickName.text = profile.nickname
-        holder.binding.tvMultiProfileIntroduce.text = profile.bio
+        holder.bind(profiles[position])
     }
 
     override fun getItemCount(): Int = profiles.size
+
+    fun updateList(newProfiles: List<Profile>) {
+        profiles = newProfiles
+        notifyDataSetChanged()
+    }
 }

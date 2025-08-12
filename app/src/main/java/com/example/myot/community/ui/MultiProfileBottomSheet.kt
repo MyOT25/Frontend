@@ -24,6 +24,12 @@ class MultiProfileBottomSheet(
     private var _bindingNew: FragmentCmMultiProfileNewBinding? = null
     private val bindingNew get() = _bindingNew!!
 
+    private var onProfileSelected: ((String) -> Unit)? = null
+
+    fun setOnProfileSelectedListener(listener: (String) -> Unit) {
+        onProfileSelected = listener
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,7 +48,10 @@ class MultiProfileBottomSheet(
         if (hasMultiProfile && !profileList.isNullOrEmpty()) {
             bindingList.rvMultiProfiles.apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = MultiProfileAdapter(profileList)
+                adapter = MultiProfileAdapter(profileList) { profile ->
+                    onProfileSelected?.invoke(profile.id.toString()) // 선택 시 콜백 실행
+                    dismiss()
+                }
             }
         } else {
             bindingNew.btnJoin.setOnClickListener {
@@ -58,7 +67,7 @@ class MultiProfileBottomSheet(
                     putString("nickname", nickname)
                     putString("bio", bio)
                 }
-                setFragmentResult("multi_profile_result", result)
+                parentFragmentManager.setFragmentResult("multi_profile_result", result)
                 dismiss()
             }
         }
