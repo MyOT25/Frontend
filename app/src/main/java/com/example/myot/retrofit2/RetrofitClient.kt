@@ -1,5 +1,6 @@
 package com.example.myot.retrofit2
 
+import com.example.myot.question.data.QuestionService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -12,4 +13,5 @@ object RetrofitClient {
 
     val communityService: CommunityService = retrofit.create(CommunityService::class.java)
     val memorybookService: MemorybookService = retrofit.create(MemorybookService::class.java)
+    val questionService: QuestionService = retrofit.create(QuestionService::class.java)
 }

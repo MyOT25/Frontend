@@ -22,24 +22,38 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.jvm.java
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.example.myot.retrofit2.RetrofitClient
+import com.example.myot.question.data.QuestionRepository
+import com.example.myot.retrofit2.AuthStore
 
 class QuestionFragment : Fragment() {
 
     private lateinit var binding: FragmentQuestionBinding
     private lateinit var adapter: QuestionAdapter
+    private lateinit var repository: QuestionRepository
     private val questionList = mutableListOf<QuestionItem>()
 
-    private val writeResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val likedSet = mutableSetOf<Long>()
+    private val likeCountMap = mutableMapOf<Long, Int>()
+
+    private val writeResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data = result.data ?: return@registerForActivityResult
+            val content = data.getStringExtra("content") ?: ""
+
             val newItem = QuestionItem(
-                isAnonymous = data.getBooleanExtra("isAnonymous", true),
-                title = "질문 있어요", // 임시 타이틀
-                time = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = data.getStringExtra("content") ?: "",
-                likeCount = 0,
-                commentCount = 0,
-                imageUrls = data.getStringArrayListExtra("imageUrls")
+                id = -System.currentTimeMillis(),
+                title = "질문 있어요",
+                content = content,
+                username = "나",
+                profileImage = null,
+                createdAt = java.text.SimpleDateFormat("yyyy/MM/dd HH:mm", java.util.Locale.getDefault())
+                    .format(java.util.Date()),
+                tags = emptyList()
             )
 
             questionList.add(0, newItem)
@@ -56,133 +70,57 @@ class QuestionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 더미 데이터
-        val dummyList = listOf(
-            QuestionItem(
-                isAnonymous = true,
-                title = "추천 뮤지컬 있을까요?",
-                time = "2025/07/14 17:57",
-                content = "요즘 스트레스 많아서 공연 보고 싶어요. 감동적인 뮤지컬 추천 좀 부탁드려요! #뮤지컬 #추천",
-                likeCount = 42,
-                commentCount = 9,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=1"
-                )
-            ),
-            QuestionItem(
-                isAnonymous = false,
-                username = "질문하는 다람쥐",
-                title = "레미제라블 처음 보면 어때요?",
-                time = "2025/07/15 17:50",
-                content = "내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용 #레미제라블 #입문",
-                likeCount = 31,
-                commentCount = 5,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=2",
-                    "https://picsum.photos/300/200?random=12"
-                )
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "뮤지컬 앨범 추천해주세요",
-                time = "2025/07/14 17:45",
-                content = "요즘 뮤지컬 넘버에 푹 빠졌어요. 음원으로 들을 만한 앨범 있을까요? 요즘 뮤지컬 넘버에 푹 빠졌어요. 음원으로 들을 만한 앨범 있을까요? #뮤지컬넘버 #음악추천",
-                likeCount = 18,
-                commentCount = 3
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "인터미션 있는 뮤지컬 많나요?",
-                time = "2025/06/20 17:40",
-                content = "러닝타임 긴 뮤지컬은 중간 휴식 있던데 보통 다 그런가요? #공연정보",
-                likeCount = 0,
-                commentCount = 1,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=3",
-                    "https://picsum.photos/300/200?random=13",
-                    "https://picsum.photos/300/200?random=23"
-                )
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "소극장 뮤지컬도 재밌을까요?",
-                time = "2025/07/13 17:35",
-                content = "대극장 말고 대학로나 소극장 공연도 매력 있나요? 처음 가봐서 궁금해요. #소극장",
-                likeCount = 7,
-                commentCount = 0
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "좌석은 어디가 제일 좋을까요?",
-                time = "2025/07/15 17:30",
-                content = "뮤지컬 보러 가는데 시야 좋은 자리 추천 좀 해주세요. #좌석팁",
-                likeCount = 0,
-                commentCount = 0,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=6",
-                    "https://picsum.photos/300/200?random=16",
-                    "https://picsum.photos/300/200?random=26",
-                    "https://picsum.photos/300/200?random=36"
-                )
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "돌아오는 뮤지컬 뭐 있을까요?",
-                time = "2025/03/29 17:25",
-                content = "코로나 이후 다시 올라오는 공연 중 추천할 만한 거 있을까요? #공연추천",
-                likeCount = 15,
-                commentCount = 2,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=7",
-                    "https://picsum.photos/300/200?random=17",
-                    "https://picsum.photos/300/200?random=27",
-                    "https://picsum.photos/300/200?random=37",
-                    "https://picsum.photos/300/200?random=47"
-                )
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "뮤지컬 자막 잘 보이나요?",
-                time = "2025/04/01 17:20",
-                content = "외국어 뮤지컬 처음 보는데 자막 위치랑 시야 괜찮은지 궁금해요. #자막",
-                likeCount = 4,
-                commentCount = 0
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "초등학생이랑 보기 좋은 뮤지컬?",
-                time = "2025/01/26 17:15",
-                content = "아이랑 같이 볼 수 있는 밝고 재미있는 뮤지컬 있을까요? #가족공연",
-                likeCount = 22,
-                commentCount = 6,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=9"
-                )
-            ),
-            QuestionItem(
-                isAnonymous = true,
-                title = "출연 배우 기준으로 골라본 적 있나요?",
-                time = "2024/07/15 17:10",
-                content = "스토리보다 배우 보고 예매해본 적 있으신가요? 저만 그런가요ㅎㅎ #출연진",
-                likeCount = 0,
-                commentCount = 4,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=10",
-                    "https://picsum.photos/300/200?random=20"
-                )
-            )
+        repository = QuestionRepository(
+            service = RetrofitClient.questionService,
+            contentResolver = requireContext().contentResolver
         )
-        questionList.addAll(dummyList)
 
-        adapter = QuestionAdapter(questionList) { item ->
-            val detailFragment = QuestionDetailFragment.newInstance(item)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container_view, detailFragment)
-                .addToBackStack(null)
-                .commit()
-        }
+        adapter = QuestionAdapter(
+            items = questionList,
+            onItemClick = { item ->
+                val detailFragment = QuestionDetailFragment.newInstance(item)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, detailFragment)
+                    .addToBackStack(null)
+                    .commit()
+            },
+            onLikeClick = { questionId, _  ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val hasToken = AuthStore.bearerOrNull() != null
+                    val currentlyLiked = likedSet.contains(questionId)
+
+                    if (!hasToken) {
+                        return@launch
+                    }
+                    if (!currentlyLiked) {
+                        val likeRes = repository.like(questionId)
+                        likeRes.onSuccess {
+                            likedSet.add(questionId)
+                        }.onFailure {
+                            Toast.makeText(requireContext(), "좋아요 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+                    } else {
+                        val unlikeRes = repository.unlike(questionId)
+                        unlikeRes.onSuccess {
+                            likedSet.remove(questionId)
+                        }.onFailure {
+                            Toast.makeText(requireContext(), "취소 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+                    }
+
+                    val count = repository.getLikeCount(questionId).getOrElse { 0 }
+                    likeCountMap[questionId] = count
+                    adapter.notifyDataSetChanged()
+                }
+            },
+            getLiked = { id -> likedSet.contains(id) },
+            getLikeCount = { id -> likeCountMap[id] ?: 0 }
+        )
         binding.rvFeeds.adapter = adapter
         binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
+        loadQuestions(page = 1, limit = 20)
 
         binding.btnSortEdit.setOnClickListener { showSortPopup(it) }
 
@@ -220,6 +158,28 @@ class QuestionFragment : Fragment() {
                 binding.btnEdit.alpha = 0.3f
                 handler.removeCallbacks(restoreFabAlphaRunnable)
                 handler.postDelayed(restoreFabAlphaRunnable, 300)
+            }
+        }
+    }
+
+    private fun loadQuestions(page: Int = 1, limit: Int = 20) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val res = repository.fetchQuestions(page, limit)
+            res.onSuccess { items ->
+                questionList.clear()
+                questionList.addAll(items)
+
+                items.forEach { item ->
+                    launch {
+                        val count = repository.getLikeCount(item.id).getOrElse { 0 }
+                        likeCountMap[item.id] = count
+                        adapter.updateLikeState(item.id, likedSet.contains(item.id), count)
+                    }
+                }
+
+                adapter.notifyDataSetChanged()
+            }.onFailure { e ->
+                Toast.makeText(requireContext(), "불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
