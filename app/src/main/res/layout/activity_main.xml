@@ -20,9 +20,12 @@
 
     <!-- 상단 바 (위에 겹쳐서 보이게) -->
     <include
+        android:id="@+id/top_bar"
         layout="@layout/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="@+id/fragment_container_view"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_container_view"/>
 
     <!-- 하단 영역 묶음 (경계선 + 바텀 네비) -->
     <LinearLayout
