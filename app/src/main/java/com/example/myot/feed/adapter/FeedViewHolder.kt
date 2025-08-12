@@ -420,10 +420,11 @@ class FeedViewHolder(
             popupWindow.dismiss()
 
             val activity = anchor.context as? FragmentActivity ?: return@setOnClickListener
-            val transaction = activity.supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragment_container_view, ProfileFragment())
-            transaction.addToBackStack(null)
-            transaction.commit()
+            val fragment = ProfileFragment.newInstance(1L) // 임시 userId = 1 전달
+            activity.supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, fragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 
