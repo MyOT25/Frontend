@@ -50,7 +50,18 @@ class QuestionAdapter(
             }
             binding.tvContent.text = spannable
 
-            binding.ivThumbnail.visibility = View.INVISIBLE
+            // 썸네일 기능 적용
+            val thumb = item.thumbnailUrl
+            if (!thumb.isNullOrBlank()) {
+                binding.ivThumbnail.visibility = View.VISIBLE
+                Glide.with(binding.root)
+                    .load(thumb)
+                    .centerCrop()
+                    .into(binding.ivThumbnail)
+            } else {
+                binding.ivThumbnail.setImageDrawable(null)
+                binding.ivThumbnail.visibility = View.INVISIBLE
+            }
 
             // 좋아요 api
             val isLiked = getLiked(item.id)
@@ -59,12 +70,16 @@ class QuestionAdapter(
             binding.ivLike.setOnClickListener { onLikeClick(item.id, isLiked) }
             binding.tvLikeCount.setOnClickListener { onLikeClick(item.id, isLiked) }
 
-            binding.tvCommentCount.visibility = View.GONE
+            // 답변 api
+            val cc = item.commentCount ?: 0
+            binding.tvCommentCount.text = cc.toString()
+            binding.tvCommentCount.visibility = if (cc == 0) View.GONE else View.VISIBLE
+
+            val commentTint = if (cc > 0) R.color.point_green else R.color.gray3
             binding.ivComment.setColorFilter(
-                ContextCompat.getColor(binding.root.context, R.color.gray3),
+                ContextCompat.getColor(binding.root.context, commentTint),
                 android.graphics.PorterDuff.Mode.SRC_IN
             )
-
             binding.root.setOnClickListener { onItemClick(item) }
         }
 
@@ -106,11 +121,6 @@ class QuestionAdapter(
             }
         }
 
-    }
-
-    fun updateLikeState(questionId: Long, liked: Boolean, count: Int) {
-        val idx = items.indexOfFirst { it.id == questionId }
-        if (idx != -1) notifyItemChanged(idx)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestionViewHolder {

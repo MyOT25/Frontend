@@ -41,22 +41,19 @@ class QuestionRepository(
     }
 
     private fun QuestionListItemDto.toModelOrNull(): QuestionItem? {
-        // 필수 필드 없으면 아이템 스킵
-        val safeTitle = title ?: return null
-        val safeContent = content ?: ""
-        val nickname = user?.nickname ?: "사용자"
-        val profile = user?.profileImage
+        val safeTitle = title.ifBlank { return null }
+        val safeContent = content.orEmpty()
+
+        val nickname = user.nickname.ifBlank { "사용자" }
+        val profile = user.profileImageUrl ?: user.profileImage
 
         val displayTime = try {
-            val src = createdAt ?: return null
-            java.time.OffsetDateTime.parse(src)
+            java.time.OffsetDateTime.parse(createdAt)
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
-        } catch (_: Exception) {
-            createdAt ?: return null
-        }
+        } catch (_: Exception) { createdAt }
 
         val tagNames: List<String> =
-            (questionTags ?: emptyList()).mapNotNull { it.tag?.tagName }.filter { it.isNotBlank() }
+            (tagList ?: emptyList()).filter { it.isNotBlank() }
 
         return QuestionItem(
             id = id,
@@ -65,7 +62,11 @@ class QuestionRepository(
             username = nickname,
             profileImage = profile,
             createdAt = displayTime,
-            tags = tagNames
+            tags = tagNames,
+            isAnonymous = isAnonymous,
+            thumbnailUrl = thumbnailUrl,
+            likeCount = likeCount,
+            commentCount = commentCount
         )
     }
 
@@ -87,43 +88,29 @@ class QuestionRepository(
         if (res.resultType == "SUCCESS") Unit else error("Unlike failed: ${res.error}")
     }
 
-    suspend fun getLikeCount(questionId: Long): Result<Int> {
-        return try {
-            val res = service.getQuestionLikeCount(questionId)
-            val count = res.success?.data?.likeCount
-                ?: return Result.failure(IllegalStateException("Count failed: empty body or not success (${res.error})"))
-            Result.success(count)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+    suspend fun fetchQuestionDetail(id: Long): Result<Pair<QuestionItem, List<String>>> = runCatching {
+        val res = service.getQuestionDetail(id)
+        val dto = res.success?.data ?: error("detail failed: empty body")
 
-    suspend fun fetchQuestionDetail(id: Long): Result<Pair<QuestionItem, List<String>>> {
-        return try {
-            val res = service.getQuestionDetail(id)
-            val dto = res.success?.data
-                ?: return Result.failure(IllegalStateException("detail failed: empty body or not success (${res.error})"))
+        val displayTime = try {
+            OffsetDateTime.parse(dto.createdAt)
+                .format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
+        } catch (_: Exception) { dto.createdAt }
 
-            val displayTime = try {
-                OffsetDateTime.parse(dto.createdAt)
-                    .format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
-            } catch (_: Exception) {
-                dto.createdAt
-            }
-
-            val header = QuestionItem(
-                id = dto.id,
-                title = dto.title,
-                content = dto.content,
-                username = dto.user.username,
-                profileImage = dto.user.profileImage,
-                createdAt = displayTime,
-                tags = dto.tagList
-            )
-            Result.success(header to dto.imageUrl)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        val header = QuestionItem(
+            id = dto.id,
+            title = dto.title,
+            content = dto.content,
+            username = dto.user.username,
+            profileImage = dto.user.profileImage,
+            createdAt = displayTime,
+            tags = dto.tagList,
+            isAnonymous = dto.isAnonymous ?: false,
+            thumbnailUrl = dto.thumbnailUrl,
+            likeCount = dto.likeCount,
+            commentCount = dto.commentCount
+        )
+        header to (dto.imageUrls ?: emptyList())
     }
 
     private val ANSWER_TIME_FMT: DateTimeFormatter =
@@ -133,13 +120,12 @@ class QuestionRepository(
         val id = this.id ?: return null
         val name = this.user?.username ?: "사용자"
         val profile = this.user?.profileImage
+        val anonymous = this.isAnonymous ?: false
 
         val dispTime = try {
             OffsetDateTime.parse(this.createdAt ?: "")
                 .format(ANSWER_TIME_FMT)
-        } catch (_: Exception) {
-            this.createdAt ?: ""
-        }
+        } catch (_: Exception) { this.createdAt ?: "" }
 
         return AnswerItem(
             id = id,
@@ -147,6 +133,7 @@ class QuestionRepository(
             createdAt = dispTime,
             authorName = name,
             authorProfileImage = profile,
+            isAnonymous = anonymous
         )
     }
 
@@ -165,21 +152,15 @@ class QuestionRepository(
         )
     }
 
-    suspend fun fetchAnswerComments(questionId: Long): Result<List<CommentItem>> = runCatching {
-        val answers: List<AnswerItem> = fetchAnswers(questionId).getOrThrow()
-
-        val likeMap: Map<Long, Int> = coroutineScope {
-            answers.map { a ->
-                async { a.id to fetchAnswerLikeCount(a.id).getOrElse { 0 } }
-            }.awaitAll().toMap()
-        }
-
-        answers.map { a -> a.toCommentItem(likeMap[a.id] ?: 0) }
-    }
-
     suspend fun fetchAnswers(questionId: Long): Result<List<AnswerItem>> = runCatching {
-        val res = service.getAnswersByQuestion(questionId)
-        val raw = res.success?.data ?: emptyList()
+        val res = service.getAnswersByQuestion(
+            questionId = questionId,
+            page = 1,
+            size = 50,
+            authorization = AuthStore.bearerOrNull()
+        )
+        val raw = res.success?.data?.comments ?: emptyList()
+        android.util.Log.d("QuestionRepo", "answers size=${raw.size} for q=$questionId")
         raw.mapNotNull { it.toAnswerItemOrNull() }
     }
 
@@ -275,5 +256,17 @@ class QuestionRepository(
             "jpg", "jpeg" -> "image/jpeg".toMediaType()
             else -> "application/octet-stream".toMediaType()
         }
+    }
+
+    suspend fun getLikeCountViaList(
+        questionId: Long,
+        page: Int = 1,
+        limit: Int = 20
+    ): Result<Int> = runCatching {
+        val res = service.getQuestions(page, limit)
+        val list = res.success?.data ?: emptyList()
+        val target = list.firstOrNull { it.id == questionId }
+            ?: error("question $questionId not found in list(page=$page)")
+        target.likeCount ?: 0
     }
 }

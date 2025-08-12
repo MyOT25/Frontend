@@ -74,9 +74,9 @@ class QuestionDetailFragment : Fragment() {
                         .onFailure { Toast.makeText(requireContext(),"취소 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
                 }
 
-                val count = repository.getLikeCount(questionId).getOrElse { 0 }
+                val count = repository.getLikeCountViaList(questionId).getOrElse { likeCountMap[questionId] ?: 0 }
                 likeCountMap[questionId] = count
-                adapter.notifyDataSetChanged()
+                adapter.notifyHeaderChanged()
             }
         }
 
@@ -101,12 +101,23 @@ class QuestionDetailFragment : Fragment() {
         binding.rvQuestionDetail.layoutManager = LinearLayoutManager(requireContext())
         binding.rvQuestionDetail.adapter = adapter
 
+        (binding.rvQuestionDetail.itemAnimator as? androidx.recyclerview.widget.SimpleItemAnimator)?.apply {
+            supportsChangeAnimations = false
+            changeDuration = 0
+            moveDuration = 0
+            addDuration = 0
+            removeDuration = 0
+        }
+
+        likeCountMap[detailItem.id] = detailItem.likeCount ?: 0
+        adapter.notifyHeaderChanged()
+
         viewLifecycleOwner.lifecycleScope.launch {
             val detailRes = repository.fetchQuestionDetail(detailItem.id)
             detailRes.onSuccess { (header, images) ->
                 // 헤더/이미지 적용
                 adapter = QuestionDetailAdapter(
-                    item = header,
+                    item = header.copy(commentCount = detailItem.commentCount),
                     imageUrls = images,
                     answers = emptyList(),
                     onQuestionLikeClick = likeHandler,
@@ -119,8 +130,8 @@ class QuestionDetailFragment : Fragment() {
                 binding.rvQuestionDetail.adapter = adapter
 
                 // 질문 좋아요 수 동기화
-                likeCountMap[header.id] = repository.getLikeCount(header.id).getOrElse { 0 }
-                adapter.notifyDataSetChanged()
+                likeCountMap[header.id] = repository.getLikeCountViaList(header.id).getOrElse { likeCountMap[header.id] ?: 0 }
+                adapter.notifyHeaderChanged()
 
                 // 답변 목록 로드
                 val answers = repository.fetchAnswers(header.id).getOrElse { emptyList() }
@@ -133,7 +144,7 @@ class QuestionDetailFragment : Fragment() {
 
                 // 답변 적용
                 adapter = QuestionDetailAdapter(
-                    item = header,
+                    item = header.copy(commentCount = detailItem.commentCount),
                     imageUrls = images,
                     answers = answers,
                     onQuestionLikeClick = likeHandler,

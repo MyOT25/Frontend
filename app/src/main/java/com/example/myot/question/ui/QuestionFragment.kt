@@ -86,12 +86,10 @@ class QuestionFragment : Fragment() {
             },
             onLikeClick = { questionId, _  ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    val hasToken = AuthStore.bearerOrNull() != null
                     val currentlyLiked = likedSet.contains(questionId)
+                    val hasToken = AuthStore.bearerOrNull() != null
+                    if (!hasToken) return@launch
 
-                    if (!hasToken) {
-                        return@launch
-                    }
                     if (!currentlyLiked) {
                         val likeRes = repository.like(questionId)
                         likeRes.onSuccess {
@@ -110,16 +108,33 @@ class QuestionFragment : Fragment() {
                         }
                     }
 
-                    val count = repository.getLikeCount(questionId).getOrElse { 0 }
-                    likeCountMap[questionId] = count
-                    adapter.notifyDataSetChanged()
+                    val newCount = repository.getLikeCountViaList(questionId).getOrElse {
+                        questionList.firstOrNull { it.id == questionId }?.likeCount ?: 0
+                    }
+                    val idx = questionList.indexOfFirst { it.id == questionId }
+                    if (idx != -1) {
+                        val old = questionList[idx]
+                        questionList[idx] = old.copy(likeCount = newCount)
+                        adapter.notifyItemChanged(idx)
+                    }
                 }
             },
             getLiked = { id -> likedSet.contains(id) },
-            getLikeCount = { id -> likeCountMap[id] ?: 0 }
+            getLikeCount = { id ->
+                questionList.firstOrNull { it.id == id }?.likeCount ?: 0
+            }
         )
         binding.rvFeeds.adapter = adapter
         binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
+
+        (binding.rvFeeds.itemAnimator as? androidx.recyclerview.widget.SimpleItemAnimator)?.apply {
+            supportsChangeAnimations = false
+            changeDuration = 0
+            moveDuration = 0
+            addDuration = 0
+            removeDuration = 0
+        }
+
         loadQuestions(page = 1, limit = 20)
 
         binding.btnSortEdit.setOnClickListener { showSortPopup(it) }
@@ -164,26 +179,16 @@ class QuestionFragment : Fragment() {
 
     private fun loadQuestions(page: Int = 1, limit: Int = 20) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val res = repository.fetchQuestions(page, limit)
-            res.onSuccess { items ->
+            repository.fetchQuestions(page, limit).onSuccess { items ->
                 questionList.clear()
                 questionList.addAll(items)
-
-                items.forEach { item ->
-                    launch {
-                        val count = repository.getLikeCount(item.id).getOrElse { 0 }
-                        likeCountMap[item.id] = count
-                        adapter.updateLikeState(item.id, likedSet.contains(item.id), count)
-                    }
-                }
-
                 adapter.notifyDataSetChanged()
-            }.onFailure { e ->
-                Toast.makeText(requireContext(), "불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+
+            }.onFailure {
+                Toast.makeText(requireContext(), "불러오기 실패: ${it.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
     private fun showSortPopup(anchor: View) {
         val context = anchor.context
         val inflater = LayoutInflater.from(context)

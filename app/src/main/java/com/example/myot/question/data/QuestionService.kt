@@ -29,22 +29,25 @@ interface QuestionService {
     suspend fun unlikeQuestion(
         @Path("questionId") questionId: Long,
         @Header("Authorization") authorization: String
-    ): ApiResponse<Unit?>
+    ): ApiResponse<Any?>
 
     @GET("api/questions/{questionId}/like/count")
     suspend fun getQuestionLikeCount(
         @Path("questionId") questionId: Long
-    ): ApiResponse<LikeCountDto>
+    ): ApiResponse<LikeCountDto?>
 
     @GET("api/questions/{questionId}")
     suspend fun getQuestionDetail(
         @Path("questionId") questionId: Long
     ): ApiResponse<QuestionDetailDto>
 
-    @GET("api/answers/question/{questionId}")
+    @GET("api/questions/{questionId}/comments")
     suspend fun getAnswersByQuestion(
-        @Path("questionId") questionId: Long
-    ): ApiResponse<List<AnswerDto>?>
+        @Path("questionId") questionId: Long,
+        @Query("page") page: Int? = null,
+        @Query("size") size: Int? = null,
+        @Header("Authorization") authorization: String? = null
+    ): ApiResponse<CommentsPageDto?>
 
     @Multipart
     @POST("/api/questions")
