@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="4dp"
+    android:gravity="center_horizontal">
+
+    <ImageView
+        android:id="@+id/iv_actor"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/ig_community_profile_sample"
+        android:clipToOutline="true"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/tv_actor_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+        android:gravity="center"
+        android:text="김김김"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_actor_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15/60"
+        android:textSize="12sp"
+        android:gravity="center"/>
+</LinearLayout>

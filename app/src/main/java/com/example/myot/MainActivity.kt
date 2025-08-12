@@ -15,11 +15,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.chatting.ChatFragment
 import com.example.myot.databinding.ActivityMainBinding
 import com.example.myot.home.HomeFragment
+import com.example.myot.question.ui.QuestionFragment
+import com.example.myot.ticket.ui.TicketFragment
+import dagger.hilt.android.AndroidEntryPoint
 import com.example.myot.notification.NotificationAdapter
 import com.example.myot.notification.NotificationItem
 import com.example.myot.question.ui.QuestionFragment
 import com.example.myot.retrofit2.AuthStore
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

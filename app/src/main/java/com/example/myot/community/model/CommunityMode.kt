@@ -1,4 +1,4 @@
-package com.example.myot.community
+package com.example.myot.community.model
 
 enum class CommunityMode {
     MEMBER,

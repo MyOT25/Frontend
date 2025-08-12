@@ -1,4 +1,4 @@
-package com.example.myot.community
+package com.example.myot.community.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +8,10 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myot.community.ui.adapter.ReviewFilterAdapter
+import com.example.myot.community.model.ReviewFilterItem
+import com.example.myot.community.model.ReviewItem
+import com.example.myot.community.ui.adapter.CmReviewAdapter
 import com.example.myot.databinding.FragmentCmReviewBinding
 
 class CmReviewFragment : Fragment() {
@@ -23,7 +27,7 @@ class CmReviewFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCmReviewBinding.inflate(inflater, container, false)
         return binding.root
     }

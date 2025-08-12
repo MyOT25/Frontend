@@ -1,4 +1,4 @@
-package com.example.myot.community
+package com.example.myot.community.ui
 
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
 import com.example.myot.R
+import com.example.myot.community.model.ReviewItem
 import com.example.myot.databinding.DialogReviewDetailBinding
 
 class ReviewDetailDialogFragment(
