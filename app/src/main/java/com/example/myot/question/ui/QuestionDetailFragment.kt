@@ -1,20 +1,35 @@
 package com.example.myot.question.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.databinding.FragmentQuestionDetailBinding
-import com.example.myot.feed.model.CommentItem
 import com.example.myot.question.adapter.QuestionDetailAdapter
+import com.example.myot.question.data.QuestionRepository
 import com.example.myot.question.model.QuestionItem
+import com.example.myot.retrofit2.AuthStore
+import com.example.myot.retrofit2.RetrofitClient
+import kotlinx.coroutines.launch
 
 class QuestionDetailFragment : Fragment() {
 
     private var _binding: FragmentQuestionDetailBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var adapter: QuestionDetailAdapter
+    private lateinit var repository: QuestionRepository
+
+    private val likedSet = mutableSetOf<Long>()
+    private val likeCountMap = mutableMapOf<Long, Int>()
+
+    private val answerLikedSet = mutableSetOf<Long>()
+    private val answerLikeCountMap = mutableMapOf<Long, Int>()
 
     private lateinit var detailItem: QuestionItem
 
@@ -29,86 +44,142 @@ class QuestionDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        detailItem = arguments?.getParcelable("question")!!
-
-        // 더미 댓글 리스트
-        val commentList = listOf(
-            CommentItem(
-                username = "답변러1",
-                content = "정말 공감되는 질문이에요. 저도 비슷한 생각을 했어요!",
-                date = "2025/07/15 09:12",
-                commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0,
-                isAnonymous = true
-            ),
-            CommentItem(
-                username = "고민상담",
-                content = "이런 질문이 많아졌으면 좋겠네요 :)",
-                date = "2025/07/15 10:03",
-                commentCount = 2, likeCount = 4, repostCount = 0, quoteCount = 0
-            ),
-            CommentItem(
-                username = "익명1",
-                content = "정말 좋은 질문이에요. 저도 오늘부터 실천해보려구요!".repeat(6),
-                date = "2025/07/15 11:20",
-                commentCount = 1, likeCount = 1, repostCount = 0, quoteCount = 0,
-                isAnonymous = true
-            ),
-            CommentItem(
-                username = "익명2",
-                content = "생각할 거리를 주는 글이네요. 감사합니다.",
-                date = "2025/07/15 12:45",
-                commentCount = 0, likeCount = 3, repostCount = 0, quoteCount = 0,
-                isAnonymous = true
-            ),
-            CommentItem(
-                username = "힐링중",
-                content = "마음이 따뜻해졌어요. 좋은 글 감사합니다 :)",
-                date = "2025/07/15 13:30",
-                commentCount = 0, likeCount = 5, repostCount = 0, quoteCount = 0
-            ),
-            CommentItem(
-                username = "익명상담소",
-                content = "저도 비슷한 고민 중이었는데 도움이 되네요.",
-                date = "2025/07/15 14:12",
-                commentCount = 3, likeCount = 2, repostCount = 0, quoteCount = 0,
-                isAnonymous = true
-            ),
-            CommentItem(
-                username = "라떼",
-                content = "예전엔 이런 고민을 말도 못 했죠. 요즘은 참 좋아요.",
-                date = "2025/07/15 15:02",
-                commentCount = 0, likeCount = 1, repostCount = 0, quoteCount = 0
-            ),
-            CommentItem(
-                username = "감성충전",
-                content = "이 질문을 보고 제 일기를 다시 꺼냈어요.",
-                date = "2025/07/15 16:25",
-                commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0,
-                isAnonymous = true
-            ),
-            CommentItem(
-                username = "공감왕",
-                content = "100% 공감합니다. 함께 힘내요!",
-                date = "2025/07/15 17:40",
-                commentCount = 1, likeCount = 6, repostCount = 0, quoteCount = 0,
-                isAnonymous = true
-            ),
-            CommentItem(
-                username = "익명10",
-                content = "나만 이런 고민하는 줄 알았는데 아니었네요!",
-                date = "2025/07/15 18:55",
-                commentCount = 0, likeCount = 2, repostCount = 0, quoteCount = 0
-            )
+        repository = QuestionRepository(
+            service = RetrofitClient.questionService,
+            contentResolver = requireContext().contentResolver
         )
 
-        // 어댑터 연결
-        val adapter = QuestionDetailAdapter(detailItem, commentList)
+        val likeHandler: (Long, Boolean) -> Unit = { questionId, _ ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                val hasToken = AuthStore.accessToken != null
+                val currentlyLiked = likedSet.contains(questionId)
+
+                if (!hasToken) {
+                    if (currentlyLiked) {
+                        likedSet.remove(questionId)
+                        likeCountMap[questionId] = (likeCountMap[questionId] ?: 1).coerceAtLeast(1) - 1
+                    } else {
+                        likedSet.add(questionId)
+                        likeCountMap[questionId] = (likeCountMap[questionId] ?: 0) + 1
+                    }
+                    adapter.notifyDataSetChanged()
+                    return@launch
+                }
+
+                if (!currentlyLiked) {
+                    repository.like(questionId).onSuccess { likedSet.add(questionId) }
+                        .onFailure { Toast.makeText(requireContext(),"좋아요 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
+                } else {
+                    repository.unlike(questionId).onSuccess { likedSet.remove(questionId) }
+                        .onFailure { Toast.makeText(requireContext(),"취소 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
+                }
+
+                val count = repository.getLikeCount(questionId).getOrElse { 0 }
+                likeCountMap[questionId] = count
+                adapter.notifyDataSetChanged()
+            }
+        }
+
+        detailItem = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getParcelable("question", QuestionItem::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            arguments?.getParcelable("question")
+        } ?: error("QuestionItem is missing")
+
+        adapter = QuestionDetailAdapter(
+            item = detailItem,
+            imageUrls = emptyList(),
+            answers = emptyList(),
+            onQuestionLikeClick = likeHandler,
+            getQuestionLiked = { id -> likedSet.contains(id) },
+            getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
+            onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
+            getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
+            getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 }
+        )
         binding.rvQuestionDetail.layoutManager = LinearLayoutManager(requireContext())
         binding.rvQuestionDetail.adapter = adapter
 
-        // 뒤로가기
-        binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val detailRes = repository.fetchQuestionDetail(detailItem.id)
+            detailRes.onSuccess { (header, images) ->
+                // 헤더/이미지 적용
+                adapter = QuestionDetailAdapter(
+                    item = header,
+                    imageUrls = images,
+                    answers = emptyList(),
+                    onQuestionLikeClick = likeHandler,
+                    getQuestionLiked = { id -> likedSet.contains(id) },
+                    getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
+                    onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
+                    getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
+                    getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 }
+                )
+                binding.rvQuestionDetail.adapter = adapter
+
+                // 질문 좋아요 수 동기화
+                likeCountMap[header.id] = repository.getLikeCount(header.id).getOrElse { 0 }
+                adapter.notifyDataSetChanged()
+
+                // 답변 목록 로드
+                val answers = repository.fetchAnswers(header.id).getOrElse { emptyList() }
+
+                // 각 답변의 좋아요 수 동기화 (간단하게 순차로)
+                for (a in answers) {
+                    val c = repository.getAnswerLikeCount(a.id).getOrElse { 0 }
+                    answerLikeCountMap[a.id] = c
+                }
+
+                // 답변 적용
+                adapter = QuestionDetailAdapter(
+                    item = header,
+                    imageUrls = images,
+                    answers = answers,
+                    onQuestionLikeClick = likeHandler,
+                    getQuestionLiked = { id -> likedSet.contains(id) },
+                    getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
+                    onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
+                    getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
+                    getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 }
+                )
+                binding.rvQuestionDetail.adapter = adapter
+            }.onFailure {
+                Toast.makeText(requireContext(), "상세 불러오기 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.btnBack.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
+    }
+
+    private fun handleAnswerLikeClick(answerId: Long, isLikedNow: Boolean) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val hasToken = AuthStore.accessToken != null
+            val currentlyLiked = answerLikedSet.contains(answerId)
+
+            if (!hasToken) {
+                if (currentlyLiked) {
+                    answerLikedSet.remove(answerId)
+                    answerLikeCountMap[answerId] = (answerLikeCountMap[answerId] ?: 1).coerceAtLeast(1) - 1
+                } else {
+                    answerLikedSet.add(answerId)
+                    answerLikeCountMap[answerId] = (answerLikeCountMap[answerId] ?: 0) + 1
+                }
+                adapter.notifyDataSetChanged()
+                return@launch
+            }
+
+            if (!currentlyLiked) {
+                repository.likeAnswer(answerId).onSuccess { answerLikedSet.add(answerId) }
+                    .onFailure { Toast.makeText(requireContext(),"답변 좋아요 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
+            } else {
+                repository.unlikeAnswer(answerId).onSuccess { answerLikedSet.remove(answerId) }
+                    .onFailure { Toast.makeText(requireContext(),"답변 좋아요 취소 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
+            }
+
+            val count = repository.getAnswerLikeCount(answerId).getOrElse { 0 }
+            answerLikeCountMap[answerId] = count
+            adapter.notifyDataSetChanged()
         }
     }
 

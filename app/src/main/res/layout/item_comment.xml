@@ -5,50 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:paddingHorizontal="12dp">
-
-    <ImageView
-        android:id="@+id/iv_comment_line"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="-30dp"
-        android:scaleType="fitStart"
-        android:src="@drawable/ic_comment_line"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <View
-        android:id="@+id/view_line"
-        android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="19dp"
-        android:background="@color/gray4"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-
-
-    <!-- 더보기 이미지 -->
-    <ImageView
-        android:id="@+id/iv_overflow"
-        android:layout_width="18dp"
-        android:layout_height="18dp"
-        android:layout_marginTop="13dp"
-        android:src="@drawable/ic_feed_overflow"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    android:paddingTop="16dp">
 
     <!-- 프로필 이미지 -->
     <ImageView
         android:id="@+id/iv_profile"
-        android:layout_width="33dp"
-        android:layout_height="33dp"
-        android:layout_marginTop="29dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="20dp"
         android:src="@drawable/ic_no_profile"
-        app:layout_constraintStart_toEndOf="@+id/iv_comment_line"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- 이름 -->
@@ -63,22 +29,33 @@
         app:layout_constraintStart_toEndOf="@id/iv_profile"
         app:layout_constraintTop_toTopOf="@id/iv_profile"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="10dp" />
+        android:layout_marginStart="7dp" />
+
+    <!-- 유저 아이디 -->
+    <TextView
+        android:id="@+id/tv_userid"
+        style="@style/TextAppearance.App.LabelSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\@user1"
+        android:textColor="@color/gray2"
+        app:layout_constraintStart_toStartOf="@+id/tv_username"
+        app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
     <!-- 내용 -->
     <TextView
         android:id="@+id/tv_content"
+        style="@style/TextAppearance.App.BodySmall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="25dp"
         android:text="텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍스트텍"
         android:textColor="@color/black"
-        style="@style/TextAppearance.App.BodySmall"
-        app:layout_constraintStart_toStartOf="@id/tv_username"
-        app:layout_constraintTop_toBottomOf="@id/tv_username"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/tv_more"
-        android:layout_marginEnd="50dp"
-        android:layout_marginTop="2dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tv_userid"
+        app:layout_constraintTop_toBottomOf="@+id/tv_userid" />
 
     <!-- 더보기 버튼 -->
     <TextView
@@ -99,16 +76,15 @@
     <!-- 날짜 표시 -->
     <TextView
         android:id="@+id/tv_date"
+        style="@style/TextAppearance.App.LabelMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/roboto_medium"
         android:text="2025/00/00 00:00"
         android:textColor="@color/gray3"
-        style="@style/TextAppearance.App.LabelMedium"
-        android:fontFamily="@font/roboto_medium"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="48dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_more"/>
+        app:layout_constraintStart_toStartOf="@+id/tv_content"
+        app:layout_constraintTop_toBottomOf="@+id/tv_more" />
 
     <!-- 피드백 -->
     <LinearLayout
@@ -117,10 +93,8 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginTop="4dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:paddingBottom="12dp"
+        android:layout_marginTop="8dp"
+        android:paddingBottom="14dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_date">
@@ -135,9 +109,10 @@
 
             <ImageView
                 android:id="@+id/iv_comment"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_feed_comment" />
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_feed_comment"
+                app:tint="@color/gray3" />
 
             <TextView
                 android:id="@+id/tv_comment"
@@ -147,7 +122,7 @@
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:fontFamily="@font/roboto_semibold"
-                android:textColor="@color/gray2"/>
+                android:textColor="@color/gray3"/>
         </LinearLayout>
 
         <!-- 좋아요 -->
@@ -160,9 +135,10 @@
 
             <ImageView
                 android:id="@+id/iv_like"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_feed_like" />
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_feed_like"
+                app:tint="@color/gray3" />
 
             <TextView
                 android:id="@+id/tv_like"
@@ -172,7 +148,7 @@
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:fontFamily="@font/roboto_semibold"
-                android:textColor="@color/gray2" />
+                android:textColor="@color/gray3" />
         </LinearLayout>
 
         <!-- 리포스트 -->
@@ -185,9 +161,10 @@
 
             <ImageView
                 android:id="@+id/iv_repost"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_feed_repost" />
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_feed_repost"
+                app:tint="@color/gray3" />
 
             <TextView
                 android:id="@+id/tv_repost"
@@ -197,7 +174,7 @@
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:fontFamily="@font/roboto_semibold"
-                android:textColor="@color/gray2" />
+                android:textColor="@color/gray3" />
         </LinearLayout>
 
         <!-- 북마크 -->
@@ -210,9 +187,10 @@
 
             <ImageView
                 android:id="@+id/iv_quote"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_feed_quote" />
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:src="@drawable/ic_feed_quote"
+                app:tint="@color/gray3" />
 
             <TextView
                 android:id="@+id/tv_quote"
@@ -222,8 +200,18 @@
                 android:text="000"
                 style="@style/TextAppearance.App.LabelSmall"
                 android:fontFamily="@font/roboto_semibold"
-                android:textColor="@color/gray2" />
+                android:textColor="@color/gray3" />
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:id="@+id/viewUnderline"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@drawable/bg_comment_underline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ll_feed_actions" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

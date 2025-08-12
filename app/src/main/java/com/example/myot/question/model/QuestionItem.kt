@@ -5,12 +5,11 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class QuestionItem(
-    val isAnonymous: Boolean,
-    val username: String? = null,
+    val id: Long,
     val title: String,
-    val time: String,
     val content: String,
-    val likeCount: Int,
-    val commentCount: Int,
-    val imageUrls: List<String>? = null
+    val username: String,
+    val profileImage: String?,
+    val createdAt: String,
+    val tags: List<String>
 ) : Parcelable

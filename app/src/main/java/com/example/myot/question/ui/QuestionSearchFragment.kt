@@ -40,42 +40,17 @@ class QuestionSearchFragment : Fragment() {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
-        val dummyList = listOf(
-            QuestionItem(
-                isAnonymous = true,
-                title = "추천 뮤지컬 있을까요?",
-                time = "2025/07/14 17:57",
-                content = "요즘 스트레스 많아서 공연 보고 싶어요. 감동적인 뮤지컬 추천 좀 부탁드려요! #뮤지컬 #추천",
-                likeCount = 42,
-                commentCount = 9,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=1"
-                )
-            ),
-            QuestionItem(
-                isAnonymous = false,
-                username = "질문하는 다람쥐",
-                title = "레미제라블 처음 보면 어때요?",
-                time = "2025/07/15 17:50",
-                content = "뮤지컬 입문인데 레미제라블이 유명하던데 처음 보기에도 괜찮을까요? #레미제라블 #입문",
-                likeCount = 31,
-                commentCount = 5,
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=2",
-                    "https://picsum.photos/300/200?random=12"
-                )
-            )
-        )
-        val adapter = QuestionAdapter(dummyList) { item ->
-            val fragment = QuestionDetailFragment.newInstance(item)
-
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container_view, fragment)
-                .addToBackStack(null)
-                .commit()
-        }
-        binding.rvSearchResults.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvSearchResults.adapter = adapter
+//        val dummyList = emptyList<QuestionItem>()
+//        val adapter = QuestionAdapter(dummyList) { item ->
+//            val fragment = QuestionDetailFragment.newInstance(item)
+//
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.fragment_container_view, fragment)
+//                .addToBackStack(null)
+//                .commit()
+//        }
+//        binding.rvSearchResults.layoutManager = LinearLayoutManager(requireContext())
+//        binding.rvSearchResults.adapter = adapter
     }
 
     override fun onDestroyView() {

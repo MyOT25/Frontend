@@ -1,6 +1,10 @@
 package com.example.myot.home
 
 import android.annotation.SuppressLint
+
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +23,11 @@ import com.example.myot.community.ui.CommunityFragment
 import com.example.myot.databinding.FragmentHomeBinding
 import com.example.myot.feed.adapter.FeedAdapter
 import com.example.myot.feed.model.FeedItem
+import com.example.myot.write.WriteFeedActivity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.collections.plusAssign
 import kotlin.math.min
 
 class HomeFragment : Fragment() {
@@ -26,11 +36,41 @@ class HomeFragment : Fragment() {
 
     private var isExpanded = false
 
+    private val feedList = mutableListOf<FeedItem>()
+    private lateinit var feedAdapter: FeedAdapter
+
     // 새로고침 변수
     private var isRefreshing = false
     private var isDragging = false
     private var startY = 0f
     private val triggerDistance = 150f
+
+    private val writeFeedResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data ?: return@registerForActivityResult
+
+                val isPublic = data.getBooleanExtra("isPublic", true)
+                val content = data.getStringExtra("content") ?: ""
+                val imageUrls = data.getStringArrayListExtra("imageUrls") ?: arrayListOf()
+
+                val newFeed = FeedItem(
+                    username = "마이오티",
+                    content = content,
+                    imageUrls = imageUrls,
+                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
+                    community = if (isPublic) "전체 공개" else "친구 공개", // 임시 처리
+                    commentCount = 0,
+                    likeCount = 0,
+                    repostCount = 0,
+                    quoteCount = 0
+                )
+
+                feedList.add(0, newFeed)
+                binding.rvFeeds.adapter?.notifyDataSetChanged()
+                binding.rvFeeds.scrollToPosition(0)
+            }
+        }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -251,10 +291,12 @@ class HomeFragment : Fragment() {
 
 
         )
+        feedList.addAll(dummyFeeds)
+
 
         // 피드 리사이클러뷰 초기화
         binding.rvFeeds.apply {
-            adapter = FeedAdapter(dummyFeeds)
+            adapter = FeedAdapter(feedList)
             layoutManager = LinearLayoutManager(requireContext())
         }
 
@@ -262,6 +304,12 @@ class HomeFragment : Fragment() {
         val handler = Handler(Looper.getMainLooper())
         val restoreFabAlphaRunnable = Runnable {
             binding.btnEdit.animate().alpha(1f).setDuration(200).start()
+        }
+
+        // 글쓰기 기능
+        binding.btnEdit.setOnClickListener {
+            val intent = Intent(requireContext(), WriteFeedActivity::class.java)
+            writeFeedResultLauncher.launch(intent)
         }
 
         binding.nestedScrollView.setOnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
@@ -289,11 +337,9 @@ class HomeFragment : Fragment() {
         val topBar = requireActivity().findViewById<View>(R.id.top_bar)
         val ivLogo = topBar.findViewById<ImageView>(R.id.iv_logo)
         val tvCommunityName = topBar.findViewById<TextView>(R.id.tv_community_name)
-        val ivClose = topBar.findViewById<ImageView>(R.id.iv_close)
 
         ivLogo.visibility = View.VISIBLE
         tvCommunityName.visibility = View.GONE
-        ivClose.visibility = View.GONE
     }
 
     override fun onDestroyView() {

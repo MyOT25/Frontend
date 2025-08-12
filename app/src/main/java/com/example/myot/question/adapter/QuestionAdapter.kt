@@ -20,98 +20,54 @@ import kotlin.math.floor
 
 class QuestionAdapter(
     private val items: List<QuestionItem>,
-    private val onItemClick: (QuestionItem) -> Unit
+    private val onItemClick: (QuestionItem) -> Unit,
+    private val onLikeClick: (questionId: Long, isLikedNow: Boolean) -> Unit,
+    private val getLiked: (questionId: Long) -> Boolean,
+    private val getLikeCount: (questionId: Long) -> Int
 ) : RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder>() {
 
     inner class QuestionViewHolder(val binding: ItemQuestionFeedBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: QuestionItem) {
             binding.tvTitle.text = item.title
-            binding.tvTime.text = getTimeAgo(item.time)
+            binding.tvTime.text = getTimeAgo(item.createdAt)
 
-            var isLiked = false
-            var likeCount = item.likeCount
-            updateLikeUI(likeCount, isLiked)
-
-            // 좋아요 클릭 이벤트 (아이콘 + 숫자)
-            val likeClickListener = View.OnClickListener {
-                isLiked = !isLiked
-                likeCount = if (isLiked) likeCount + 1 else likeCount - 1
-                updateLikeUI(likeCount, isLiked)
-            }
-
-            binding.ivLike.setOnClickListener(likeClickListener)
-            binding.tvLikeCount.setOnClickListener(likeClickListener)
-
-            binding.tvCommentCount.text = item.commentCount.toString()
-
-            if (item.commentCount == 0) {
-                binding.tvCommentCount.visibility = View.GONE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.gray3),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
-            } else {
-                binding.tvCommentCount.visibility = View.VISIBLE
-                binding.ivComment.setColorFilter(
-                    ContextCompat.getColor(binding.root.context, R.color.point_green),
-                    android.graphics.PorterDuff.Mode.SRC_IN
-                )
-            }
-
-            // 내용 + 해시태그 처리
-            val fullText = item.content
-            val hashtagRegex = "#\\S+".toRegex()
-            val hashtags = hashtagRegex.findAll(fullText).map { it.value }.toList()
-
-            var contentOnly = fullText.replace(hashtagRegex, "").trim()
-
-            if (contentOnly.length > 32) {
-                contentOnly = contentOnly.substring(0, 32) + "..."
-            }
-
-            val displayText = buildString {
-                append(contentOnly)
-                if (hashtags.isNotEmpty()) {
-                    append("  ")
-                    append(hashtags.joinToString(" "))
-                }
-            }
+            val contentOnly = item.content.trim().let { if (it.length > 32) it.substring(0, 32) + "..." else it }
+            val tagsText = if (item.tags.isNotEmpty()) item.tags.joinToString(prefix = "  #", separator = " #") else ""
+            val displayText = contentOnly + tagsText
 
             val spannable = SpannableString(displayText)
-            val startOfTags = displayText.indexOfFirst { it == '#' }
-            if (startOfTags != -1) {
-                for (hashtag in hashtags) {
-                    val start = displayText.indexOf(hashtag, startIndex = startOfTags)
-                    if (start != -1) {
-                        spannable.setSpan(
-                            ForegroundColorSpan(ContextCompat.getColor(binding.root.context, R.color.point_blue)),
-                            start,
-                            start + hashtag.length,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
+
+            item.tags.forEach { tag ->
+                val hashtag = "#$tag"
+                val start = displayText.indexOf(hashtag)
+                if (start >= 0) {
+                    spannable.setSpan(
+                        ForegroundColorSpan(ContextCompat.getColor(binding.root.context, R.color.point_blue)),
+                        start, start + hashtag.length,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                 }
             }
             binding.tvContent.text = spannable
 
+            binding.ivThumbnail.visibility = View.INVISIBLE
 
-            // 이미지 처리
-            if (!item.imageUrls.isNullOrEmpty()) {
-                binding.ivThumbnail.visibility = View.VISIBLE
-                Glide.with(binding.root)
-                    .load(item.imageUrls[0]) // 첫 번째 이미지 사용
-                    .centerCrop()
-                    .into(binding.ivThumbnail)
-            } else {
-                binding.ivThumbnail.visibility = View.INVISIBLE
-            }
+            // 좋아요 api
+            val isLiked = getLiked(item.id)
+            val likeCount = getLikeCount(item.id)
+            updateLikeUI(likeCount, isLiked)
+            binding.ivLike.setOnClickListener { onLikeClick(item.id, isLiked) }
+            binding.tvLikeCount.setOnClickListener { onLikeClick(item.id, isLiked) }
 
-            // 피드 클릭 이벤트
-            binding.root.setOnClickListener {
-                onItemClick(item)
-            }
+            binding.tvCommentCount.visibility = View.GONE
+            binding.ivComment.setColorFilter(
+                ContextCompat.getColor(binding.root.context, R.color.gray3),
+                android.graphics.PorterDuff.Mode.SRC_IN
+            )
 
+            binding.root.setOnClickListener { onItemClick(item) }
         }
+
 
         private fun updateLikeUI(likeCount: Int, isLiked: Boolean) {
             val context = binding.root.context
@@ -150,6 +106,11 @@ class QuestionAdapter(
             }
         }
 
+    }
+
+    fun updateLikeState(questionId: Long, liked: Boolean, count: Int) {
+        val idx = items.indexOfFirst { it.id == questionId }
+        if (idx != -1) notifyItemChanged(idx)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestionViewHolder {

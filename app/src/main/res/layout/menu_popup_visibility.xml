@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/bg_popup_menu_anonymous"
+    android:layout_width="66dp"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/btn_set_public"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="전체 공개"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:textColor="@color/gray2" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="66dp"
+        android:layout_height="1dp"
+        android:background="@color/gray4" />
+
+    <LinearLayout
+        android:id="@+id/btn_set_friends"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="친구 공개"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:textColor="@color/gray2" />
+    </LinearLayout>
+
+</LinearLayout>

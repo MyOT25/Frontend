@@ -6,6 +6,7 @@
 
     <application
         android:name=".MyOTApplication"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,6 +26,14 @@
         <activity
             android:name=".chatting.chatroom.ChatRoomActivity"
             android:exported="false" /> <!-- 채팅 생성을 위한 액티비티 -->
+        <activity
+            android:name=".write.WriteQuestionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".write.WriteFeedActivity"
+            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
