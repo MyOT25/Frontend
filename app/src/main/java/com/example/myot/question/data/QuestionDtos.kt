@@ -113,11 +113,7 @@ data class AnswerLikeActionDto(
     @SerializedName("createdAt") val createdAt: String?
 )
 
-data class CreateQuestionRequestDto(
-    val title: String,
-    val content: String,
-    val imageUrl: List<String> = emptyList(),
-    val tagList: List<String> = emptyList(),
-    val userId: Long,
-    val anonymous: Boolean = true
+data class QuestionMeDto(
+    @SerializedName("hasLiked") val hasLiked: Boolean,
+    @SerializedName("hasCommented") val hasCommented: Boolean
 )

@@ -23,7 +23,8 @@ class QuestionAdapter(
     private val onItemClick: (QuestionItem) -> Unit,
     private val onLikeClick: (questionId: Long, isLikedNow: Boolean) -> Unit,
     private val getLiked: (questionId: Long) -> Boolean,
-    private val getLikeCount: (questionId: Long) -> Int
+    private val getLikeCount: (questionId: Long) -> Int,
+    private val getQuestionCommented: (questionId: Long) -> Boolean
 ) : RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder>() {
 
     inner class QuestionViewHolder(val binding: ItemQuestionFeedBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -31,7 +32,7 @@ class QuestionAdapter(
             binding.tvTitle.text = item.title
             binding.tvTime.text = getTimeAgo(item.createdAt)
 
-            val contentOnly = item.content.trim().let { if (it.length > 32) it.substring(0, 32) + "..." else it }
+            val contentOnly = item.content.trim().let { if (it.length > 42) it.substring(0, 42) + "..." else it }
             val tagsText = if (item.tags.isNotEmpty()) item.tags.joinToString(prefix = "  #", separator = " #") else ""
             val displayText = contentOnly + tagsText
 
@@ -75,11 +76,18 @@ class QuestionAdapter(
             binding.tvCommentCount.text = cc.toString()
             binding.tvCommentCount.visibility = if (cc == 0) View.GONE else View.VISIBLE
 
-            val commentTint = if (cc > 0) R.color.point_green else R.color.gray3
-            binding.ivComment.setColorFilter(
-                ContextCompat.getColor(binding.root.context, commentTint),
-                android.graphics.PorterDuff.Mode.SRC_IN
-            )
+            val commentedByMe = getQuestionCommented(item.id)
+            if (commentedByMe) {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment_selected)
+                binding.ivComment.clearColorFilter()
+            } else {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment)
+                val tintRes = if (cc > 0) R.color.point_green else R.color.gray3
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, tintRes),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            }
             binding.root.setOnClickListener { onItemClick(item) }
         }
 

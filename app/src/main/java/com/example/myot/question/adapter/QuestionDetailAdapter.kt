@@ -21,14 +21,13 @@ class QuestionDetailAdapter(
     private val item: QuestionItem,
     private val imageUrls: List<String>,
     private val answers: List<AnswerItem>,
-
     private val onQuestionLikeClick: (questionId: Long, isLikedNow: Boolean) -> Unit,
     private val getQuestionLiked: (questionId: Long) -> Boolean,
     private val getQuestionLikeCount: (questionId: Long) -> Int,
-
     private val onAnswerLikeClick: (answerId: Long, isLikedNow: Boolean) -> Unit,
     private val getAnswerLiked: (answerId: Long) -> Boolean,
-    private val getAnswerLikeCount: (answerId: Long) -> Int
+    private val getAnswerLikeCount: (answerId: Long) -> Int,
+    private val getQuestionCommented: (questionId: Long) -> Boolean
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -122,11 +121,19 @@ class QuestionDetailAdapter(
             binding.tvCommentCount.text = cc.toString()
             binding.tvCommentCount.visibility = if (cc == 0) View.GONE else View.VISIBLE
 
-            val commentTint = if (cc > 0) R.color.point_green else R.color.gray3
-            binding.ivComment.setColorFilter(
-                ContextCompat.getColor(binding.root.context, commentTint),
-                android.graphics.PorterDuff.Mode.SRC_IN
-            )
+            val commentedByMe = getQuestionCommented(item.id)
+
+            if (commentedByMe) {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment_selected)
+                binding.ivComment.clearColorFilter()
+            } else {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment)
+                val tintRes = if (cc > 0) R.color.point_green else R.color.gray3
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, tintRes),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            }
         }
 
         private fun updateIndicator(position: Int, itemCount: Int) {

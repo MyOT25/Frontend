@@ -37,6 +37,7 @@ class QuestionFragment : Fragment() {
 
     private val likedSet = mutableSetOf<Long>()
     private val likeCountMap = mutableMapOf<Long, Int>()
+    private val commentedSet = mutableSetOf<Long>()
 
     private val writeResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -122,7 +123,8 @@ class QuestionFragment : Fragment() {
             getLiked = { id -> likedSet.contains(id) },
             getLikeCount = { id ->
                 questionList.firstOrNull { it.id == id }?.likeCount ?: 0
-            }
+            },
+            getQuestionCommented = { id -> commentedSet.contains(id) }
         )
         binding.rvFeeds.adapter = adapter
         binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
@@ -184,6 +186,19 @@ class QuestionFragment : Fragment() {
                 questionList.addAll(items)
                 adapter.notifyDataSetChanged()
 
+                val hasToken = AuthStore.bearerOrNull() != null
+                if (hasToken) {
+                    items.forEach { q ->
+                        launch {
+                            repository.fetchMyInteraction(q.id).onSuccess { me ->
+                                if (me.hasLiked) likedSet.add(q.id) else likedSet.remove(q.id)
+                                if (me.hasCommented) commentedSet.add(q.id) else commentedSet.remove(q.id)
+                                val idx = questionList.indexOfFirst { it.id == q.id }
+                                if (idx != -1) adapter.notifyItemChanged(idx)
+                            }
+                        }
+                    }
+                }
             }.onFailure {
                 Toast.makeText(requireContext(), "불러오기 실패: ${it.message}", Toast.LENGTH_SHORT).show()
             }

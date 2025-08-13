@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.provider.Settings
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.chatting.ChatFragment

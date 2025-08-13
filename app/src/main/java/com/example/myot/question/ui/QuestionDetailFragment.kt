@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myot.MainActivity
 import com.example.myot.databinding.FragmentQuestionDetailBinding
 import com.example.myot.question.adapter.QuestionDetailAdapter
 import com.example.myot.question.data.QuestionRepository
@@ -31,6 +32,8 @@ class QuestionDetailFragment : Fragment() {
     private val answerLikedSet = mutableSetOf<Long>()
     private val answerLikeCountMap = mutableMapOf<Long, Int>()
 
+    private val commentedSet = mutableSetOf<Long>()
+
     private lateinit var detailItem: QuestionItem
 
     override fun onCreateView(
@@ -48,6 +51,20 @@ class QuestionDetailFragment : Fragment() {
             service = RetrofitClient.questionService,
             contentResolver = requireContext().contentResolver
         )
+
+        val canComment = AuthStore.accessToken != null
+        binding.etComment.isEnabled = canComment
+        binding.btnSendComment.isEnabled = canComment
+
+        binding.btnSendComment.setOnClickListener {
+            val text = binding.etComment.text?.toString()?.trim().orEmpty()
+            if (text.isBlank()) return@setOnClickListener
+
+            // TODO: 댓글 등록 POST /api/questions/{id}/comments 연동
+            // 성공 시:
+            // binding.etComment.text?.clear()
+            // 목록 리프레시 or 하단에 추가
+        }
 
         val likeHandler: (Long, Boolean) -> Unit = { questionId, _ ->
             viewLifecycleOwner.lifecycleScope.launch {
@@ -96,7 +113,8 @@ class QuestionDetailFragment : Fragment() {
             getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
             onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
             getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
-            getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 }
+            getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
+            getQuestionCommented = { id -> commentedSet.contains(id) }
         )
         binding.rvQuestionDetail.layoutManager = LinearLayoutManager(requireContext())
         binding.rvQuestionDetail.adapter = adapter
@@ -125,7 +143,8 @@ class QuestionDetailFragment : Fragment() {
                     getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
                     onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
                     getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
-                    getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 }
+                    getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
+                    getQuestionCommented = { id -> commentedSet.contains(id) }
                 )
                 binding.rvQuestionDetail.adapter = adapter
 
@@ -152,12 +171,23 @@ class QuestionDetailFragment : Fragment() {
                     getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
                     onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
                     getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
-                    getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 }
+                    getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
+                    getQuestionCommented = { id -> commentedSet.contains(id) }
                 )
                 binding.rvQuestionDetail.adapter = adapter
             }.onFailure {
                 Toast.makeText(requireContext(), "상세 불러오기 실패: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repository.fetchMyInteraction(detailItem.id)
+                .onSuccess { me ->
+                    if (me.hasLiked) likedSet.add(detailItem.id) else likedSet.remove(detailItem.id)
+                    if (me.hasCommented) commentedSet.add(detailItem.id) else commentedSet.remove(detailItem.id)
+                    adapter.notifyHeaderChanged()
+                }
+                .onFailure {  }
         }
 
         binding.btnBack.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }

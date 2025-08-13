@@ -76,4 +76,10 @@ interface QuestionService {
     suspend fun getAnswerLikeCount(
         @Path("answerId") answerId: Long
     ): ApiResponse<AnswerLikeCountDto?>
+
+    @GET("api/questions/{questionId}/me")
+    suspend fun getQuestionMe(
+        @Path("questionId") questionId: Long,
+        @Header("Authorization") authorization: String? = null
+    ): ApiResponse<QuestionMeDto?>
 }

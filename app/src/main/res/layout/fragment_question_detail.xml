@@ -32,20 +32,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 글 쓰기 버튼 (플로팅 버튼) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_edit"
-        android:layout_width="56dp"
+
+    <!-- 하단 댓글 입력바 -->
+    <LinearLayout
+        android:id="@+id/commentInputBar"
+        android:layout_width="0dp"
         android:layout_height="56dp"
-        android:src="@drawable/ic_home_edit"
-        android:layout_margin="12dp"
-        android:alpha="0.3"
-        app:backgroundTint="@color/gray1"
-        app:ensureMinTouchTargetSize="false"
-        app:useCompatPadding="false"
-        app:shapeAppearanceOverlay="@style/FabShape"
-        app:tint="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:gravity="center_vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <EditText
+            android:id="@+id/etComment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="댓글을 입력하세요"
+            android:maxLines="3"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/btnSendComment"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_comment_send" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

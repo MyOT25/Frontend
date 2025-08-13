@@ -269,4 +269,9 @@ class QuestionRepository(
             ?: error("question $questionId not found in list(page=$page)")
         target.likeCount ?: 0
     }
+
+    suspend fun fetchMyInteraction(questionId: Long): Result<QuestionMeDto> = runCatching {
+        val res = service.getQuestionMe(questionId, AuthStore.bearerOrNull())
+        res.success?.data ?: QuestionMeDto(hasLiked = false, hasCommented = false)
+    }
 }
