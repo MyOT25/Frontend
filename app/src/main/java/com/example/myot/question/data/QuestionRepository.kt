@@ -48,8 +48,9 @@ class QuestionRepository(
         val profile = user.profileImageUrl ?: user.profileImage
 
         val displayTime = try {
-            java.time.OffsetDateTime.parse(createdAt)
-                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
+            val odt = java.time.OffsetDateTime.parse(createdAt)
+            val local = odt.toInstant().atZone(java.time.ZoneId.systemDefault())
+            local.format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
         } catch (_: Exception) { createdAt }
 
         val tagNames: List<String> =
@@ -93,8 +94,9 @@ class QuestionRepository(
         val dto = res.success?.data ?: error("detail failed: empty body")
 
         val displayTime = try {
-            OffsetDateTime.parse(dto.createdAt)
-                .format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
+            val odt = java.time.OffsetDateTime.parse(dto.createdAt)
+            val local = odt.toInstant().atZone(java.time.ZoneId.systemDefault())
+            local.format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
         } catch (_: Exception) { dto.createdAt }
 
         val header = QuestionItem(
@@ -195,23 +197,29 @@ class QuestionRepository(
         imageUris: List<Uri>,
         anonymous: Boolean?
     ): Result<QuestionItem> = runCatching {
-        val titleRb = title.toRequestBody(TEXT)
-        val contentRb = content.toRequestBody(TEXT)
+        val titleRb    = title.toRequestBody(TEXT)
+        val contentRb  = content.toRequestBody(TEXT)
         val tagIdsJson = tagIds.toString().toRequestBody(TEXT)
-        val anonymousRb = anonymous.toString().toRequestBody(TEXT)
+
+        val isAnonStr     = if (anonymous == true) "true" else "false"
+        val isAnonymousRb = isAnonStr.toRequestBody(TEXT)
 
         val parts = imageUris.take(5).mapNotNull { uri ->
             uriToPart(uri, formFieldName = "imageFiles")
         }
 
+        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
+        val authHeader = "Bearer $token"
+
         val res = service.createQuestion(
             title = titleRb,
             content = contentRb,
             tagIdsJson = tagIdsJson,
-            anonymous = anonymousRb,
+            isAnonymous = isAnonymousRb,
             imageFiles = parts,
-            auth = AuthStore.bearerOrThrow()
+            auth = authHeader
         )
+
         val dto = res.success?.data ?: error("서버 응답에 data 없음")
         dto.toDomain()
     }

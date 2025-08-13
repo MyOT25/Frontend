@@ -127,6 +127,11 @@ class QuestionDetailFragment : Fragment() {
                         adapter.notifyHeaderChanged()
 
                         binding.rvQuestionDetail.scrollToPosition(updatedAnswers.size)
+
+                        (activity as? MainActivity)?.apply {
+                            hideKeyboardAndClearFocus()
+                            hideCommentBar()
+                        }
                     }
                     .onFailure {
                         Toast.makeText(requireContext(), "댓글 등록 실패: ${it.message}", Toast.LENGTH_SHORT).show()

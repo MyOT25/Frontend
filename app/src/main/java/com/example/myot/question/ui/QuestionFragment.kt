@@ -44,17 +44,28 @@ class QuestionFragment : Fragment() {
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data = result.data ?: return@registerForActivityResult
+
+            val id = data.getLongExtra("createdQuestionId", -System.currentTimeMillis())
+            val title = data.getStringExtra("title") ?: "제목 없음"
             val content = data.getStringExtra("content") ?: ""
+            val author = data.getStringExtra("authorName") ?: "나"
+            val createdAt = data.getStringExtra("createdAt")
+                ?: SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date())
+            val tags = data.getStringArrayListExtra("tags")?.toList() ?: emptyList()
+            val isAnonymous = data.getBooleanExtra("isAnonymous", false)
 
             val newItem = QuestionItem(
-                id = -System.currentTimeMillis(),
-                title = "질문 있어요",
+                id = id,
+                title = title,
                 content = content,
-                username = "나",
+                username = author,
                 profileImage = null,
-                createdAt = java.text.SimpleDateFormat("yyyy/MM/dd HH:mm", java.util.Locale.getDefault())
-                    .format(java.util.Date()),
-                tags = emptyList()
+                createdAt = createdAt,
+                tags = tags,
+                isAnonymous = isAnonymous,
+                thumbnailUrl = null,
+                likeCount = 0,
+                commentCount = 0
             )
 
             questionList.add(0, newItem)

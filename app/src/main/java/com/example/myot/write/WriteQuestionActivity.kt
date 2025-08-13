@@ -3,6 +3,10 @@ package com.example.myot.write
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.SpannableString
+import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +17,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.example.myot.R
 import com.example.myot.databinding.ActivityWriteQuestionBinding
@@ -38,6 +44,41 @@ class WriteQuestionActivity : AppCompatActivity() {
         binding = ActivityWriteQuestionBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 초기 상태: 게시하기 비활성, 이미지 영역 숨김
+        setPostEnabled(false)
+        binding.scrollImageContainer.isVisible = false
+
+        val tip = "#해시태그로 내 질문을 분류해보세요!"
+        val spannable = SpannableString(tip).apply {
+            val hashEnd = "#해시태그로".length
+            setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(this@WriteQuestionActivity, R.color.point_blue)),
+                0, hashEnd,
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        binding.tvHashtagTip.text = spannable
+
+        // 제목 입력 감지 → 이미지 영역 & 게시하기 버튼 상태
+        binding.etTitle.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) { }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val hasTitle = !s.isNullOrBlank()
+                binding.scrollImageContainer.isVisible = hasTitle
+                setPostEnabled(hasTitle)
+            }
+        })
+
+        // 본문 입력 감지 → 해시태그 안내 보이기/숨기기
+        binding.etContent.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) { }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.tvHashtagTip.isVisible = !s.isNullOrBlank()
+            }
+        })
+
         updateImageThumbnails()
 
         // 닫기 기능
@@ -52,14 +93,15 @@ class WriteQuestionActivity : AppCompatActivity() {
 
         // 글쓰기
         binding.tvPost.setOnClickListener {
-            val title = "질문 있어요!"
-            val content = binding.etContent.text.toString()
+            val title = binding.etTitle.text?.toString()?.trim().orEmpty()
+            val content = binding.etContent.text?.toString()?.trim().orEmpty()
+            if (title.isBlank()) return@setOnClickListener
             if (content.isBlank()) return@setOnClickListener
 
             val tagIds: List<Long> = emptyList()
             val imageUris = selectedImageUris
 
-            binding.tvPost.isEnabled = false
+            setPostEnabled(false)
             lifecycleScope.launch {
                 val result = repo.postQuestionMultipart(
                     title = title,
@@ -68,10 +110,11 @@ class WriteQuestionActivity : AppCompatActivity() {
                     imageUris = imageUris,
                     anonymous = isAnonymous
                 )
-                binding.tvPost.isEnabled = true
+                setPostEnabled(true)
 
                 result.onSuccess { created ->
-                    Toast.makeText(this@WriteQuestionActivity, "질문이 등록되었습니다.", Toast.LENGTH_SHORT).show()
+                    val isAnon = created.isAnonymous ?: isAnonymous
+
                     val intent = Intent().apply {
                         putExtra("createdQuestionId", created.id)
                         putExtra("title", created.title)
@@ -79,6 +122,7 @@ class WriteQuestionActivity : AppCompatActivity() {
                         putStringArrayListExtra("tags", ArrayList(created.tags))
                         putExtra("authorName", created.username)
                         putExtra("createdAt", created.createdAt)
+                        putExtra("isAnonymous", isAnon)
                     }
                     setResult(RESULT_OK, intent)
                     finish()
@@ -86,6 +130,17 @@ class WriteQuestionActivity : AppCompatActivity() {
                     Toast.makeText(this@WriteQuestionActivity, "등록 실패: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
+        }
+    }
+
+    private fun setPostEnabled(enabled: Boolean) {
+        binding.tvPost.isEnabled = enabled
+        if (enabled) {
+            binding.tvPost.setBackgroundResource(R.drawable.bg_write_btn)
+            binding.tvPost.setTextColor(ContextCompat.getColor(this, R.color.white))
+        } else {
+            binding.tvPost.setBackgroundResource(R.drawable.bg_write_btn_disabled)
+            binding.tvPost.setTextColor(ContextCompat.getColor(this, R.color.gray2))
         }
     }
 

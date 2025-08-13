@@ -51,17 +51,16 @@ interface QuestionService {
     ): ApiResponse<CommentsPageDto?>
 
     @Multipart
-    @POST("/api/questions")
+    @POST("api/questions")
     suspend fun createQuestion(
         @Part("title") title: RequestBody,
         @Part("content") content: RequestBody,
         @Part("tagIds") tagIdsJson: RequestBody,
-        @Part("anonymous") anonymous: RequestBody? = null,
+        @Part("isAnonymous") isAnonymous: RequestBody,
         @Part imageFiles: List<MultipartBody.Part>,
-        @Header("Authorization") auth: String? = null
+        @Header("Authorization") auth: String
     ): ApiResponse<QuestionDetailDto>
 
-    // ✅ 댓글 좋아요 API (신규 스펙)
     @POST("api/questions/{questionId}/comments/{commentId}/like")
     suspend fun likeComment(
         @Path("questionId") questionId: Long,

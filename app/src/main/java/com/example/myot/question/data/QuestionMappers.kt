@@ -33,9 +33,7 @@ fun QuestionListItemDto.toDomain(): QuestionItem {
 fun QuestionDetailDto.toDomain(): QuestionItem {
     val displayTime = try {
         OffsetDateTime.parse(createdAt).format(VIEW_TIME_FORMATTER)
-    } catch (_: Exception) {
-        createdAt
-    }
+    } catch (_: Exception) { createdAt }
 
     return QuestionItem(
         id = id,
@@ -44,6 +42,10 @@ fun QuestionDetailDto.toDomain(): QuestionItem {
         username = user.username,
         profileImage = user.profileImage,
         createdAt = displayTime,
-        tags = tagList
+        tags = tagList,
+        isAnonymous = isAnonymous ?: false,
+        thumbnailUrl = thumbnailUrl,
+        likeCount = likeCount,
+        commentCount = commentCount
     )
 }
