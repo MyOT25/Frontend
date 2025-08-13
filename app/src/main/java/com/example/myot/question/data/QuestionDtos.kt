@@ -100,20 +100,25 @@ data class AnswerUserDto(
     @SerializedName(value = "username", alternate = ["nickname"]) val username: String?,
     @SerializedName(value = "profileImage", alternate = ["profileImageUrl"]) val profileImage: String?
 )
-data class AnswerLikeCountDto(
-    @SerializedName("answerId") val answerId: Long?,
-    @SerializedName("likeCount") val likeCount: Int?
+
+data class CommentLikeActionDto(
+    @SerializedName("id") val id: Long?,
+    @SerializedName("commentId") val commentId: Long?,
+    @SerializedName("userId") val userId: Long?,
+    @SerializedName("createdAt") val createdAt: String?
 )
 
-data class AnswerLikeActionDto(
-    @SerializedName("id") val id: Long?,
-    @SerializedName("answerId") val answerId: Long?,
-    @SerializedName("userId") val userId: Long?,
-    @SerializedName("questionId") val questionId: Long?,
-    @SerializedName("createdAt") val createdAt: String?
+data class CommentLikeCountDto(
+    @SerializedName("commentId") val commentId: Long?,
+    @SerializedName("likeCount") val likeCount: Int?
 )
 
 data class QuestionMeDto(
     @SerializedName("hasLiked") val hasLiked: Boolean,
     @SerializedName("hasCommented") val hasCommented: Boolean
+)
+
+data class CreateCommentRequestDto(
+    @SerializedName("content") val content: String,
+    @SerializedName("isAnonymous") val isAnonymous: Boolean
 )

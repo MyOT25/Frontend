@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +39,11 @@ class QuestionDetailFragment : Fragment() {
 
     private lateinit var detailItem: QuestionItem
 
+    private var headerItem: QuestionItem? = null
+    private var headerImages: List<String> = emptyList()
+
+    private lateinit var likeHandler: (Long, Boolean) -> Unit
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,20 +59,6 @@ class QuestionDetailFragment : Fragment() {
             service = RetrofitClient.questionService,
             contentResolver = requireContext().contentResolver
         )
-
-        val canComment = AuthStore.accessToken != null
-        binding.etComment.isEnabled = canComment
-        binding.btnSendComment.isEnabled = canComment
-
-        binding.btnSendComment.setOnClickListener {
-            val text = binding.etComment.text?.toString()?.trim().orEmpty()
-            if (text.isBlank()) return@setOnClickListener
-
-            // TODO: 댓글 등록 POST /api/questions/{id}/comments 연동
-            // 성공 시:
-            // binding.etComment.text?.clear()
-            // 목록 리프레시 or 하단에 추가
-        }
 
         val likeHandler: (Long, Boolean) -> Unit = { questionId, _ ->
             viewLifecycleOwner.lifecycleScope.launch {
@@ -94,6 +88,49 @@ class QuestionDetailFragment : Fragment() {
                 val count = repository.getLikeCountViaList(questionId).getOrElse { likeCountMap[questionId] ?: 0 }
                 likeCountMap[questionId] = count
                 adapter.notifyHeaderChanged()
+            }
+        }
+
+        (activity as? MainActivity)?.showCommentBar(
+            scrollable = binding.rvQuestionDetail,
+            hint = "댓글을 입력하세요"
+        ) { text, isAnonymous ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                // 댓글 등록
+                repository.createComment(detailItem.id, text, isAnonymous)
+                    .onSuccess {
+                        // 내가 댓글 쓴 상태 반영
+                        commentedSet.add(detailItem.id)
+
+                        // 최신 댓글 목록 다시 로드
+                        val updatedAnswers = repository.fetchAnswers(detailItem.id).getOrElse { emptyList() }
+
+                        // 헤더의 댓글 수 +1
+                        val newHeader = (headerItem ?: detailItem).copy(
+                            commentCount = ((headerItem?.commentCount ?: detailItem.commentCount ?: 0) + 1)
+                        )
+                        headerItem = newHeader
+
+                        adapter = QuestionDetailAdapter(
+                            item = newHeader,
+                            imageUrls = headerImages,
+                            answers = updatedAnswers,
+                            onQuestionLikeClick = likeHandler,
+                            getQuestionLiked = { id -> likedSet.contains(id) },
+                            getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
+                            onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
+                            getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
+                            getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
+                            getQuestionCommented = { id -> commentedSet.contains(id) }
+                        )
+                        binding.rvQuestionDetail.adapter = adapter
+                        adapter.notifyHeaderChanged()
+
+                        binding.rvQuestionDetail.scrollToPosition(updatedAnswers.size)
+                    }
+                    .onFailure {
+                        Toast.makeText(requireContext(), "댓글 등록 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                    }
             }
         }
 
@@ -133,10 +170,14 @@ class QuestionDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val detailRes = repository.fetchQuestionDetail(detailItem.id)
             detailRes.onSuccess { (header, images) ->
-                // 헤더/이미지 적용
+                // 저장해두고 계속 재사용
+                headerItem = header.copy(commentCount = detailItem.commentCount)
+                headerImages = images
+
+                // 1차 바인딩 (답글 비우고)
                 adapter = QuestionDetailAdapter(
-                    item = header.copy(commentCount = detailItem.commentCount),
-                    imageUrls = images,
+                    item = headerItem!!,
+                    imageUrls = headerImages,
                     answers = emptyList(),
                     onQuestionLikeClick = likeHandler,
                     getQuestionLiked = { id -> likedSet.contains(id) },
@@ -149,22 +190,23 @@ class QuestionDetailFragment : Fragment() {
                 binding.rvQuestionDetail.adapter = adapter
 
                 // 질문 좋아요 수 동기화
-                likeCountMap[header.id] = repository.getLikeCountViaList(header.id).getOrElse { likeCountMap[header.id] ?: 0 }
+                likeCountMap[header.id] = repository.getLikeCountViaList(header.id)
+                    .getOrElse { likeCountMap[header.id] ?: 0 }
                 adapter.notifyHeaderChanged()
 
-                // 답변 목록 로드
+                // 답글 목록 로드
                 val answers = repository.fetchAnswers(header.id).getOrElse { emptyList() }
-
-                // 각 답변의 좋아요 수 동기화 (간단하게 순차로)
                 for (a in answers) {
-                    val c = repository.getAnswerLikeCount(a.id).getOrElse { 0 }
+                    val likedByMe = repository.getCommentLikedByMe(header.id, a.id).getOrElse { false }
+                    if (likedByMe) answerLikedSet.add(a.id) else answerLikedSet.remove(a.id)
+
+                    val c = repository.getCommentLikeCount(header.id, a.id).getOrElse { 0 }
                     answerLikeCountMap[a.id] = c
                 }
 
-                // 답변 적용
                 adapter = QuestionDetailAdapter(
-                    item = header.copy(commentCount = detailItem.commentCount),
-                    imageUrls = images,
+                    item = headerItem!!,
+                    imageUrls = headerImages,
                     answers = answers,
                     onQuestionLikeClick = likeHandler,
                     getQuestionLiked = { id -> likedSet.contains(id) },
@@ -193,40 +235,34 @@ class QuestionDetailFragment : Fragment() {
         binding.btnBack.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
     }
 
-    private fun handleAnswerLikeClick(answerId: Long, isLikedNow: Boolean) {
+    private fun handleAnswerLikeClick(commentId: Long, isLikedNow: Boolean) {
         viewLifecycleOwner.lifecycleScope.launch {
             val hasToken = AuthStore.accessToken != null
-            val currentlyLiked = answerLikedSet.contains(answerId)
+            val currentlyLiked = answerLikedSet.contains(commentId)
 
             if (!hasToken) {
-                if (currentlyLiked) {
-                    answerLikedSet.remove(answerId)
-                    answerLikeCountMap[answerId] = (answerLikeCountMap[answerId] ?: 1).coerceAtLeast(1) - 1
-                } else {
-                    answerLikedSet.add(answerId)
-                    answerLikeCountMap[answerId] = (answerLikeCountMap[answerId] ?: 0) + 1
-                }
-                adapter.notifyDataSetChanged()
                 return@launch
             }
 
             if (!currentlyLiked) {
-                repository.likeAnswer(answerId).onSuccess { answerLikedSet.add(answerId) }
-                    .onFailure { Toast.makeText(requireContext(),"답변 좋아요 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
+                repository.likeComment(detailItem.id, commentId)
+                    .onSuccess { answerLikedSet.add(commentId) }
+                    .onFailure { Toast.makeText(requireContext(),"댓글 좋아요 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
             } else {
-                repository.unlikeAnswer(answerId).onSuccess { answerLikedSet.remove(answerId) }
-                    .onFailure { Toast.makeText(requireContext(),"답변 좋아요 취소 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
+                repository.unlikeComment(detailItem.id, commentId)
+                    .onSuccess { answerLikedSet.remove(commentId) }
+                    .onFailure { Toast.makeText(requireContext(),"댓글 좋아요 취소 실패: ${it.message}",Toast.LENGTH_SHORT).show(); return@launch }
             }
 
-            val count = repository.getAnswerLikeCount(answerId).getOrElse { 0 }
-            answerLikeCountMap[answerId] = count
+            val count = repository.getCommentLikeCount(detailItem.id, commentId).getOrElse { 0 }
+            answerLikeCountMap[commentId] = count
             adapter.notifyDataSetChanged()
         }
     }
 
     override fun onDestroyView() {
+        (activity as? MainActivity)?.hideCommentBar()
         super.onDestroyView()
-        _binding = null
     }
 
     companion object {
@@ -238,4 +274,5 @@ class QuestionDetailFragment : Fragment() {
             return fragment
         }
     }
+
 }

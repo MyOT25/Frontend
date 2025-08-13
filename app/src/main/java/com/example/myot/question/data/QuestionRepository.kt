@@ -160,32 +160,32 @@ class QuestionRepository(
             authorization = AuthStore.bearerOrNull()
         )
         val raw = res.success?.data?.comments ?: emptyList()
-        android.util.Log.d("QuestionRepo", "answers size=${raw.size} for q=$questionId")
+        android.util.Log.d("QuestionRepo", "comments size=${raw.size} for q=$questionId")
         raw.mapNotNull { it.toAnswerItemOrNull() }
     }
 
-    suspend fun fetchAnswerLikeCount(answerId: Long): Result<Int> = runCatching {
-        val res = service.getAnswerLikeCount(answerId)
+    suspend fun likeComment(questionId: Long, commentId: Long): Result<CommentLikeActionDto> = runCatching {
+        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
+        val auth = "Bearer $token"
+        val res = service.likeComment(questionId, commentId, auth)
+        res.success?.data ?: error("댓글 좋아요 실패: ${res.error}")
+    }
+
+    suspend fun unlikeComment(questionId: Long, commentId: Long): Result<Unit> = runCatching {
+        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
+        val auth = "Bearer $token"
+        val res = service.unlikeComment(questionId, commentId, auth)
+        if (res.resultType == "SUCCESS") Unit else error("댓글 좋아요 취소 실패: ${res.error}")
+    }
+
+    suspend fun getCommentLikeCount(questionId: Long, commentId: Long): Result<Int> = runCatching {
+        val res = service.getCommentLikeCount(questionId, commentId)
         res.success?.data?.likeCount ?: 0
     }
 
-    suspend fun likeAnswer(answerId: Long): Result<AnswerLikeActionDto> = runCatching {
-        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
-        val auth = "Bearer $token"
-        val res = service.likeAnswer(answerId, auth)
-        res.success?.data ?: error("답변 좋아요 실패: ${res.error}")
-    }
-
-    suspend fun unlikeAnswer(answerId: Long): Result<Unit> = runCatching {
-        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
-        val auth = "Bearer $token"
-        val res = service.unlikeAnswer(answerId, auth)
-        if (res.resultType == "SUCCESS") Unit else error("답변 좋아요 취소 실패: ${res.error}")
-    }
-
-    suspend fun getAnswerLikeCount(answerId: Long): Result<Int> = runCatching {
-        val res = service.getAnswerLikeCount(answerId)
-        res.success?.data?.likeCount ?: 0
+    suspend fun getCommentLikedByMe(questionId: Long, commentId: Long): Result<Boolean> = runCatching {
+        val res = service.getCommentLikedByMe(questionId, commentId, AuthStore.bearerOrNull())
+        res.success?.data ?: false
     }
 
     suspend fun postQuestionMultipart(
@@ -273,5 +273,22 @@ class QuestionRepository(
     suspend fun fetchMyInteraction(questionId: Long): Result<QuestionMeDto> = runCatching {
         val res = service.getQuestionMe(questionId, AuthStore.bearerOrNull())
         res.success?.data ?: QuestionMeDto(hasLiked = false, hasCommented = false)
+    }
+
+    suspend fun createComment(
+        questionId: Long,
+        content: String,
+        isAnonymous: Boolean
+    ): Result<AnswerItem> = runCatching {
+        val token = AuthStore.accessToken ?: error("로그인이 필요합니다")
+        val auth = "Bearer $token"
+
+        val res = service.postComment(
+            questionId = questionId,
+            authorization = auth,
+            body = CreateCommentRequestDto(content, isAnonymous)
+        )
+        val dto = res.success?.data ?: error("댓글 등록 실패: ${res.error}")
+        dto.toAnswerItemOrNull() ?: error("잘못된 응답")
     }
 }
