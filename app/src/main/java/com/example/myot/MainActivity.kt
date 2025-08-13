@@ -40,8 +40,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AuthStore.accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExMywibG9naW5JZCI6Im11bXUiLCJpYXQiOjE3NTQ5MDEwMTUsImV4cCI6MTc1NTUwNTgxNX0.zatWNXS5KSZUkRP67bDAamWmOzESAQC1aeMHhQPRDeY"
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
