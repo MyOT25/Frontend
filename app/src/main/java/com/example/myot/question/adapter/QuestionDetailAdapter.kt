@@ -21,14 +21,13 @@ class QuestionDetailAdapter(
     private val item: QuestionItem,
     private val imageUrls: List<String>,
     private val answers: List<AnswerItem>,
-
     private val onQuestionLikeClick: (questionId: Long, isLikedNow: Boolean) -> Unit,
     private val getQuestionLiked: (questionId: Long) -> Boolean,
     private val getQuestionLikeCount: (questionId: Long) -> Int,
-
     private val onAnswerLikeClick: (answerId: Long, isLikedNow: Boolean) -> Unit,
     private val getAnswerLiked: (answerId: Long) -> Boolean,
-    private val getAnswerLikeCount: (answerId: Long) -> Int
+    private val getAnswerLikeCount: (answerId: Long) -> Int,
+    private val getQuestionCommented: (questionId: Long) -> Boolean
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -44,9 +43,8 @@ class QuestionDetailAdapter(
             binding.tvDetailTitle.text = item.title
             binding.tvDetailTime.text = item.createdAt
 
-            // 익명 분기 (현재는 항상 실명 표시)
-            val isAnonymous = false // 나중에 API에 isAnonymous 오면 여기로 분기
-
+            // 익명 분기
+            val isAnonymous = item.isAnonymous
             if (isAnonymous) {
                 binding.ivProfile.visibility = View.GONE
                 binding.tvUsername.text = "익명 질문"
@@ -118,12 +116,24 @@ class QuestionDetailAdapter(
             binding.ivLike.setOnClickListener(click)
             binding.tvLikeCount.setOnClickListener(click)
 
-            // 댓글 수는 서버 연동 전이면 숨김 유지
-            binding.tvCommentCount.visibility = View.GONE
-            binding.ivComment.setColorFilter(
-                ContextCompat.getColor(binding.root.context, R.color.gray3),
-                android.graphics.PorterDuff.Mode.SRC_IN
-            )
+            // 답변 api
+            val cc = item.commentCount ?: 0
+            binding.tvCommentCount.text = cc.toString()
+            binding.tvCommentCount.visibility = if (cc == 0) View.GONE else View.VISIBLE
+
+            val commentedByMe = getQuestionCommented(item.id)
+
+            if (commentedByMe) {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment_selected)
+                binding.ivComment.clearColorFilter()
+            } else {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment)
+                val tintRes = if (cc > 0) R.color.point_green else R.color.gray3
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, tintRes),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            }
         }
 
         private fun updateIndicator(position: Int, itemCount: Int) {

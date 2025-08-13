@@ -11,5 +11,9 @@ data class QuestionItem(
     val username: String,
     val profileImage: String?,
     val createdAt: String,
-    val tags: List<String>
+    val tags: List<String>,
+    val isAnonymous: Boolean = false,
+    val thumbnailUrl: String? = null,
+    val likeCount: Int? = null,
+    val commentCount: Int? = null
 ) : Parcelable

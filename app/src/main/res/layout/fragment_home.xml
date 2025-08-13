@@ -29,7 +29,7 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="15dp"/>
+                android:layout_marginBottom="20dp"/>
 
             <!-- 커뮤니티 더보기 버튼 -->
             <ImageView
@@ -42,7 +42,8 @@
                 android:layout_marginEnd="17dp"
                 android:background="@null"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true"
+                android:visibility="gone"/>
 
             <!-- 커뮤니티 리스트 -->
             <androidx.recyclerview.widget.RecyclerView

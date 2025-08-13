@@ -32,20 +32,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 글 쓰기 버튼 (플로팅 버튼) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_edit"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_home_edit"
-        android:layout_margin="12dp"
-        android:alpha="0.3"
-        app:backgroundTint="@color/gray1"
-        app:ensureMinTouchTargetSize="false"
-        app:useCompatPadding="false"
-        app:shapeAppearanceOverlay="@style/FabShape"
-        app:tint="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

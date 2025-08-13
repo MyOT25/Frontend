@@ -20,26 +20,32 @@ fun QuestionListItemDto.toDomain(): QuestionItem {
         title = title,
         content = content,
         username = user.nickname,
-        profileImage = user.profileImage,
+        profileImage = user.profileImageUrl ?: user.profileImage,
         createdAt = displayTime,
-        tags = questionTags?.map { it.tag.tagName } ?: emptyList()
+        tags = tagList ?: emptyList(),
+        isAnonymous = isAnonymous,
+        thumbnailUrl = thumbnailUrl,
+        likeCount = likeCount,
+        commentCount = commentCount
     )
 }
 
 fun QuestionDetailDto.toDomain(): QuestionItem {
     val displayTime = try {
         OffsetDateTime.parse(createdAt).format(VIEW_TIME_FORMATTER)
-    } catch (_: Exception) {
-        createdAt
-    }
+    } catch (_: Exception) { createdAt }
 
     return QuestionItem(
         id = id,
         title = title,
         content = content,
-        username = user.username,            // DetailUserDto는 username
+        username = user.username,
         profileImage = user.profileImage,
         createdAt = displayTime,
-        tags = tagList
+        tags = tagList,
+        isAnonymous = isAnonymous ?: false,
+        thumbnailUrl = thumbnailUrl,
+        likeCount = likeCount,
+        commentCount = commentCount
     )
 }
