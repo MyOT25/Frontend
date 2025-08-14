@@ -18,6 +18,7 @@
     <color name="point_red">#E0635A</color>
     <color name="point_lavender">#5F477C</color>
     <color name="point_pink_purple">#BC66D6</color>
+    <color name="point_deep_purple">#5F477C</color>
     <color name="point_green">#00AB5E</color>
 
 </resources>

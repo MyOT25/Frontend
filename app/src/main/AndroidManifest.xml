@@ -28,6 +28,11 @@
         </activity>
 
         <activity
+            android:name=".signup.SignupFlowActivity"
+            android:windowSoftInputMode="adjustResize"/>
+
+
+        <activity
             android:name=".login.LoginActivity"
             android:windowSoftInputMode="adjustResize"/>
 

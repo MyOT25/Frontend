@@ -7,6 +7,10 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.UnderlineSpan
 import android.text.method.LinkMovementMethod
 import android.text.Spanned
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myot.R
 import com.example.myot.databinding.ActivitySignupBinding
@@ -24,14 +28,15 @@ class SignupActivity : AppCompatActivity() {
 
         // 구글/카카오(placeholder)
         binding.btnGoogle.setOnClickListener {
-            android.widget.Toast.makeText(this, "Google 로그인 준비중", android.widget.Toast.LENGTH_SHORT).show()
+            showToast("Google 로그인은 준비 중이에요.")
         }
         binding.btnKakao.setOnClickListener {
-            android.widget.Toast.makeText(this, "Kakao 로그인 준비중", android.widget.Toast.LENGTH_SHORT).show()
+            showToast("Kakao 로그인은 준비 중이에요.")
         }
 
-        // 계정 만들기
+        // 계정 만들기 → 기본 회원가입 폼으로 이동
         binding.btnCreateAccount.setOnClickListener {
+            startActivity(Intent(this, SignupFlowActivity::class.java))
         }
 
         // “로그인하기”만 클릭 가능하게 스팬 처리
@@ -54,4 +59,21 @@ class SignupActivity : AppCompatActivity() {
         binding.tvLoginLink.text = sp
         binding.tvLoginLink.movementMethod = LinkMovementMethod.getInstance()
     }
+
+    private fun showToast(message: String) {
+        val v = layoutInflater.inflate(R.layout.toast_simple, null)
+        v.findViewById<TextView?>(R.id.tv_toast)?.text = message
+
+        Toast(this).apply {
+            duration = Toast.LENGTH_SHORT
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, (64).dp)
+            view = v
+        }.show()
+    }
+
+
+    private val Int.dp: Int get() =
+        (this * resources.displayMetrics.density).toInt()
+
+
 }

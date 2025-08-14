@@ -8,10 +8,10 @@
         android:pathData="M0,0h14v14h-14z"/>
     <path
         android:pathData="M7,10C5.35,10 4,8.65 4,7C4,5.35 5.35,4 7,4C8.65,4 10,5.35 10,7C10,8.65 8.65,10 7,10ZM7,5C5.9,5 5,5.9 5,7C5,8.1 5.9,9 7,9C8.1,9 9,8.1 9,7C9,5.9 8.1,5 7,5Z"
-        android:fillColor="@color/gray1"/>
+        android:fillColor="@color/point_purple"/>
     <path
         android:pathData="M7,12C3.81,12 1.01,10.06 0.03,7.16C-0.01,7.057 -0.01,6.943 0.03,6.84C1.01,3.95 3.82,2 7,2C10.18,2 12.99,3.94 13.97,6.84C14.01,6.94 14.01,7.06 13.97,7.16C12.99,10.05 10.18,12 7,12ZM1.03,7C1.92,9.4 4.3,11 7,11C9.7,11 12.07,9.4 12.97,7C12.08,4.6 9.7,3 7,3C4.3,3 1.93,4.6 1.03,7Z"
-        android:fillColor="@color/gray1"/>
+        android:fillColor="@color/point_purple"/>
 
   </group>
 </vector>

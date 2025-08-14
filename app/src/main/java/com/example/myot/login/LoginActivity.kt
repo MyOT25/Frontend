@@ -187,9 +187,8 @@ class LoginActivity : AppCompatActivity() {
         v.findViewById<TextView>(R.id.tv_toast).text = message
 
         Toast(this).apply {
-            duration = Toast.LENGTH_SHORT
-            view = v
             setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, (64).dp)
+            view = v
         }.show()
     }
 

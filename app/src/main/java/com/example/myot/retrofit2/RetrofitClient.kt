@@ -2,6 +2,7 @@ package com.example.myot.retrofit2
 
 import com.example.myot.profile.data.ProfileFeedService
 import com.example.myot.question.data.QuestionService
+import com.example.myot.signup.data.SignupCommunityService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.jvm.java
@@ -18,4 +19,5 @@ object RetrofitClient {
     val questionService: QuestionService = retrofit.create(QuestionService::class.java)
     val profileFeedService: ProfileFeedService = retrofit.create(ProfileFeedService::class.java)
     val authService: AuthService = retrofit.create(AuthService::class.java)
+    val signupCommunityService: SignupCommunityService = retrofit.create(SignupCommunityService::class.java)
 }
