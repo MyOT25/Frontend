@@ -28,6 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.example.myot.notification.NotificationAdapter
 import com.example.myot.notification.NotificationItem
 import com.example.myot.retrofit2.AuthStore
+import com.example.myot.retrofit2.TokenStore
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        AuthStore.accessToken = TokenStore.loadAccessToken(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -83,11 +85,7 @@ class MainActivity : AppCompatActivity() {
         val alarmBtn = findViewById<ImageView>(R.id.iv_notification)
         val bg = findViewById<View>(R.id.iv_top_bg)
 
-        val dummyList = mutableListOf(
-            NotificationItem(1, "user1, user2 님 외 여러 명이 회원님의 피드를 좋아합니다.", R.drawable.ic_profile_over, true),
-            NotificationItem(2, "user2 님이 회원님의 피드에 댓글을 남겼습니다.", R.drawable.ic_profile_outline, false),
-            NotificationItem(3, "user2 님이 회원님의 피드를 리포스트 했습니다.", R.drawable.ic_profile_outline, false)
-        )
+        val dummyList = mutableListOf<NotificationItem>()
 
         fun updateAlarmIcon() {
             val hasNew = dummyList.any { it.isNew }
