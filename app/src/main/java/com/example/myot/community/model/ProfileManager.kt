@@ -30,8 +30,4 @@ class ProfileManager @Inject constructor(
     fun getSelectedProfile(): Profile? {
         return profiles.find { it.id == selectedProfileId }
     }
-
-    fun deleteProfile(profileId: Int) {
-
-    }
 }

@@ -1,10 +1,15 @@
 package com.example.myot.community.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.community.model.Profile
@@ -14,8 +19,9 @@ import com.example.myot.databinding.FragmentCmMultiProfileNewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class MultiProfileBottomSheet(
-    private val hasMultiProfile: Boolean,
-    private val profileList: List<Profile>?
+    private val hasJoined: Boolean,
+    private val profile: Profile?,
+    private val profileType: String?
 ) : BottomSheetDialogFragment() {
 
     private var _bindingList: FragmentCmMultiProfileListBinding? = null
@@ -24,22 +30,11 @@ class MultiProfileBottomSheet(
     private var _bindingNew: FragmentCmMultiProfileNewBinding? = null
     private val bindingNew get() = _bindingNew!!
 
-    private var onProfileSelected: ((String) -> Unit)? = null
-    private var onProfileDeleted: ((Profile) -> Unit)? = null
-
-    fun setOnProfileSelectedListener(listener: (String) -> Unit) {
-        onProfileSelected = listener
-    }
-
-    fun setOnProfileDeletedListener(listener: (Profile) -> Unit) {
-        onProfileDeleted = listener
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return if (hasMultiProfile) {
+        return if (hasJoined) {
             _bindingList = FragmentCmMultiProfileListBinding.inflate(inflater, container, false)
             bindingList.root
         } else {
@@ -50,22 +45,32 @@ class MultiProfileBottomSheet(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (hasMultiProfile && !profileList.isNullOrEmpty()) {
-            bindingList.rvMultiProfiles.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = MultiProfileAdapter(
-                    profileList,
-                    onProfileSelected = { profile ->
-                        onProfileSelected?.invoke(profile.id.toString()) // 선택 시 콜백 실행
-                        dismiss()
-                    },
-                    onProfileDeleted = { profile ->
-                        onProfileDeleted?.invoke(profile)
-                        dismiss()
-                    }
-                )
+        if (hasJoined && (profile!=null) && profileType != null) {
+
+            when (profileType) {
+                "BASIC" -> {
+                    bindingList.layoutMultiProfile.visibility = View.GONE
+                    bindingList.tvBasicProfileNickName.text = profile.nickname
+                    bindingList.tvBasicProfileIntroduce.text = profile.bio
+                }
+                "MULTI" -> {
+                    bindingList.layoutAddMultiProfile.visibility = View.GONE
+                    bindingList.ivBasicSelected.visibility = View.GONE
+                    bindingList.tvMultiProfileNickName.text = profile.nickname
+                    bindingList.tvMultiProfileIntroduce.text = profile.bio
+                    setupSwipeToDelete(bindingList.layoutMultiProfile, bindingList.btnDelete)
+                }
             }
         } else {
+            bindingNew.layoutDefaultJoinProfile.setOnClickListener{
+                val result = Bundle().apply {
+                    putString("nickname", null)
+                    putString("bio", null)
+                    putString("type", "BASIC")
+                }
+                parentFragmentManager.setFragmentResult("multi_profile_result", result)
+                dismiss()
+            }
             bindingNew.btnJoin.setOnClickListener {
                 val nickname = bindingNew.etNickname.text.toString().trim()
                 val bio = bindingNew.etBio.text.toString().trim()
@@ -78,12 +83,50 @@ class MultiProfileBottomSheet(
                 val result = Bundle().apply {
                     putString("nickname", nickname)
                     putString("bio", bio)
+                    putString("type", "MULTI")
                 }
                 parentFragmentManager.setFragmentResult("multi_profile_result", result)
                 dismiss()
             }
         }
     }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun setupSwipeToDelete(contentLayout: View, deleteButton: View) {
+        deleteButton.post {
+            var downX = 0f
+            val maxSwipe = deleteButton.width.toFloat() + 50f
+
+            contentLayout.setOnTouchListener { _, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        downX = event.x
+                        true
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        val deltaX = (event.x - downX).coerceIn(-maxSwipe, 0f)
+                        contentLayout.translationX = deltaX
+                        true
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        if (contentLayout.translationX < -maxSwipe / 2) {
+                            contentLayout.animate().translationX(-maxSwipe).setDuration(200).start()
+                        } else {
+                            contentLayout.animate().translationX(0f).setDuration(200).start()
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            deleteButton.setOnClickListener {
+                // 삭제 처리
+                Toast.makeText(contentLayout.context, "삭제 처리 실행", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
