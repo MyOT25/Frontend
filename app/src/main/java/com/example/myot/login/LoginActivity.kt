@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -90,6 +91,7 @@ class LoginActivity : AppCompatActivity() {
                     .onSuccess {
                         AuthStore.accessToken = it.accessToken
                         TokenStore.saveAccessToken(this@LoginActivity, it.accessToken)
+                        TokenStore.saveUserId(this@LoginActivity, it.userId)
 
                         startActivity(Intent(this@LoginActivity, MainActivity::class.java).apply {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)

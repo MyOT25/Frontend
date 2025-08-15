@@ -13,11 +13,14 @@ import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import java.io.File
 import java.io.InputStream
 
@@ -299,4 +302,11 @@ class QuestionRepository(
         val dto = res.success?.data ?: error("댓글 등록 실패: ${res.error}")
         dto.toAnswerItemOrNull() ?: error("잘못된 응답")
     }
+
+    suspend fun deleteQuestion(questionId: Long): Result<Unit> = runCatching {
+        val auth = AuthStore.bearerOrNull() ?: error("로그인이 필요합니다")
+        val res = service.deleteQuestion(questionId, auth)
+        if (res.resultType == "SUCCESS") Unit
+    }
+
 }

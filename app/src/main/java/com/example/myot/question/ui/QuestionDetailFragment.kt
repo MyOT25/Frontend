@@ -1,5 +1,6 @@
 package com.example.myot.question.ui
 
+import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -43,6 +44,8 @@ class QuestionDetailFragment : Fragment() {
     private var headerImages: List<String> = emptyList()
 
     private lateinit var likeHandler: (Long, Boolean) -> Unit
+
+    private var isDeleting = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -121,7 +124,8 @@ class QuestionDetailFragment : Fragment() {
                             onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
                             getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
                             getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
-                            getQuestionCommented = { id -> commentedSet.contains(id) }
+                            getQuestionCommented = { id -> commentedSet.contains(id) },
+                            onDeleteClick = { qid -> confirmAndDelete(qid) }
                         )
                         binding.rvQuestionDetail.adapter = adapter
                         adapter.notifyHeaderChanged()
@@ -156,7 +160,8 @@ class QuestionDetailFragment : Fragment() {
             onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
             getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
             getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
-            getQuestionCommented = { id -> commentedSet.contains(id) }
+            getQuestionCommented = { id -> commentedSet.contains(id) },
+            onDeleteClick = { qid -> confirmAndDelete(qid) }
         )
         binding.rvQuestionDetail.layoutManager = LinearLayoutManager(requireContext())
         binding.rvQuestionDetail.adapter = adapter
@@ -190,7 +195,8 @@ class QuestionDetailFragment : Fragment() {
                     onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
                     getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
                     getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
-                    getQuestionCommented = { id -> commentedSet.contains(id) }
+                    getQuestionCommented = { id -> commentedSet.contains(id) },
+                    onDeleteClick = { qid -> confirmAndDelete(qid) }
                 )
                 binding.rvQuestionDetail.adapter = adapter
 
@@ -219,7 +225,8 @@ class QuestionDetailFragment : Fragment() {
                     onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
                     getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
                     getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
-                    getQuestionCommented = { id -> commentedSet.contains(id) }
+                    getQuestionCommented = { id -> commentedSet.contains(id) },
+                    onDeleteClick = { qid -> confirmAndDelete(qid) }
                 )
                 binding.rvQuestionDetail.adapter = adapter
             }.onFailure {
@@ -262,6 +269,24 @@ class QuestionDetailFragment : Fragment() {
             val count = repository.getCommentLikeCount(detailItem.id, commentId).getOrElse { 0 }
             answerLikeCountMap[commentId] = count
             adapter.notifyDataSetChanged()
+        }
+    }
+
+
+    private fun confirmAndDelete(questionId: Long) {
+        if (isDeleting) return
+        isDeleting = true
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repository.deleteQuestion(questionId)
+                .onSuccess {
+                    (activity as? MainActivity)?.hideCommentBar()
+                    (activity as? MainActivity)?.openQuestionTab()
+                }
+                .onFailure {
+                    Toast.makeText(requireContext(), "삭제 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                    isDeleting = false
+                }
         }
     }
 

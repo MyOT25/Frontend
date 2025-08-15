@@ -387,6 +387,10 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
+    fun openQuestionTab() {
+        binding.bottomNavigationView.selectedItemId = R.id.menu_question
+    }
+
     fun hideKeyboardAndClearFocus() {
         // 포커스 지우고 커서 비표시
         binding.commentBar.etComment.clearFocus()
