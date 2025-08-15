@@ -3,9 +3,12 @@ package com.example.myot.question.adapter
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -27,7 +30,8 @@ class QuestionDetailAdapter(
     private val onAnswerLikeClick: (answerId: Long, isLikedNow: Boolean) -> Unit,
     private val getAnswerLiked: (answerId: Long) -> Boolean,
     private val getAnswerLikeCount: (answerId: Long) -> Int,
-    private val getQuestionCommented: (questionId: Long) -> Boolean
+    private val getQuestionCommented: (questionId: Long) -> Boolean,
+    private val onDeleteClick: (questionId: Long) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -134,6 +138,10 @@ class QuestionDetailAdapter(
                     android.graphics.PorterDuff.Mode.SRC_IN
                 )
             }
+
+            binding.ivOverflow.setOnClickListener { v ->
+                showOverflowPopup(v)
+            }
         }
 
         private fun updateIndicator(position: Int, itemCount: Int) {
@@ -179,6 +187,60 @@ class QuestionDetailAdapter(
                 binding.ivLike.setColorFilter(ContextCompat.getColor(context, iconTint), android.graphics.PorterDuff.Mode.SRC_IN)
             } else {
                 binding.ivLike.clearColorFilter()
+            }
+        }
+
+        private fun showOverflowPopup(anchor: View) {
+            val context = anchor.context
+            val inflater = LayoutInflater.from(context)
+            val popupView = inflater.inflate(R.layout.menu_popup_question, null)
+
+            val popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            )
+
+            // 팝업뷰 먼저 측정
+            popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            val popupWidth = popupView.measuredWidth
+
+            // anchor 위치 가져오기
+            val location = IntArray(2)
+            anchor.getLocationOnScreen(location)
+            val anchorX = location[0]
+            val anchorY = location[1]
+
+            // 배경 어둡게
+            val rootView = (anchor.rootView as? ViewGroup) ?: return
+            val dimView = View(context).apply {
+                setBackgroundColor(0x22000000.toInt())
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            }
+            rootView.addView(dimView)
+            popupWindow.setOnDismissListener { rootView.removeView(dimView) }
+
+            popupWindow.setBackgroundDrawable(null)
+            popupWindow.isOutsideTouchable = true
+            popupWindow.isFocusable = true
+            popupWindow.elevation = 20f
+
+            val offsetX = anchor.width - popupWidth - 20
+            val offsetY = anchor.height + 7
+
+            popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
+
+            // 버튼 리스너
+            popupView.findViewById<View>(R.id.btn_share).setOnClickListener {
+                popupWindow.dismiss()
+            }
+            popupView.findViewById<View>(R.id.btn_delete).setOnClickListener {
+                popupWindow.dismiss()
+                onDeleteClick(item.id)
             }
         }
     }

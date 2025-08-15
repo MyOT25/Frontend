@@ -2,6 +2,7 @@ package com.example.myot.question.data
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -100,4 +101,10 @@ interface QuestionService {
         @Header("Authorization") authorization: String,
         @Body body: CreateCommentRequestDto
     ): ApiResponse<AnswerDto?>
+
+    @DELETE("api/questions/{questionId}")
+    suspend fun deleteQuestion(
+        @Path("questionId") questionId: Long,
+        @Header("Authorization") authorization: String
+    ): ApiResponse<Any?>
 }

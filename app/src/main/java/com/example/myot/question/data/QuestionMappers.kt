@@ -46,6 +46,6 @@ fun QuestionDetailDto.toDomain(): QuestionItem {
         isAnonymous = isAnonymous ?: false,
         thumbnailUrl = thumbnailUrl,
         likeCount = likeCount,
-        commentCount = commentCount
+        commentCount = commentCount,
     )
 }
