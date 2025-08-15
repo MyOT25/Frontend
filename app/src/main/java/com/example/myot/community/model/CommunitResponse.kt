@@ -1,5 +1,10 @@
 package com.example.myot.community.model
 
+data class basicResponse(
+    val success: Boolean,
+    val message: String
+)
+
 data class CommunityResponse(
     val success: Boolean,
     val community: Community,
@@ -11,17 +16,20 @@ data class Community(
     val communityId: Int,
     val groupName: String,
     val type: String,
-    val targetId: Int,
-    val recentPerformanceDate: String?,
+    val targetId: Int?,
+    val recentPerformanceDate: String,
     val theaterName: String,
     val ticketLink: String,
     val createdAt: String,
-    val coverImage: String
+    val coverImage: String?
 )
 
 data class JoinLeaveRequest(
+    val userId: Int,
     val communityId: Int,
-    val action: String  // "join" 또는 "leave"
+    val action: String,  // "join" or "leave"
+    val profileType: String, // "BASIC" or "MULTI"
+    val multi: Multi?
 )
 
 data class JoinLeaveResponse(
@@ -37,22 +45,51 @@ data class ProfileRequest(
     val bio: String
 )
 
+// 답변 형식 확인 필요
+data class MultiProfileResponse(
+    val profileType: String,
+    val multi: Multi
+)
+
+data class Multi(
+    val nickname: String,
+    val image: String,
+    val bio: String
+)
+
+data class PatchProfileRequest(
+    val profileType: String,
+    val multi: Multi?
+)
+
+data class PatchProfileResponse(
+    val success: Boolean,
+    val message: String,
+    val changedTo: String?
+)
+
 data class ProfileResponse(
     val success: Boolean,
     val message: String,
     val profile: Profile
 )
 
-data class MultiProfilesResponse(
+data class CommunityProfileResponse(
     val success: Boolean,
-    val profile: List<Profile>
+    val profileType: String,
+    val profile: Profile
 )
 
 data class Profile(
     val id: Int,
     val userId: Int,
+    val communityId: Int,
     val nickname: String,
     val image: String,
-    val bio: String,
-    val communityId: Int
+    val bio: String
+)
+data class DeleteProfileResponse(
+    val success: Boolean,
+    val message: String,
+    val deletedProfile: Profile
 )

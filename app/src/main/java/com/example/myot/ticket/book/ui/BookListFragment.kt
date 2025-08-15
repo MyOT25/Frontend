@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.myot.R
 import com.example.myot.databinding.FragmentBookListBinding
 import com.example.myot.ticket.book.model.BookCover
+import com.example.myot.ticket.book.model.Theater
 import com.example.myot.ticket.book.ui.adapter.BookListAdapter
 
 class BookListFragment : Fragment() {
@@ -46,24 +47,34 @@ class BookListFragment : Fragment() {
     private fun setBookList() {
         val books = listOf(
             BookCover(
+                1,
                 "시카고",
-                "ht"
+                "ht",
+                Theater("세종문화회관 대극장", 1)
             ),
             BookCover(
+                2,
                 "어쩌면 해피엔딩",
-                "string"
+                "string",
+                Theater("두산아트센터 연강홀", 1)
             ),
             BookCover(
+                3,
                 "홍련",
-                "string"
+                "string",
+                Theater("자유극장", 1)
             ),
             BookCover(
+                4,
                 "윌리엄과 윌리엄과 윌리엄",
-                "string"
+                "string" ,
+                Theater("아트원 1관", 1)
             ),
             BookCover(
+                5,
                 "팬텀",
-                "string"
+                "string",
+                Theater("세종문화회관 대극장", 1)
             )
         )
 
