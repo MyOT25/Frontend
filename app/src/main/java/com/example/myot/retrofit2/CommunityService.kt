@@ -6,6 +6,7 @@ import com.example.myot.community.model.JoinLeaveResponse
 import com.example.myot.community.model.MultiProfilesResponse
 import com.example.myot.community.model.ProfileRequest
 import com.example.myot.community.model.ProfileResponse
+import com.example.myot.home.MyCommunitiesResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -44,4 +45,16 @@ interface CommunityService {
         @Header("Authorization") token: String,
         @Path("communityId") communityId: Int
     ): Response<MultiProfilesResponse>
+
+    @GET("api/community/mine")
+    suspend fun getMyCommunities(
+        @Header("Authorization") token: String
+    ): Response<MyCommunitiesResponse>
+
+    @GET("api/community/{type}/{id}")
+    suspend fun getCommunityDetail(
+        @Header("Authorization") token: String,
+        @Path("type") type: String,
+        @Path("id") id: Int
+    ): Response<CommunityResponse>
 }

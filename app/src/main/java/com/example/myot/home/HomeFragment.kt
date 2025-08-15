@@ -1,5 +1,6 @@
 package com.example.myot.home
 
+import android.R.attr.scrollY
 import android.annotation.SuppressLint
 
 import android.app.Activity
@@ -8,22 +9,35 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log.v
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.R
 import com.example.myot.community.ui.CommunityFragment
 import com.example.myot.databinding.FragmentHomeBinding
 import com.example.myot.feed.adapter.FeedAdapter
 import com.example.myot.feed.model.FeedItem
+import com.example.myot.retrofit2.CommunityService
+import com.example.myot.retrofit2.RetrofitClient
+import com.example.myot.retrofit2.RetrofitClient.communityService
+import com.example.myot.retrofit2.TokenStore
 import com.example.myot.write.WriteFeedActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -140,34 +154,32 @@ class HomeFragment : Fragment() {
 
 
         // 커뮤니티 리사이클러뷰 초기화
-        val communityAdapter = CommunityGroupAdapter()
-        binding.rvCommunities.itemAnimator = null
-        binding.rvCommunities.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.rvCommunities.adapter = communityAdapter
-
-        communityAdapter.setTotalItems(8) // 원하는 개수 입력 + 1
-
-        binding.ivExpand.setOnClickListener {
-            isExpanded = !isExpanded
-
-            // 회전 애니메이션 처리
-            binding.ivExpand.animate()
-                .rotation(if (isExpanded) 90f else 0f)
-                .setDuration(200)
-                .start()
-
-            communityAdapter.isExpanded = isExpanded
-            communityAdapter.notifyItemChanged(0)
+        val communityAdapter = CommunityStripAdapter { item ->
+            if (item == null) {
+                // TODO: 커뮤니티 검색/추가 화면으로 이동
+            } else {
+                val fragment = CommunityFragment.newInstance(item.type.uppercase())
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
-        /// 커뮤니티 임시 이동 코드
-        communityAdapter.onCommunityClick = { clickedIndex ->
-            val fragment = CommunityFragment.newInstance("MUSICAL")
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container_view, fragment)
-                .addToBackStack(null)
-                .commit()
+        binding.rvCommunities.apply {
+            itemAnimator = null
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            adapter = communityAdapter
+            isNestedScrollingEnabled = false
+            setHasFixedSize(true)
+            overScrollMode = View.OVER_SCROLL_NEVER
+            visibility = View.VISIBLE
         }
+
+        communityAdapter.submit(emptyList())
+        fetchMyCommunitiesWithCovers(communityAdapter)
+
+
 
         // 피드 더미 데이터 생성
         val dummyFeeds = listOf(
@@ -329,6 +341,58 @@ class HomeFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun fetchMyCommunitiesWithCovers(adapter: CommunityStripAdapter) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val raw = TokenStore.loadAccessToken(requireContext())
+                if (raw.isNullOrBlank()) {
+                    adapter.submit(emptyList())
+                    Toast.makeText(requireContext(), "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                val bearer = if (raw.startsWith("Bearer ")) raw else "Bearer $raw"
+                val service: CommunityService = communityService
+
+                val mineRes = withContext(Dispatchers.IO) { service.getMyCommunities(bearer) }
+                if (!mineRes.isSuccessful || mineRes.body()?.success != true) {
+                    adapter.submit(emptyList())
+                    return@launch
+                }
+                val mine = mineRes.body()!!.communities
+
+                // 먼저 커버 없이 즉시 표시
+                val baseUi = mine.map {
+                    CommunityUi(
+                        id = it.communityId,
+                        type = it.type,
+                        name = it.communityName,
+                        coverImage = null
+                    )
+                }
+                adapter.submit(baseUi)
+
+                val withCovers = withContext(Dispatchers.IO) {
+                    supervisorScope {
+                        baseUi.map { ui ->
+                            async {
+                                val detailRes = service.getCommunityDetail(bearer, ui.type, ui.id)
+                                val cover = if (detailRes.isSuccessful)
+                                    detailRes.body()?.community?.coverImage
+                                else null
+                                ui.copy(coverImage = cover)
+                            }
+                        }.awaitAll()
+                    }
+                }
+                adapter.submit(withCovers)
+
+            } catch (e: Exception) {
+                adapter.submit(emptyList())
+                Toast.makeText(requireContext(), "네트워크 오류로 커뮤니티를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onResume() {

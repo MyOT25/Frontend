@@ -9,7 +9,7 @@ import kotlin.jvm.java
 
 object RetrofitClient {
     private const val BASE_URL = "http://43.203.70.205:3000/"
-    private val retrofit: Retrofit = Retrofit.Builder()
+    internal val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
