@@ -13,7 +13,7 @@
         android:layout_height="189dp"
         android:orientation="vertical"
 
-        android:background="@drawable/bg_profile_ex">
+        android:background="@drawable/bg_profile_no_bg">
 
         <LinearLayout
             android:id="@+id/ll_profile_wrapper"
