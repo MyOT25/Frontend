@@ -31,7 +31,7 @@ class SignupFlowActivity : AppCompatActivity() {
         // 첫 화면 진입
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.signup_container, SignupStep4Fragment())
+                .replace(R.id.signup_container, SignupStep1Fragment())
                 .commit()
         }
 
@@ -71,17 +71,6 @@ class SignupFlowActivity : AppCompatActivity() {
         finish()
     }
 
-    fun setNextEnabled(enabled: Boolean) {
-        binding.btnNext.isEnabled = enabled
-        if (enabled) {
-            binding.btnNext.setBackgroundResource(R.drawable.bg_write_btn)
-            binding.tvNext.setTextColor(ContextCompat.getColor(this, R.color.white))
-        } else {
-            binding.btnNext.setBackgroundResource(R.drawable.bg_write_btn_disabled)
-            binding.tvNext.setTextColor(ContextCompat.getColor(this, R.color.gray2))
-        }
-    }
-
     fun showStandardNav() {
         binding.tvCancel.visibility = View.VISIBLE
         binding.btnNext.visibility = View.VISIBLE
@@ -92,12 +81,15 @@ class SignupFlowActivity : AppCompatActivity() {
     fun showDualNav(
         imageChosen: Boolean,
         onLater: (() -> Unit)?,
-        onNext:  (() -> Unit)?
+        onNext:  (() -> Unit)?,
+        nextText: String = "다음"
     ) {
         // 상단 숨김, 듀얼바 표시
         binding.tvCancel.visibility = View.GONE
         binding.btnNext.visibility = View.GONE
         binding.bottomDual.visibility = View.VISIBLE
+
+        binding.tvDualNext.text = nextText
 
         // 버튼 상태 지정
         setLaterEnabled(!imageChosen)
@@ -111,15 +103,31 @@ class SignupFlowActivity : AppCompatActivity() {
         }
     }
 
+    fun setNextEnabled(enabled: Boolean) {
+        binding.btnNext.isEnabled = enabled
+        if (enabled) {
+            binding.btnNext.setBackgroundResource(R.drawable.bg_write_btn)
+            binding.btnNext.backgroundTintList =
+                ContextCompat.getColorStateList(this, R.color.point_purple)
+            binding.tvNext.setTextColor(ContextCompat.getColor(this, R.color.white))
+        } else {
+            binding.btnNext.setBackgroundResource(R.drawable.bg_write_btn_disabled)
+            binding.btnNext.backgroundTintList = null
+            binding.tvNext.setTextColor(ContextCompat.getColor(this, R.color.gray4))
+        }
+    }
+
     fun setDualNextEnabled(enabled: Boolean) {
         binding.btnDualNext.isEnabled = enabled
         if (enabled) {
             binding.btnDualNext.setBackgroundResource(R.drawable.bg_write_btn)
             binding.btnDualNext.backgroundTintList =
-                ContextCompat.getColorStateList(this, R.color.point_deep_purple)
+                ContextCompat.getColorStateList(this, R.color.point_purple)
             binding.tvDualNext.setTextColor(ContextCompat.getColor(this, R.color.white))
         } else {
             binding.btnDualNext.setBackgroundResource(R.drawable.bg_write_btn_disabled)
+            binding.btnDualNext.backgroundTintList =
+                ContextCompat.getColorStateList(this, R.color.point_deep_purple)
             binding.tvDualNext.setTextColor(ContextCompat.getColor(this, R.color.gray4))
         }
     }

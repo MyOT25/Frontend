@@ -60,8 +60,7 @@ class SignupStep4Fragment : Fragment(), SignupStep {
     }
 
     private fun goNext() {
-        // TODO: 커뮤니티 선택 프래그먼트로 이동
-        // (activity as? SignupFlowActivity)?.goNext(SignupStep5CommunityFragment())
+        (activity as? SignupFlowActivity)?.goNext(SignupStep5Fragment())
     }
 
     private fun applyState(uri: Uri?) {

@@ -18,7 +18,6 @@ import com.example.myot.retrofit2.AuthStore
 import com.example.myot.retrofit2.RetrofitClient
 import com.example.myot.retrofit2.SignupRequestDto
 import com.example.myot.retrofit2.TokenStore
-import com.example.myot.retrofit2.UserStore
 import com.example.myot.signup.data.SignupViewModel
 import kotlinx.coroutines.launch
 
@@ -100,7 +99,7 @@ class SignupStep3Fragment : Fragment(), SignupStep {
                 repo.login(loginId, pw).onSuccess { login ->
                     AuthStore.accessToken = login.accessToken
                     TokenStore.saveAccessToken(requireContext(), login.accessToken)
-                    UserStore.saveUserId(requireContext(), login.userId)
+                    TokenStore.saveUserId(requireContext(), login.userId)
                     (activity as? SignupFlowActivity)?.goNext(SignupStep4Fragment())
                 }.onFailure {
                     (activity as? SignupFlowActivity)?.navigateBackToSignup()
