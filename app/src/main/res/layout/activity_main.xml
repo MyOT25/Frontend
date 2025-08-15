@@ -27,6 +27,26 @@
         app:layout_constraintTop_toTopOf="@+id/fragment_container_view"
         app:layout_constraintBottom_toBottomOf="@+id/fragment_container_view"/>
 
+    <include
+        android:id="@+id/comment_bar"
+        layout="@layout/view_comment_bar"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/comment_bottom_spacer" />
+
+    <View
+        android:id="@+id/comment_bottom_spacer"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:background="@android:color/white"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <!-- 하단 영역 묶음 (경계선 + 바텀 네비) -->
     <LinearLayout
         android:id="@+id/bottom_bar_container"
@@ -37,6 +57,7 @@
 
         <!-- 경계선 -->
         <View
+            android:id="@+id/bottom_navigation_line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/gray3" />

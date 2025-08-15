@@ -47,8 +47,8 @@ class CommunityGroupAdapter : RecyclerView.Adapter<CommunityGroupAdapter.Communi
                 val iv = LayoutInflater.from(context).inflate(R.layout.item_community, null) as ImageView
                 val iconSizePx = (75 * context.resources.displayMetrics.density).toInt()
                 iv.layoutParams = LinearLayout.LayoutParams(iconSizePx, iconSizePx).apply {
-                    marginStart = 6
-                    marginEnd = 6
+                    marginStart = 1
+                    marginEnd = 1
                 }
 
                 if (index == 0) {
@@ -84,14 +84,14 @@ class CommunityGroupAdapter : RecyclerView.Adapter<CommunityGroupAdapter.Communi
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
                         ).apply {
-                            topMargin = (-2 * context.resources.displayMetrics.density).toInt()  // ← 이 줄 추가
+                            topMargin = (-2 * context.resources.displayMetrics.density).toInt()
                         }
                     }
                     val iv = LayoutInflater.from(context).inflate(R.layout.item_community, null) as ImageView
                     val iconSizePx = (75 * context.resources.displayMetrics.density).toInt()
                     iv.layoutParams = LinearLayout.LayoutParams(iconSizePx, iconSizePx).apply {
-                        marginStart = 6
-                        marginEnd = 6
+                        marginStart = 1
+                        marginEnd = 1
                     }
                     iv.setImageResource(R.drawable.ic_home_no_community)
                     iv.visibility = View.INVISIBLE

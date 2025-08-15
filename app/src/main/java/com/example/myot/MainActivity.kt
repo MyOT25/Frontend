@@ -2,14 +2,21 @@ package com.example.myot
 
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.chatting.ChatFragment
@@ -20,16 +27,21 @@ import com.example.myot.ticket.ui.TicketFragment
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.myot.notification.NotificationAdapter
 import com.example.myot.notification.NotificationItem
+import com.example.myot.retrofit2.AuthStore
+import com.example.myot.retrofit2.TokenStore
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var topBar: View
+
+    private var imeVisibleFlag: Boolean = false
+    private var commentTextWatcher: TextWatcher? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        AuthStore.accessToken = TokenStore.loadAccessToken(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -39,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         // 시스템 상단/하단 바까지 화면 처리
         setTransparentSystemBars()
 
-        // 아이콘 tint 제거 (drawable 원본 색 유지)
         binding.bottomNavigationView.itemIconTintList = null
 
         selectTab(R.id.menu_home)
@@ -49,18 +60,32 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        // 질문 댓글창 기능
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // 키보드가 떠 있으면 먼저 내리고 끝
+                if (imeVisibleFlag) {
+                    hideKeyboardAndClearFocus()
+                    return
+                }
+                // 댓글바 열려 있으면 닫고 끝
+                if (binding.commentBar.root.visibility == View.VISIBLE) {
+                    hideCommentBar()
+                    return
+                }
+                // 그 외에는 기존 back 동작 수행
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
 
         // 알림창 기능
         val topContainer = findViewById<View>(R.id.top_bar)
         val alarmBtn = findViewById<ImageView>(R.id.iv_notification)
         val bg = findViewById<View>(R.id.iv_top_bg)
 
-        val dummyList = mutableListOf(
-            NotificationItem(1, "user1, user2 님 외 여러 명이 회원님의 피드를 좋아합니다.", R.drawable.ic_profile_over, true),
-            NotificationItem(2, "user2 님이 회원님의 피드에 댓글을 남겼습니다.", R.drawable.ic_profile_outline, false),
-            NotificationItem(3, "user2 님이 회원님의 피드를 리포스트 했습니다.", R.drawable.ic_profile_outline, false)
-        )
-
+        val dummyList = mutableListOf<NotificationItem>()
 
         fun updateAlarmIcon() {
             val hasNew = dummyList.any { it.isNew }
@@ -206,4 +231,176 @@ class MainActivity : AppCompatActivity() {
             if (menuId == R.id.menu_chat) R.drawable.ic_nav_chat_selected else R.drawable.ic_nav_chat_unselected
         )
     }
+
+    fun showCommentBar(
+        scrollable: View,
+        hint: String = "댓글을 입력하세요",
+        onSend: (String, Boolean) -> Unit
+    ) {
+        // 바텀 네비 숨기고 댓글바/스페이서 보이기
+        binding.bottomNavigationView.visibility = View.INVISIBLE
+        binding.bottomNavigationLine.visibility = View.INVISIBLE
+
+        binding.commentBar.root.visibility = View.VISIBLE
+        binding.commentBar.root.bringToFront()
+        binding.commentBar.root.translationZ = 24f
+
+        binding.commentBottomSpacer.visibility = View.VISIBLE
+        binding.commentBottomSpacer.bringToFront()
+        binding.commentBottomSpacer.translationZ = 23f
+
+        // 힌트/커서(깜빡임) 끄기
+        binding.commentBar.etComment.hint = null
+        binding.commentBar.etComment.clearFocus()
+        binding.commentBar.etComment.isCursorVisible = false
+        binding.commentBar.etComment.setOnFocusChangeListener { v, has ->
+            (v as android.widget.EditText).isCursorVisible = has
+        }
+        binding.commentBar.etComment.setOnClickListener {
+            it.requestFocus()
+        }
+
+        var isAnonymous = false
+        fun applyProfileIcon() {
+            binding.commentBar.ivProfile.setImageResource(
+                if (isAnonymous) R.drawable.ic_profile_anonymous else R.drawable.ic_profile
+            )
+        }
+
+        binding.commentBar.btnSend.setOnClickListener {
+            val text = binding.commentBar.etComment.text.toString().trim()
+            if (text.isNotEmpty()) {
+                onSend(text, isAnonymous)
+                binding.commentBar.etComment.setText("")
+            }
+        }
+        binding.commentBar.etComment.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEND) {
+                binding.commentBar.btnSend.performClick(); true
+            } else false
+        }
+
+        registerImeLift(
+            targetBar = binding.commentBar.root,
+            scrollable = scrollable,
+            spacer = binding.commentBottomSpacer
+        )
+
+        commentTextWatcher?.let { binding.commentBar.etComment.removeTextChangedListener(it) }
+        commentTextWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val hasText = !s.isNullOrBlank()
+                binding.commentBar.btnSend.setImageResource(
+                    if (hasText) R.drawable.ic_comment_send_on else R.drawable.ic_comment_send
+                )
+            }
+        }.also { binding.commentBar.etComment.addTextChangedListener(it) }
+
+        binding.commentBar.btnSend.setImageResource(R.drawable.ic_comment_send)
+
+        applyProfileIcon()
+        binding.commentBar.ivProfile.setOnClickListener {
+            isAnonymous = !isAnonymous
+            applyProfileIcon()
+        }
+    }
+
+    fun hideCommentBar() {
+        binding.commentBar.root.visibility = View.GONE
+        binding.commentBottomSpacer.visibility = View.GONE
+        binding.bottomNavigationView.visibility = View.VISIBLE
+        binding.bottomNavigationLine.visibility = View.VISIBLE
+        // 스크롤 하단 패딩 원복
+        (currentFocus ?: binding.fragmentContainerView).updatePadding(bottom = 0)
+
+        commentTextWatcher?.let {
+            binding.commentBar.etComment.removeTextChangedListener(it)
+            commentTextWatcher = null
+        }
+    }
+
+    private fun registerImeLift(targetBar: View, scrollable: View?, spacer: View) {
+        val content = findViewById<View>(android.R.id.content)
+
+        fun applyInsets(insets: androidx.core.view.WindowInsetsCompat) {
+            val imeBottom = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom
+            val imeVisible = imeBottom > 0
+
+            imeVisibleFlag = imeVisible
+            targetBar.translationY = -imeBottom.toFloat()
+            spacer.visibility = if (imeVisible) View.GONE else View.VISIBLE
+            val spacerH = if (spacer.visibility == View.VISIBLE) spacer.height else 0
+            scrollable?.updatePadding(bottom = targetBar.height + spacerH)
+        }
+
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(content) { _, insets ->
+            applyInsets(insets); insets
+        }
+        androidx.core.view.ViewCompat.setWindowInsetsAnimationCallback(
+            content,
+            object : androidx.core.view.WindowInsetsAnimationCompat.Callback(
+                androidx.core.view.WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE
+            ) {
+                override fun onProgress(
+                    insets: androidx.core.view.WindowInsetsCompat,
+                    running: MutableList<androidx.core.view.WindowInsetsAnimationCompat>
+                ): androidx.core.view.WindowInsetsCompat {
+                    applyInsets(insets); return insets
+                }
+            }
+        )
+        targetBar.post {
+            val spacerH = if (spacer.visibility == View.VISIBLE) spacer.height else 0
+            scrollable?.updatePadding(bottom = targetBar.height + spacerH)
+        }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN && imeVisibleFlag) {
+            // 댓글바 영역 안을 탭했는지 체크 (안에서 탭이면 무시)
+            val bar = binding.commentBar.root
+            if (bar.visibility == View.VISIBLE) {
+                val barRect = Rect()
+                bar.getGlobalVisibleRect(barRect)
+                // 댓글바 밖을 탭했으면 키보드 내림
+                if (!barRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    hideKeyboardAndClearFocus()
+                    // 탭 이벤트는 소비해서 다른 클릭이 실행되지 않도록
+                    return true
+                }
+            } else {
+                // 댓글바가 없어도, 포커스된 EditText가 있고 그 밖을 탭하면 키보드 내림
+                val focused = currentFocus
+                if (focused is android.widget.EditText) {
+                    val r = Rect()
+                    focused.getGlobalVisibleRect(r)
+                    if (!r.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                        hideKeyboardAndClearFocus()
+                        return true
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    fun openQuestionTab() {
+        binding.bottomNavigationView.selectedItemId = R.id.menu_question
+    }
+
+    fun hideKeyboardAndClearFocus() {
+        // 포커스 지우고 커서 비표시
+        binding.commentBar.etComment.clearFocus()
+        binding.commentBar.etComment.isCursorVisible = false
+
+        val view = currentFocus ?: binding.fragmentContainerView
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+
+
 }

@@ -3,9 +3,12 @@ package com.example.myot.question.adapter
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -21,14 +24,14 @@ class QuestionDetailAdapter(
     private val item: QuestionItem,
     private val imageUrls: List<String>,
     private val answers: List<AnswerItem>,
-
     private val onQuestionLikeClick: (questionId: Long, isLikedNow: Boolean) -> Unit,
     private val getQuestionLiked: (questionId: Long) -> Boolean,
     private val getQuestionLikeCount: (questionId: Long) -> Int,
-
     private val onAnswerLikeClick: (answerId: Long, isLikedNow: Boolean) -> Unit,
     private val getAnswerLiked: (answerId: Long) -> Boolean,
-    private val getAnswerLikeCount: (answerId: Long) -> Int
+    private val getAnswerLikeCount: (answerId: Long) -> Int,
+    private val getQuestionCommented: (questionId: Long) -> Boolean,
+    private val onDeleteClick: (questionId: Long) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -44,9 +47,8 @@ class QuestionDetailAdapter(
             binding.tvDetailTitle.text = item.title
             binding.tvDetailTime.text = item.createdAt
 
-            // 익명 분기 (현재는 항상 실명 표시)
-            val isAnonymous = false // 나중에 API에 isAnonymous 오면 여기로 분기
-
+            // 익명 분기
+            val isAnonymous = item.isAnonymous
             if (isAnonymous) {
                 binding.ivProfile.visibility = View.GONE
                 binding.tvUsername.text = "익명 질문"
@@ -118,12 +120,28 @@ class QuestionDetailAdapter(
             binding.ivLike.setOnClickListener(click)
             binding.tvLikeCount.setOnClickListener(click)
 
-            // 댓글 수는 서버 연동 전이면 숨김 유지
-            binding.tvCommentCount.visibility = View.GONE
-            binding.ivComment.setColorFilter(
-                ContextCompat.getColor(binding.root.context, R.color.gray3),
-                android.graphics.PorterDuff.Mode.SRC_IN
-            )
+            // 답변 api
+            val cc = item.commentCount ?: 0
+            binding.tvCommentCount.text = cc.toString()
+            binding.tvCommentCount.visibility = if (cc == 0) View.GONE else View.VISIBLE
+
+            val commentedByMe = getQuestionCommented(item.id)
+
+            if (commentedByMe) {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment_selected)
+                binding.ivComment.clearColorFilter()
+            } else {
+                binding.ivComment.setImageResource(R.drawable.ic_question_comment)
+                val tintRes = if (cc > 0) R.color.point_green else R.color.gray3
+                binding.ivComment.setColorFilter(
+                    ContextCompat.getColor(binding.root.context, tintRes),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+                )
+            }
+
+            binding.ivOverflow.setOnClickListener { v ->
+                showOverflowPopup(v)
+            }
         }
 
         private fun updateIndicator(position: Int, itemCount: Int) {
@@ -169,6 +187,60 @@ class QuestionDetailAdapter(
                 binding.ivLike.setColorFilter(ContextCompat.getColor(context, iconTint), android.graphics.PorterDuff.Mode.SRC_IN)
             } else {
                 binding.ivLike.clearColorFilter()
+            }
+        }
+
+        private fun showOverflowPopup(anchor: View) {
+            val context = anchor.context
+            val inflater = LayoutInflater.from(context)
+            val popupView = inflater.inflate(R.layout.menu_popup_question, null)
+
+            val popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            )
+
+            // 팝업뷰 먼저 측정
+            popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            val popupWidth = popupView.measuredWidth
+
+            // anchor 위치 가져오기
+            val location = IntArray(2)
+            anchor.getLocationOnScreen(location)
+            val anchorX = location[0]
+            val anchorY = location[1]
+
+            // 배경 어둡게
+            val rootView = (anchor.rootView as? ViewGroup) ?: return
+            val dimView = View(context).apply {
+                setBackgroundColor(0x22000000.toInt())
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            }
+            rootView.addView(dimView)
+            popupWindow.setOnDismissListener { rootView.removeView(dimView) }
+
+            popupWindow.setBackgroundDrawable(null)
+            popupWindow.isOutsideTouchable = true
+            popupWindow.isFocusable = true
+            popupWindow.elevation = 20f
+
+            val offsetX = anchor.width - popupWidth - 20
+            val offsetY = anchor.height + 7
+
+            popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
+
+            // 버튼 리스너
+            popupView.findViewById<View>(R.id.btn_share).setOnClickListener {
+                popupWindow.dismiss()
+            }
+            popupView.findViewById<View>(R.id.btn_delete).setOnClickListener {
+                popupWindow.dismiss()
+                onDeleteClick(item.id)
             }
         }
     }
