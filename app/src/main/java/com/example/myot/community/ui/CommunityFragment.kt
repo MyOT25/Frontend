@@ -186,6 +186,34 @@ class CommunityFragment : Fragment() {
         binding.tvChangeProfile.setOnClickListener {
             val bottomSheet = MultiProfileBottomSheet(true, viewModel.profile.value, viewModel.profileType.value)
             bottomSheet.show(parentFragmentManager, bottomSheet.tag)
+            setPatchProfileListener()
+            setCommunityLeaveListener()
+        }
+    }
+
+    private fun setCommunityLeaveListener() {
+        parentFragmentManager.setFragmentResultListener("community_leave", viewLifecycleOwner) { _, bundle ->
+            val isLeaving = bundle.getBoolean("isLeaving")
+            if (isLeaving) {
+                viewModel.JoinLeaveCommunity(userId, communityId, viewModel.profileType.value!!, "leave", null)
+                binding.layoutProfile.visibility = View.GONE
+                binding.ivCommunityJoin.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun setPatchProfileListener() {
+        parentFragmentManager.setFragmentResultListener("patch_multi_profile", viewLifecycleOwner) { _, bundle ->
+            val nickname = bundle.getString("nickname")
+            val bio = bundle.getString("bio")
+            val type = bundle.getString("type")
+            if (!nickname.isNullOrEmpty() && !bio.isNullOrEmpty() && type == "MULTI") {
+                val multi = Multi(nickname, "http", bio)
+                viewModel.patchProfile("MULTI", communityId, multi)
+            } else {
+                viewModel.patchProfile("BASIC", communityId, null)
+            }
+            binding.layoutProfile.visibility = View.VISIBLE
         }
     }
 }

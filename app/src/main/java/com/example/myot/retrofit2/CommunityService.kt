@@ -6,10 +6,11 @@ import com.example.myot.community.model.DeleteProfileResponse
 import com.example.myot.community.model.JoinLeaveRequest
 import com.example.myot.community.model.JoinLeaveResponse
 import com.example.myot.community.model.MultiProfileResponse
+import com.example.myot.community.model.PatchProfileRequest
+import com.example.myot.community.model.PatchProfileResponse
 import com.example.myot.community.model.ProfileRequest
 import com.example.myot.community.model.ProfileResponse
 import com.example.myot.community.model.basicResponse
-import com.example.myot.community.model.switchProfileRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -52,13 +53,12 @@ interface CommunityService {
         @Path("communityId") communityId: Int
     ): Response<CommunityProfileResponse>
 
-    @PATCH("api/profile/{type}/{communityId}")
+    @PATCH("api/profile/type/{communityId}")
     suspend fun patchMultiProfileType(
         @Header("Authorization") token: String,
-        @Path("type") type: String,
         @Path("communityId") communityId: Int,
-        @Body request: switchProfileRequest
-    ): basicResponse
+        @Body request: PatchProfileRequest
+    ): PatchProfileResponse
 
     @DELETE("api/community/profile/{profileId}")
     suspend fun deleteMultiProfile(

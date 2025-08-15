@@ -6,17 +6,13 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.setFragmentResult
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
 import com.example.myot.community.model.Profile
-import com.example.myot.community.ui.adapter.MultiProfileAdapter
 import com.example.myot.databinding.FragmentCmMultiProfileListBinding
 import com.example.myot.databinding.FragmentCmMultiProfileNewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.launch
 
 class MultiProfileBottomSheet(
     private val hasJoined: Boolean,
@@ -46,12 +42,25 @@ class MultiProfileBottomSheet(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (hasJoined && (profile!=null) && profileType != null) {
-
             when (profileType) {
                 "BASIC" -> {
-                    bindingList.layoutMultiProfile.visibility = View.GONE
+                    bindingList.layoutFullMultiProfile.visibility = View.GONE
                     bindingList.tvBasicProfileNickName.text = profile.nickname
                     bindingList.tvBasicProfileIntroduce.text = profile.bio
+                    bindingList.layoutAddMultiProfile.setOnClickListener {
+                        //dismiss() // 현재 BottomSheet 닫기
+
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            kotlinx.coroutines.delay(200)
+
+                            val newBottomSheet = MultiProfileBottomSheet(
+                                hasJoined = true,
+                                profile = null,
+                                profileType = null
+                            )
+                            newBottomSheet.show(parentFragmentManager, newBottomSheet.tag)
+                        }
+                    }
                 }
                 "MULTI" -> {
                     bindingList.layoutAddMultiProfile.visibility = View.GONE
@@ -60,6 +69,32 @@ class MultiProfileBottomSheet(
                     bindingList.tvMultiProfileIntroduce.text = profile.bio
                     setupSwipeToDelete(bindingList.layoutMultiProfile, bindingList.btnDelete)
                 }
+            }
+            bindingList.btnLeave.setOnClickListener {
+                val result = Bundle().apply {
+                    putBoolean("isLeaving", true)
+                }
+                parentFragmentManager.setFragmentResult("community_leave", result)
+                dismiss()
+            }
+        } else if (hasJoined && profile == null && profileType == null) {
+            bindingNew.layoutDefaultJoinProfile.visibility = View.GONE
+            bindingNew.btnJoin.setOnClickListener {
+                val nickname = bindingNew.etNickname.text.toString().trim()
+                val bio = bindingNew.etBio.text.toString().trim()
+
+                if (nickname.isBlank()) {
+                    Toast.makeText(requireContext(), "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                val result = Bundle().apply {
+                    putString("nickname", nickname)
+                    putString("bio", bio)
+                    putString("type", "MULTI")
+                }
+                parentFragmentManager.setFragmentResult("patch_multi_profile", result)
+                dismiss()
             }
         } else {
             bindingNew.layoutDefaultJoinProfile.setOnClickListener{
@@ -95,7 +130,7 @@ class MultiProfileBottomSheet(
     fun setupSwipeToDelete(contentLayout: View, deleteButton: View) {
         deleteButton.post {
             var downX = 0f
-            val maxSwipe = deleteButton.width.toFloat() + 50f
+            val maxSwipe = deleteButton.width.toFloat() + 70f
 
             contentLayout.setOnTouchListener { _, event ->
                 when (event.action) {
@@ -121,8 +156,13 @@ class MultiProfileBottomSheet(
             }
 
             deleteButton.setOnClickListener {
-                // 삭제 처리
-                Toast.makeText(contentLayout.context, "삭제 처리 실행", Toast.LENGTH_SHORT).show()
+                val result = Bundle().apply {
+                    putString("nickname", null)
+                    putString("bio", null)
+                    putString("type", "BASIC")
+                }
+                parentFragmentManager.setFragmentResult("patch_multi_profile", result)
+                dismiss()
             }
         }
     }

@@ -19,5 +19,6 @@
     <color name="point_lavender">#5F477C</color>
     <color name="point_pink_purple">#BC66D6</color>
     <color name="point_green">#00AB5E</color>
+    <color name="feed_shadow">#916DAD</color>
 
 </resources>

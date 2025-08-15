@@ -57,9 +57,15 @@ data class Multi(
     val bio: String
 )
 
-data class switchProfileRequest(
+data class PatchProfileRequest(
     val profileType: String,
-    val multi: Multi
+    val multi: Multi?
+)
+
+data class PatchProfileResponse(
+    val success: Boolean,
+    val message: String,
+    val changedTo: String?
 )
 
 data class ProfileResponse(

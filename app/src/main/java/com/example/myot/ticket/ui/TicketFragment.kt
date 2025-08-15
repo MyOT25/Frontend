@@ -1,9 +1,11 @@
 package com.example.myot.ticket.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.MotionEvent
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.R
@@ -11,11 +13,17 @@ import com.example.myot.databinding.FragmentTicketBinding
 import com.example.myot.ticket.book.ui.BookListFragment
 import com.example.myot.ticket.model.TicketToday
 import com.example.myot.ticket.ui.adapter.TicketTodayAdapter
+import android.content.Intent
 
 class TicketFragment : Fragment() {
 
     private var _binding: FragmentTicketBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var adapter: TicketTodayAdapter
+    private var startX = 0f
+    private var isSwiping = false
+    private val swipeThreshold = 150f // px 기준 (이 이상 밀면 실행)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTicketBinding.inflate(inflater, container, false)
@@ -24,7 +32,7 @@ class TicketFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setTodayTicket()
+        setRecentTicket()
         setTicketBook()
     }
 
@@ -34,7 +42,8 @@ class TicketFragment : Fragment() {
     }
 
     // 오늘의 관극 세팅
-    private fun setTodayTicket() {
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setRecentTicket() {
         // 오늘의 관극 더미 데이터
         val tickets = listOf(
             TicketToday(
@@ -53,9 +62,47 @@ class TicketFragment : Fragment() {
             )
         )
 
-        binding.rvToday.apply {
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            adapter = TicketTodayAdapter(tickets)
+        adapter = TicketTodayAdapter(tickets)
+
+        binding.rvToday.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvToday.adapter = adapter
+
+        binding.rvToday.setOnTouchListener { _, event ->
+            val lm = binding.rvToday.layoutManager as LinearLayoutManager
+            val lastVisible = lm.findLastCompletelyVisibleItemPosition()
+
+            // 마지막 아이템에서만 동작
+            if (lastVisible == adapter.itemCount - 1) {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        startX = event.x
+                        isSwiping = false
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        val diffX = startX - event.x
+                        if (diffX > 200) { // 오른쪽 → 왼쪽
+                            isSwiping = true
+                            val alpha = (diffX / swipeThreshold).coerceIn(0f, 1f)
+                            binding.layoutAddTicket.apply {
+                                visibility = View.VISIBLE
+                                translationX = diffX * -0.5f
+                                alpha.also { this.alpha = it }
+                            }
+                        }
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        if (isSwiping) {
+                            val diffX = startX - event.x
+                            if (diffX > swipeThreshold) {
+                                startActivity(Intent(requireContext(), RecordActivity::class.java))
+                            }
+                            binding.layoutAddTicket.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+            false
         }
     }
 

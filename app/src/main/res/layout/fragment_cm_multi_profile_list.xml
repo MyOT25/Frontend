@@ -10,13 +10,14 @@
 
     <!-- 멀티 프로필 -->
     <FrameLayout
+        android:id="@+id/layout_full_multi_profile"
         android:layout_width="wrap_content"
         android:layout_height="72dp"
         android:paddingHorizontal="24dp">
 
         <!-- 프로필 내용 -->
         <LinearLayout
-            android:id="@+id/btnDelete"
+            android:id="@+id/btn_delete"
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"

@@ -92,7 +92,13 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
-    fun JoinLeaveCommunity(userId: Int, communityId: Int, profileType: String, action: String, multi: Multi?) {
+    fun JoinLeaveCommunity(
+        userId: Int,
+        communityId: Int,
+        profileType: String,
+        action: String,
+        multi: Multi?
+    ) {
         viewModelScope.launch {
             try {
                 val request = JoinLeaveRequest(userId, communityId, action, profileType, multi)
@@ -101,6 +107,25 @@ class CommunityViewModel @Inject constructor(
                 if (response.success) {
                     Log.d("JoinLeave", "성공")
                     switchCommunityMode()
+                } else {
+                    _error.value = "응답 실패: ${response.message}"
+                }
+
+            } catch (e: Exception) {
+                _error.value = "오류: ${e.message}"
+            }
+        }
+    }
+
+    fun patchProfile(changeTo: String, communityId: Int, multi: Multi?) {
+        viewModelScope.launch {
+            try {
+                val request = PatchProfileRequest(changeTo, multi)
+                val response =
+                    RetrofitClient.communityService.patchMultiProfileType("Bearer ${token}", communityId, request)
+                if (response.success) {
+                    Log.d("PatchProfile", "성공")
+                    fetchProfile(communityId)
                 } else {
                     _error.value = "응답 실패: ${response.message}"
                 }

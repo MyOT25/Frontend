@@ -18,7 +18,7 @@ class BookListAdapter (
         fun bind(book: BookCover) {
             binding.tvBookTitle.text = book.title
             Glide.with(binding.ivBookCover.context)
-                .load(book.imageUrl)
+                .load(book.poster)
                 .placeholder(R.drawable.ig_poster_placeholder)
                 .into(binding.ivBookCover)
 
