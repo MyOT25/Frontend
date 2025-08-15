@@ -1,6 +1,7 @@
 package com.example.myot.community.ui
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -26,11 +27,13 @@ class MultiProfileBottomSheet(
     private var _bindingNew: FragmentCmMultiProfileNewBinding? = null
     private val bindingNew get() = _bindingNew!!
 
+    private var onDismissCallback: (() -> Unit)? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return if (hasJoined) {
+        return if (hasJoined && profile!=null && profileType != null) {
             _bindingList = FragmentCmMultiProfileListBinding.inflate(inflater, container, false)
             bindingList.root
         } else {
@@ -41,14 +44,13 @@ class MultiProfileBottomSheet(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (hasJoined && (profile!=null) && profileType != null) {
+        if (hasJoined && profile!=null && profileType != null) {
             when (profileType) {
                 "BASIC" -> {
                     bindingList.layoutFullMultiProfile.visibility = View.GONE
                     bindingList.tvBasicProfileNickName.text = profile.nickname
                     bindingList.tvBasicProfileIntroduce.text = profile.bio
                     bindingList.layoutAddMultiProfile.setOnClickListener {
-                        //dismiss() // 현재 BottomSheet 닫기
 
                         viewLifecycleOwner.lifecycleScope.launch {
                             kotlinx.coroutines.delay(200)
@@ -58,6 +60,10 @@ class MultiProfileBottomSheet(
                                 profile = null,
                                 profileType = null
                             )
+
+                            newBottomSheet.addOnDismissListener {
+                                dismiss()
+                            }
                             newBottomSheet.show(parentFragmentManager, newBottomSheet.tag)
                         }
                     }
@@ -93,6 +99,7 @@ class MultiProfileBottomSheet(
                     putString("bio", bio)
                     putString("type", "MULTI")
                 }
+                parentFragment?.let { dismiss() }
                 parentFragmentManager.setFragmentResult("patch_multi_profile", result)
                 dismiss()
             }
@@ -167,6 +174,14 @@ class MultiProfileBottomSheet(
         }
     }
 
+    fun addOnDismissListener(callback: () -> Unit) {
+        onDismissCallback = callback
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        onDismissCallback?.invoke()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

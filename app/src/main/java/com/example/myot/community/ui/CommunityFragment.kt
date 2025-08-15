@@ -14,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.transition.Visibility
+import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.community.model.CommunityMode
 import com.example.myot.community.model.CommunityViewModel
@@ -35,9 +36,9 @@ class CommunityFragment : Fragment() {
 
     private val viewModel: CommunityViewModel by viewModels()   // 커뮤니티 가입 관리
 
-    val myToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExMiwibG9naW5JZCI6ImNtdGVzdCIsImlhdCI6MTc1NDkyMjMzOSwiZXhwIjoxNzU1NTI3MTM5fQ.I-Cx-ZdGygI5mGS10uOfBZjBRvpDyKAZpcsUkGKhzgI"
-    val communityId = 201
-    val userId = 112
+    val myToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImxvZ2luSWQiOiJ0ZXN0dXNlcjA1IiwiaWF0IjoxNzU1MjQxNjY3LCJleHAiOjE3NTU4NDY0Njd9.Qa4rVwsUqqYLUNUptvJC4Z-HwA27zMNnlf7K8fwjQEAI"
+    val communityId = 1
+    val userId = 6
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,15 +87,15 @@ class CommunityFragment : Fragment() {
     private fun setCommunity() {
         // TODO: 선택한 커뮤니티 정보 Home에서 넘겨받기
         //val communityId = intent.getIntExtra("communityId", 0)
-        viewModel.fetchCommunity("musical", 201)
+        viewModel.fetchCommunity("musical", communityId)
 
         viewModel.community.observe(viewLifecycleOwner) { community ->
             if (community != null) {
                 itemType = community.type
                 binding.tvCommunityName.text = community.groupName
-//                Glide.with(this)
-//                    .load(community.coverImage)
-//                    .into(binding.ivCommunityCover)
+                Glide.with(this)
+                    .load(community.coverImage)
+                    .into(binding.ivCommunityCover)
                 setTabs(itemType)
             } else {
                 Log.w("CommunityFragment", "커뮤니티 데이터가 null입니다.")

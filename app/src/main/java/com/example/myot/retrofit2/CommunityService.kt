@@ -53,7 +53,7 @@ interface CommunityService {
         @Path("communityId") communityId: Int
     ): Response<CommunityProfileResponse>
 
-    @PATCH("api/profile/type/{communityId}")
+    @PATCH("api/community/profile/type/{communityId}")
     suspend fun patchMultiProfileType(
         @Header("Authorization") token: String,
         @Path("communityId") communityId: Int,
