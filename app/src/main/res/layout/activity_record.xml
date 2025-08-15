@@ -11,6 +11,7 @@
         android:id="@+id/layout_top_record"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:background="@android:color/white"
         android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,10 +33,10 @@
             android:id="@+id/tv_book_record_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_semibold"
             android:text="관극 기록"
             android:textColor="@color/gray2"
             android:textSize="18sp"
-            android:fontFamily="@font/roboto_semibold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,14 +45,13 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:name="com.example.myot.ticket.ui.RecordFragment"
+        android:id="@+id/RecordFragmentContainerView"
+        android:name="com.example.myot.ticket.ui.MusicalSearchFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/layout_top_record" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

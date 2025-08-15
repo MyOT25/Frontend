@@ -14,6 +14,9 @@ import com.example.myot.ticket.book.ui.BookListFragment
 import com.example.myot.ticket.model.TicketToday
 import com.example.myot.ticket.ui.adapter.TicketTodayAdapter
 import android.content.Intent
+import androidx.fragment.app.activityViewModels
+import com.example.myot.retrofit2.RetrofitClient
+import com.example.myot.ticket.model.TicketViewModel
 
 class TicketFragment : Fragment() {
 
@@ -25,6 +28,14 @@ class TicketFragment : Fragment() {
     private var isSwiping = false
     private val swipeThreshold = 150f // px 기준 (이 이상 밀면 실행)
 
+    private val viewModel: TicketViewModel by activityViewModels {
+        object : androidx.lifecycle.ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return TicketViewModel(RetrofitClient.ticketService) as T
+            }
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTicketBinding.inflate(inflater, container, false)
         return binding.root
@@ -34,11 +45,12 @@ class TicketFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setRecentTicket()
         setTicketBook()
-    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        viewModel.recordSaved.observe(viewLifecycleOwner) { saved ->
+            if (saved == true) {
+                // TODO: UI 갱신 로직
+            }
+        }
     }
 
     // 오늘의 관극 세팅
@@ -114,5 +126,10 @@ class TicketFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

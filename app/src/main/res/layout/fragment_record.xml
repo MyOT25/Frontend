@@ -11,6 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:orientation="vertical">
 
         <TextView
@@ -290,11 +291,11 @@
             android:layout_width="wrap_content"
             android:layout_height="70dp"
             android:layout_gravity="center"
+            android:layout_marginVertical="20dp"
             android:isIndicator="false"
             android:maxHeight="70dp"
             android:minHeight="70dp"
             android:numStars="5"
-            android:layout_marginVertical="20dp"
             android:progressDrawable="@drawable/ratingbar_record"
             android:rating="0"
             android:stepSize="0.5" />
