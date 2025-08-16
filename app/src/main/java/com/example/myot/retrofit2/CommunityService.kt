@@ -57,4 +57,5 @@ interface CommunityService {
         @Path("type") type: String,
         @Path("id") id: Int
     ): Response<CommunityResponse>
+
 }

@@ -31,30 +31,22 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="20dp"/>
 
-            <!-- 커뮤니티 더보기 버튼 -->
-            <ImageView
-                android:id="@+id/iv_expand"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_gravity="end"
-                android:src="@drawable/ic_home_extend"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="17dp"
-                android:background="@null"
-                android:clickable="true"
-                android:focusable="true"
-                android:visibility="gone"/>
-
             <!-- 커뮤니티 리스트 -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_communities"
+            <HorizontalScrollView
+                android:id="@+id/hs_communities"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:fillViewport="false"
                 android:clipToPadding="false"
-                android:overScrollMode="always"
-                tools:listitem="@layout/item_community_group"
-                tools:itemCount="1" />
+                android:layout_marginTop="7dp">
+
+                <LinearLayout
+                    android:id="@+id/line_communities"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"/>
+            </HorizontalScrollView>
 
             <!-- 피드 리스트 -->
             <androidx.recyclerview.widget.RecyclerView
