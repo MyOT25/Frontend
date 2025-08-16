@@ -30,10 +30,6 @@ import com.example.myot.retrofit2.CommunityService
 import com.example.myot.retrofit2.RetrofitClient
 import com.example.myot.retrofit2.TokenStore
 import com.example.myot.write.WriteFeedActivity
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -151,136 +147,14 @@ class HomeFragment : Fragment() {
         renderCommunityStrip(emptyList())
         fetchMyCommunitiesWithCovers()
 
-        // 피드 더미 데이터 생성
-        val dummyFeeds = listOf(
-            FeedItem(
-                username = "유저1",
-                content = "뮤지컬 <레미제라블> 보고 왔어요. '민중의 노래' 장면은 언제 봐도 소름... 같이 본 친구도 감동받았대요.".repeat(3),
-                imageUrls = listOf(),
-                date = "2025/06/24 01:10",
-                community = "뮤지컬 후기",
-                commentCount = 0,
-                likeCount = 1,
-                repostCount = 0,
-                quoteCount = 0,
-                quotedFeed = FeedItem(
-                    username = "유저6",
-                    content = "이건 인용된 텍스트 피드예요! 뮤지컬 <지킬 앤 하이드>에서 '지금 이 순간' 장면, 진짜 전설적이죠.",
-                    imageUrls = listOf(
-                        "https://picsum.photos/300/200?random=2",
-                        "https://picsum.photos/300/200?random=3",
-                        "https://picsum.photos/300/200?random=3",
-                        "https://picsum.photos/300/200?random=3"
-                    ),
-                    date = "2024/06/14 22:00",
-                    community = "레전드 넘버",
-                    commentCount = 0,
-                    likeCount = 0,
-                    repostCount = 0,
-                    quoteCount = 0
-                )
-            ),
-            FeedItem(
-                username = "유저11", content = "이거 인용했어요",
-                imageUrls = listOf(), date = "2025/06/24 01:10", community = "인용 피드",
-                commentCount = 0, likeCount = 1, repostCount = 0, quoteCount = 0,
-                quotedFeed = FeedItem(
-                    username = "유저12",
-                    content = "이건 인용된 텍스트 피드예요",
-                    date = "2024/06/14 22:00",
-                    community = "인용된 피드",
-                    commentCount = 0,
-                    likeCount = 0,
-                    repostCount = 0,
-                    quoteCount = 0
-                )
-            ),
-            FeedItem(
-                username = "유저2",
-                content = "뮤지컬 <헤드윅>은 진짜 미쳤다... 배우의 에너지가 넘침. 특히 'Midnight Radio' 장면 눈물ㅠㅠ",
-                imageUrls = listOf("https://picsum.photos/270/380?random=11"),
-                date = "2025/06/24 02:09",
-                community = "창작 뮤지컬",
-                commentCount = 7,
-                likeCount = 55,
-                repostCount = 4,
-                quoteCount = 20
-            ),
-            FeedItem(
-                username = "유저3", content = "오늘은 대학로에서 <빨래> 관람했어요. 소극장이라 배우들과 가까워서 몰입감 장난 아님!",
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=2",
-                    "https://picsum.photos/300/200?random=3"
-                ), date = "2025/06/20 20:30", community = "소극장 뮤지컬",
-                commentCount = 2, likeCount = 33, repostCount = 1, quoteCount = 7,
-                quotedFeed = FeedItem(
-                    username = "유저6",
-                    content = "이건 인용된 텍스트 피드예요! 뮤지컬 <지킬 앤 하이드>에서 '지금 이 순간' 장면, 진짜 전설적이죠.",
-                    imageUrls = listOf(
-                        "https://picsum.photos/300/200?random=2",
-                        "https://picsum.photos/300/200?random=3",
-                        "https://picsum.photos/300/200?random=3"
-                    ),
-                    date = "2024/06/14 22:00",
-                    community = "레전드 넘버",
-                    commentCount = 0,
-                    likeCount = 0,
-                    repostCount = 0,
-                    quoteCount = 0
-                )
-            ),
-            FeedItem(
-                username = "유저4",
-                content = "이 문장은 안드로이드 앱 개발자들이 레이아웃 테스트나 글자 수 제한 기능을 점검할 때 사용할 수 있도록 만든 예시이며, 띄어쓰기 포함 정확히 160자입니다. 한글이든 영어이든 기호이든 띄어쓰기이든 전부 한 글자로 하여 총 160글자입니다. 이 글은 160자를 테스트하기 위한 글로 이제끝",
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=4",
-                    "https://picsum.photos/300/200?random=5",
-                    "https://picsum.photos/300/200?random=6"
-                ),
-                date = "2025/02/19 16:20",
-                community = "해외 뮤지컬",
-                commentCount = 9,
-                likeCount = 61,
-                repostCount = 5,
-                quoteCount = 18,
-                quotedFeed = FeedItem(
-                    username = "유저6",
-                    content = "이건 인용된 텍스트 피드예요! 뮤지컬 <지킬 앤 하이드>에서 '지금 이 순간' 장면, 진짜 전설적이죠.".repeat(7),
-                    date = "2024/06/14 22:00",
-                    community = "레전드 넘버",
-                    commentCount = 0,
-                    likeCount = 0,
-                    repostCount = 0,
-                    quoteCount = 0
-                )
-            ),
-            FeedItem(
-                username = "유저5",
-                content = "레베카의 '나는 나만의 것' 듣고 완전 입덕... 이건 진짜 한번쯤 꼭 봐야 해요. 내 최애 넘버 1위.".repeat(6),
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=7",
-                    "https://picsum.photos/300/200?random=8",
-                    "https://picsum.photos/300/200?random=9",
-                    "https://picsum.photos/300/200?random=10"
-                ),
-                date = "2024/06/15 10:00",
-                community = "명작 뮤지컬",
-                commentCount = 10,
-                likeCount = 78,
-                repostCount = 6,
-                quoteCount = 25
-            )
-
-
-        )
-        feedList.addAll(dummyFeeds)
-
 
         // 피드 리사이클러뷰 초기화
         binding.rvFeeds.apply {
             adapter = FeedAdapter(feedList)
             layoutManager = LinearLayoutManager(requireContext())
         }
+
+        fetchHomeFeed()
 
         // 글쓰기 버튼 스크롤 시 투명도 처리
         val handler = Handler(Looper.getMainLooper())
@@ -313,6 +187,45 @@ class HomeFragment : Fragment() {
 
     }
 
+    private fun formatDate(iso: String?): String {
+        if (iso.isNullOrBlank()) return ""
+        val patterns = listOf(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy/MM/dd HH:mm"
+        )
+        for (p in patterns) {
+            try {
+                val inFmt = java.text.SimpleDateFormat(p, java.util.Locale.getDefault()).apply {
+                    if (p.contains("'Z'")) timeZone = java.util.TimeZone.getTimeZone("UTC")
+                }
+                val d = inFmt.parse(iso) ?: continue
+                val outFmt = java.text.SimpleDateFormat("yyyy/MM/dd HH:mm", java.util.Locale.getDefault())
+                return outFmt.format(d)
+            } catch (_: Exception) { }
+        }
+        return iso
+    }
+
+    private fun HomeFeedPost.toFeedItem(): com.example.myot.feed.model.FeedItem {
+        val quotedFeed: com.example.myot.feed.model.FeedItem? = null // 서버 스펙상 인용 필드는 없음
+        return com.example.myot.feed.model.FeedItem(
+            username = user?.nickname ?: "",
+            content = content ?: "",
+            imageUrls = (postImages ?: emptyList()).mapNotNull { it.url }.filter { it.isNullOrBlank().not() },
+            date = formatDate(createdAt),
+            community = community?.type ?: "",     // 필요시 커뮤니티 표시 규칙에 맞게 변경
+            commentCount = commentCount ?: 0,
+            likeCount = likeCount ?: 0,
+            repostCount = repostCount ?: 0,
+            quoteCount = 0,
+            quotedFeed = quotedFeed
+        )
+    }
+
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     private fun renderCommunityStrip(list: List<CommunityUi>) {
@@ -322,8 +235,8 @@ class HomeFragment : Fragment() {
         fun addIcon(item: CommunityUi?) {
             val root = layoutInflater.inflate(R.layout.item_community, container, false)
             val params = LinearLayout.LayoutParams(dp(85), dp(85)).apply {
-                marginStart = dp(5)
-                marginEnd   = dp(-10)
+                marginStart = dp(2)
+                marginEnd   = dp(-5)
             }
             root.layoutParams = params
 
@@ -451,6 +364,45 @@ class HomeFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 renderCommunityStrip(emptyList())
+            }
+        }
+    }
+
+    private fun fetchHomeFeed() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val raw = TokenStore.loadAccessToken(requireContext())
+                if (raw.isNullOrBlank()) {
+                    Toast.makeText(requireContext(), "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                val bearer = if (raw.startsWith("Bearer ")) raw else "Bearer $raw"
+
+                val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    com.example.myot.retrofit2.RetrofitClient.homeFeedService.getHomeFeed(bearer)
+                }
+
+                if (!res.isSuccessful) {
+                    Toast.makeText(requireContext(), "홈 피드 불러오기 실패 (${res.code()})", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                val envelope = res.body()
+                if (envelope?.resultType != "SUCCESS") {
+                    feedList.clear()
+                    binding.rvFeeds.adapter?.notifyDataSetChanged()
+                    return@launch
+                }
+
+                val posts = envelope.data?.posts ?: emptyList()
+                val mapped = posts.map { it.toFeedItem() }
+
+                feedList.clear()
+                feedList.addAll(mapped)
+                binding.rvFeeds.adapter?.notifyDataSetChanged()
+
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

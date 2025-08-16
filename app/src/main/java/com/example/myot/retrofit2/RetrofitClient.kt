@@ -1,5 +1,6 @@
 package com.example.myot.retrofit2
 
+import com.example.myot.home.HomeFeedService
 import com.example.myot.profile.data.ProfileFeedService
 import com.example.myot.question.data.QuestionService
 import com.example.myot.signup.data.SignupCommunityService
@@ -20,4 +21,5 @@ object RetrofitClient {
     val profileFeedService: ProfileFeedService = retrofit.create(ProfileFeedService::class.java)
     val authService: AuthService = retrofit.create(AuthService::class.java)
     val signupCommunityService: SignupCommunityService = retrofit.create(SignupCommunityService::class.java)
+    val homeFeedService: HomeFeedService = retrofit.create(HomeFeedService::class.java)
 }

@@ -3,9 +3,11 @@ package com.example.myot.question.ui
 import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -14,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.MainActivity
+import com.example.myot.R
 import com.example.myot.databinding.FragmentQuestionDetailBinding
 import com.example.myot.question.adapter.QuestionDetailAdapter
 import com.example.myot.question.data.QuestionRepository
@@ -272,7 +275,6 @@ class QuestionDetailFragment : Fragment() {
         }
     }
 
-
     private fun confirmAndDelete(questionId: Long) {
         if (isDeleting) return
         isDeleting = true
@@ -284,7 +286,7 @@ class QuestionDetailFragment : Fragment() {
                     (activity as? MainActivity)?.openQuestionTab()
                 }
                 .onFailure {
-                    Toast.makeText(requireContext(), "삭제 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                    showToast("본인이 작성한 질문만 삭제할 수 있어요.")
                     isDeleting = false
                 }
         }
@@ -303,6 +305,19 @@ class QuestionDetailFragment : Fragment() {
             fragment.arguments = bundle
             return fragment
         }
+    }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).toInt()
+
+    private fun showToast(message: String) {
+        val v = layoutInflater.inflate(R.layout.toast_simple, null)
+        v.findViewById<TextView>(R.id.tv_toast).text = message
+
+        Toast(requireContext()).apply {
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 64.dp)
+            view = v
+        }.show()
     }
 
 }

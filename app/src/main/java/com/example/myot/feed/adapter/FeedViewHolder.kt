@@ -33,8 +33,10 @@ import com.google.android.material.tabs.TabLayoutMediator
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import kotlin.math.floor
+import kotlin.math.max
 
 class FeedViewHolder(
     private val binding: ViewBinding
@@ -46,6 +48,8 @@ class FeedViewHolder(
             is ItemFeedDetailBinding -> bindViews(binding, item, isLastItem)
         }
     }
+
+    private val DISPLAY_SDF = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
 
     private fun <B : ViewBinding> bindViews(
         b: B,
@@ -428,26 +432,44 @@ class FeedViewHolder(
         }
     }
 
-    private fun getTimeAgo(dateStr: String): String {
-        val format = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-        val postTime = format.parse(dateStr) ?: return ""
+    private fun getTimeAgo(dateStr: String?): String {
+        if (dateStr.isNullOrBlank()) return "방금 전"
 
-        val now = Date()
-        val diffMillis = now.time - postTime.time
+        val patterns = listOf(
+            "yyyy/MM/dd HH:mm",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+            "yyyy-MM-dd'T'HH:mm:ssZ"
+        )
 
+        var postTime: Date? = null
+        for (p in patterns) {
+            try {
+                val fmt = SimpleDateFormat(p, Locale.getDefault()).apply {
+                    if (p.contains("'Z'")) timeZone = TimeZone.getTimeZone("UTC")
+                }
+                postTime = fmt.parse(dateStr)
+                if (postTime != null) break
+            } catch (_: Exception) {  }
+        }
+
+        if (postTime == null) return "방금 전"
+
+        val diffMillis = max(0L, System.currentTimeMillis() - postTime.time)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(diffMillis)
-        val hours = TimeUnit.MILLISECONDS.toHours(diffMillis)
-        val days = TimeUnit.MILLISECONDS.toDays(diffMillis)
-        val months = floor(days / 30.0).toInt()
-        val years = floor(days / 365.0).toInt()
+        val hours   = TimeUnit.MILLISECONDS.toHours(diffMillis)
+        val days    = TimeUnit.MILLISECONDS.toDays(diffMillis)
+        val months  = (days / 30)
+        val years   = (days / 365)
 
         return when {
-            minutes < 1 -> "방금 전"
+            minutes < 1  -> "방금 전"
             minutes < 60 -> "${minutes}분 전"
-            hours < 24 -> "${hours}시간 전"
-            days <= 30 -> "${days}일 전"
-            days < 365 -> "${months}개월 전"
-            else -> "${years}년 전"
+            hours   < 24 -> "${hours}시간 전"
+            days   <= 30 -> "${days}일 전"
+            days   < 365 -> "${months}개월 전"
+            else         -> "${years}년 전"
         }
     }
 
