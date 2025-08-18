@@ -1,5 +1,6 @@
 package com.example.myot.community.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,18 +14,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.transition.Visibility
 import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.community.model.CommunityMode
 import com.example.myot.community.model.CommunityViewModel
-import com.example.myot.community.model.JoinLeaveRequest
 import com.example.myot.community.model.Multi
 import com.example.myot.community.model.ProfileRequest
 import com.example.myot.community.ui.adapter.CommunityTabAdapter
+import com.example.myot.retrofit2.AuthStore
 import com.example.myot.retrofit2.RetrofitClient
+import com.example.myot.retrofit2.TokenStore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class CommunityFragment : Fragment() {
@@ -34,16 +36,22 @@ class CommunityFragment : Fragment() {
     private var _binding: FragmentCommunityBinding? = null
     private val binding get() = _binding!!
 
+
+    private var _userId: Long? = null
+    private val userId get() = _userId!!
+
     private val viewModel: CommunityViewModel by viewModels()   // 커뮤니티 가입 관리
 
-    val myToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImxvZ2luSWQiOiJ0ZXN0dXNlcjA1IiwiaWF0IjoxNzU1MjQxNjY3LCJleHAiOjE3NTU4NDY0Njd9.Qa4rVwsUqqYLUNUptvJC4Z-HwA27zMNnlf7K8fwjQEAI"
     val communityId = 1
-    val userId = 6
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         itemType = arguments?.getString(ARG_ITEM_TYPE) ?: "musical"   // 기본값 "작품"으로 설정
+    }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        _userId = TokenStore.loadUserId(requireContext())
     }
 
     override fun onCreateView(
@@ -63,8 +71,6 @@ class CommunityFragment : Fragment() {
             val type = bundle.getString("type")
             if (!nickname.isNullOrEmpty() && !bio.isNullOrEmpty() && type == "MULTI") {
                 val multi = Multi(nickname, "http", bio)
-                //val profileReq = ProfileRequest(112, communityId, nickname, "https://example.com/myimg.jpg", bio)
-                //postMultiProfile(profileReq)
                 viewModel.JoinLeaveCommunity(userId, communityId, type, "join", multi)
             } else {
                 viewModel.JoinLeaveCommunity(userId, communityId, "BASIC", "join", null)
@@ -148,27 +154,6 @@ class CommunityFragment : Fragment() {
     private fun inputMultiProfile() {
         val bottomSheet = MultiProfileBottomSheet(false, null, null)
         bottomSheet.show(parentFragmentManager, "multi_profile_result")
-    }
-
-    // 새로운 멀티프로필 등록
-    private fun postMultiProfile(profileReq: ProfileRequest) {
-        lifecycleScope.launch {
-            try {
-                // TODO: 토큰 받아오도록 만들기
-                val response = RetrofitClient.communityService.setCommunityProfile(
-                    token = "Bearer $myToken",
-                    profileReq
-                )
-
-                if (response.isSuccessful && response.body()?.success == true) {
-                    Toast.makeText(requireContext(), "멀티 프로필이 등록되었습니다", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "등록 실패: ${response.code()}", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "에러 발생: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun setProfileLayout() {

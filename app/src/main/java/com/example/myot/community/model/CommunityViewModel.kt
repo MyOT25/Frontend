@@ -1,19 +1,17 @@
 package com.example.myot.community.model
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myot.retrofit2.AuthStore
 import com.example.myot.retrofit2.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,8 +27,9 @@ class CommunityViewModel @Inject constructor(
     private val _communityMode = MutableStateFlow(CommunityMode.GUEST)
     val communityMode: StateFlow<CommunityMode> = _communityMode.asStateFlow()
 
-    val token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImxvZ2luSWQiOiJ0ZXN0dXNlcjA1IiwiaWF0IjoxNzU1MjQxNjY3LCJleHAiOjE3NTU4NDY0Njd9.Qa4rVwsUqqYLUNUptvJC4Z-HwA27zMNnlf7K8fwjQEA"
+    val token = AuthStore.bearerOrThrow()
+    //val token =
+    //    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImxvZ2luSWQiOiJ0ZXN0dXNlcjA1IiwiaWF0IjoxNzU1MjQxNjY3LCJleHAiOjE3NTU4NDY0Njd9.Qa4rVwsUqqYLUNUptvJC4Z-HwA27zMNnlf7K8fwjQEA"
 
     fun setCommunityMode(mode: CommunityMode) {
         _communityMode.value = mode
@@ -54,7 +53,7 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.communityService.getCommunityInfo(
-                    token = "Bearer $token",
+                    token,
                     type, CommunityId
                 )
                 if (response.isSuccessful && response.body()?.success == true) {
@@ -77,7 +76,7 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.communityService.getMyCommunityProfile(
-                    "Bearer $token",
+                    token,
                     communityId
                 )
                 if (response.isSuccessful && response.body()?.success == true) {
@@ -93,7 +92,7 @@ class CommunityViewModel @Inject constructor(
     }
 
     fun JoinLeaveCommunity(
-        userId: Int,
+        userId: Long,
         communityId: Int,
         profileType: String,
         action: String,
@@ -103,7 +102,7 @@ class CommunityViewModel @Inject constructor(
             try {
                 val request = JoinLeaveRequest(userId, communityId, action, profileType, multi)
                 val response =
-                    RetrofitClient.communityService.setUserStatus("Bearer ${token}", request)
+                    RetrofitClient.communityService.setUserStatus(token, request)
                 if (response.success) {
                     Log.d("JoinLeave", "성공")
                     switchCommunityMode()
@@ -122,7 +121,7 @@ class CommunityViewModel @Inject constructor(
             try {
                 val request = PatchProfileRequest(changeTo, multi)
                 val response =
-                    RetrofitClient.communityService.patchMultiProfileType("Bearer ${token}", communityId, request)
+                    RetrofitClient.communityService.patchMultiProfileType(token, communityId, request)
                 if (response.success) {
                     Log.d("PatchProfile", "성공")
                     fetchProfile(communityId)

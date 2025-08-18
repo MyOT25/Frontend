@@ -18,13 +18,7 @@ class MusicalSearchFragment : Fragment() {
     private var _binding: FragmentMusicalSearchBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: TicketViewModel by activityViewModels {
-        object : androidx.lifecycle.ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return TicketViewModel(RetrofitClient.ticketService) as T
-            }
-        }
-    }
+    private val viewModel: TicketViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,

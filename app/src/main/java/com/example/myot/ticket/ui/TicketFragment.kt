@@ -28,13 +28,7 @@ class TicketFragment : Fragment() {
     private var isSwiping = false
     private val swipeThreshold = 150f // px 기준 (이 이상 밀면 실행)
 
-    private val viewModel: TicketViewModel by activityViewModels {
-        object : androidx.lifecycle.ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return TicketViewModel(RetrofitClient.ticketService) as T
-            }
-        }
-    }
+    private val viewModel: TicketViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTicketBinding.inflate(inflater, container, false)
