@@ -41,10 +41,12 @@ class FeedbackQuoteAdapter(
             itemView.setOnClickListener {
                 dialog.dismiss()
                 onFeedClick()
-                val context = itemView.context
-                if (context is FragmentActivity) {
-                    val fragment = FeedDetailFragment.Companion.newInstance(feed)
-                    context.supportFragmentManager.beginTransaction()
+                (itemView.context as? FragmentActivity)?.let { fa ->
+                    val fragment = FeedDetailFragment.newInstance(
+                        postId = feed.id ?: -1L,
+                        fallbackFeedItem = feed
+                    )
+                    fa.supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container_view, fragment)
                         .addToBackStack(null)
                         .commit()
@@ -80,10 +82,12 @@ class FeedbackQuoteAdapter(
                 quoteView.setOnClickListener {
                     dialog.dismiss()
                     onFeedClick()
-                    val context = quoteView.context
-                    if (context is FragmentActivity) {
-                        val fragment = FeedDetailFragment.Companion.newInstance(quoted)
-                        context.supportFragmentManager.beginTransaction()
+                    (quoteView.context as? FragmentActivity)?.let { fa ->
+                        val fragment = FeedDetailFragment.newInstance(
+                            postId = quoted.id ?: -1L,
+                            fallbackFeedItem = quoted
+                        )
+                        fa.supportFragmentManager.beginTransaction()
                             .replace(R.id.fragment_container_view, fragment)
                             .addToBackStack(null)
                             .commit()

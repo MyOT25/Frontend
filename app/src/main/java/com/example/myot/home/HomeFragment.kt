@@ -3,10 +3,10 @@ package com.example.myot.home
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -37,13 +37,11 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.min
 
+
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-
-
     private val feedList = mutableListOf<FeedItem>()
-    private lateinit var feedAdapter: FeedAdapter
 
     // 새로고침 변수
     private var isRefreshing = false
@@ -150,8 +148,21 @@ class HomeFragment : Fragment() {
 
         // 피드 리사이클러뷰 초기화
         binding.rvFeeds.apply {
-            adapter = FeedAdapter(feedList)
             layoutManager = LinearLayoutManager(requireContext())
+            adapter = FeedAdapter(
+                items = feedList,
+                onDeleteRequest = { postId -> requestDeletePost(postId) },
+                onItemClick = { item ->
+                    val fragment = com.example.myot.feed.ui.FeedDetailFragment.newInstance(
+                        postId = item.id ?: -1L,
+                        fallbackFeedItem = item
+                    )
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container_view, fragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+            )
         }
 
         fetchHomeFeed()
@@ -210,9 +221,10 @@ class HomeFragment : Fragment() {
         return iso
     }
 
-    private fun HomeFeedPost.toFeedItem(): com.example.myot.feed.model.FeedItem {
-        val quotedFeed: com.example.myot.feed.model.FeedItem? = null // 서버 스펙상 인용 필드는 없음
-        return com.example.myot.feed.model.FeedItem(
+    private fun HomeFeedPost.toFeedItem(): FeedItem {
+        val quotedFeed: FeedItem? = null // 서버 스펙상 인용 필드는 없음
+        return FeedItem(
+            id = this.id?.toLong() ?: -1L,
             username = user?.nickname ?: "",
             content = content ?: "",
             imageUrls = (postImages ?: emptyList()).mapNotNull { it.url }.filter { it.isNullOrBlank().not() },
@@ -222,7 +234,9 @@ class HomeFragment : Fragment() {
             likeCount = likeCount ?: 0,
             repostCount = repostCount ?: 0,
             quoteCount = 0,
-            quotedFeed = quotedFeed
+            profileImageUrl = user?.profileImage,
+            communityCoverUrl = community?.coverImage,
+            userHandle = null
         )
     }
 
@@ -405,6 +419,46 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(), "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun requestDeletePost(postId: Long) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val raw = TokenStore.loadAccessToken(requireContext()) ?: return@launch
+                val bearer = if (raw.startsWith("Bearer ")) raw else "Bearer $raw"
+
+                val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    RetrofitClient.feedService.deletePost(bearer, postId)
+                }
+
+                val ok = res.isSuccessful
+                if (ok) {
+                    // 목록이라면 리스트에서 제거
+                    val idx = feedList.indexOfFirst { it.id == postId }
+                    if (idx >= 0) {
+                        feedList.removeAt(idx)
+                        binding.rvFeeds.adapter?.notifyItemRemoved(idx)
+                    }
+                } else {
+                    showToast("본인이 작성한 게시글만 삭제할 수 있어요.")
+                }
+            } catch (_: Exception) {
+                showToast("본인이 작성한 게시글만 삭제할 수 있어요.")
+            }
+        }
+    }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).toInt()
+
+    private fun showToast(message: String) {
+        val v = layoutInflater.inflate(R.layout.toast_simple, null)
+        v.findViewById<TextView>(R.id.tv_toast).text = message
+
+        Toast(requireContext()).apply {
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 64.dp)
+            view = v
+        }.show()
     }
 
     override fun onResume() {

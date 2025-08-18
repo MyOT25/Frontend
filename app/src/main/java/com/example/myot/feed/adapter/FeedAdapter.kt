@@ -8,12 +8,13 @@ import com.example.myot.feed.model.FeedItem
 
 class FeedAdapter(
     private val items: List<FeedItem>,
-    private val isDetail: Boolean = false
+    private val onDeleteRequest: (Long) -> Unit = {},
+    private val onItemClick: ((FeedItem) -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = ItemFeedBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return FeedViewHolder(binding)
+        return FeedViewHolder(binding, onItemClick ?: {}, onDeleteRequest)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

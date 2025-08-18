@@ -39,7 +39,9 @@ import kotlin.math.floor
 import kotlin.math.max
 
 class FeedViewHolder(
-    private val binding: ViewBinding
+    private val binding: ViewBinding,
+    private val onItemClick: (FeedItem) -> Unit,
+    private val onDeleteRequest: (Long) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: FeedItem, isLastItem: Boolean = false) {
@@ -58,56 +60,114 @@ class FeedViewHolder(
     ) {
         val root = b.root
 
-        // 공통 뷰 바인딩
         val tvUsername = root.findViewById<TextView>(R.id.tv_username)
-        val tvDate = root.findViewById<TextView>(R.id.tv_date)
-        val tvComment = root.findViewById<TextView>(R.id.tv_comment)
-        val tvLike = root.findViewById<TextView>(R.id.tv_like)
-        val tvRepost = root.findViewById<TextView>(R.id.tv_repost)
-        val tvQuote = root.findViewById<TextView>(R.id.tv_quote)
-        val tvContent = root.findViewById<TextView>(R.id.tv_content)
-        val ivLike = root.findViewById<ImageView>(R.id.iv_like)
-        val ivRepost = root.findViewById<ImageView>(R.id.iv_repost)
-        val ivQuote = root.findViewById<ImageView>(R.id.iv_quote)
+        val tvUserId   = root.findViewById<TextView>(R.id.tv_userid)
+        val tvContent  = root.findViewById<TextView>(R.id.tv_content)
+        val tvDate     = root.findViewById<TextView>(R.id.tv_date)
+        val tvComment  = root.findViewById<TextView>(R.id.tv_comment)
+        val tvLike     = root.findViewById<TextView>(R.id.tv_like)
+        val tvRepost   = root.findViewById<TextView>(R.id.tv_repost)
+        val tvQuote    = root.findViewById<TextView>(R.id.tv_quote)
+
+        val ivProfile   = root.findViewById<ImageView>(R.id.iv_profile)
+        val ivCommunity = root.findViewById<ImageView>(R.id.iv_community)
+
+        val layoutImageContainer = root.findViewById<View>(R.id.layout_image_container)
+        val layoutQuote          = root.findViewById<ViewGroup>(R.id.layout_quote)
+
+        val ivLike     = root.findViewById<ImageView>(R.id.iv_like)
+        val ivRepost   = root.findViewById<ImageView>(R.id.iv_repost)
+        val ivQuote    = root.findViewById<ImageView>(R.id.iv_quote)
         val ivOverflow = root.findViewById<ImageView>(R.id.iv_overflow)
-        val ivProfile = root.findViewById<ImageView>(R.id.iv_profile)
-        val ivDivLine = root.findViewById<View>(R.id.iv_div_line)
+        val ivDivLine  = root.findViewById<View>(R.id.iv_div_line)
 
-        // 데이터 설정
+        // 텍스트/카운트
         tvUsername?.text = item.username
-        tvDate?.text = item.date
-        tvComment?.text = item.commentCount.toString()
-        tvLike?.text = item.likeCount.toString()
-        tvRepost?.text = item.repostCount.toString()
-        tvQuote?.text = item.quoteCount.toString()
-        tvContent?.text = item.content
+        tvContent?.text  = item.content
+        tvDate?.text     = item.date
 
-        // 이미지 처리
-        listOf(
-            R.id.layout_image1,
-            R.id.layout_image2,
-            R.id.layout_image3,
-            R.id.layout_image4
-        ).forEach { id -> root.findViewById<ViewGroup>(id)?.visibility = View.GONE }
+        tvComment?.text  = item.commentCount.toString()
+        tvLike?.text     = item.likeCount.toString()
+        tvRepost?.text   = item.repostCount.toString()
+        tvQuote?.text    = item.quoteCount.toString()
 
-        when (item.imageUrls.size) {
-            1 -> root.findViewById<ViewGroup>(R.id.layout_image1)?.let {
-                it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls, item)
+
+        if (item.userHandle.isNullOrBlank()) {
+            tvUserId?.apply {
+                text = ""
+                visibility = View.INVISIBLE
             }
-            2 -> root.findViewById<ViewGroup>(R.id.layout_image2)?.let {
-                it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls, item)
-            }
-            3 -> root.findViewById<ViewGroup>(R.id.layout_image3)?.let {
-                it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls, item)
-            }
-            4 -> root.findViewById<ViewGroup>(R.id.layout_image4)?.let {
-                it.visibility = View.VISIBLE
-                loadImages(it, item.imageUrls, item)
+        } else {
+            tvUserId?.apply {
+                text = item.userHandle
+                visibility = View.VISIBLE
             }
         }
+
+        ivProfile?.let { iv ->
+            val url = item.profileImageUrl
+            if (url.isNullOrBlank()) {
+                Glide.with(iv)
+                    .load(R.drawable.ic_no_profile)
+                    .circleCrop()
+                    .into(iv)
+            } else {
+                Glide.with(iv)
+                    .load(url)
+                    .placeholder(R.drawable.ic_no_profile)
+                    .error(R.drawable.ic_no_profile)
+                    .circleCrop()
+                    .into(iv)
+            }
+        }
+
+        ivCommunity?.let { iv ->
+            val url = item.communityCoverUrl
+            if (url.isNullOrBlank()) {
+                Glide.with(iv)
+                    .load(R.drawable.ic_no_community)
+                    .circleCrop()
+                    .into(iv)
+            } else {
+                Glide.with(iv)
+                    .load(url)
+                    .placeholder(R.drawable.ic_no_community)
+                    .error(R.drawable.ic_no_community)
+                    .circleCrop()
+                    .into(iv)
+            }
+        }
+
+        listOf(
+            R.id.layout_image1, R.id.layout_image2,
+            R.id.layout_image3, R.id.layout_image4
+        ).forEach { id -> root.findViewById<View>(id)?.visibility = View.GONE }
+
+        if (item.imageUrls.isEmpty()) {
+            layoutImageContainer?.visibility = View.GONE
+        } else {
+            layoutImageContainer?.visibility = View.VISIBLE
+            when (item.imageUrls.size) {
+                1 -> root.findViewById<ViewGroup>(R.id.layout_image1)?.let {
+                    it.visibility = View.VISIBLE
+                    loadImages(it, item.imageUrls, item)
+                }
+                2 -> root.findViewById<ViewGroup>(R.id.layout_image2)?.let {
+                    it.visibility = View.VISIBLE
+                    loadImages(it, item.imageUrls, item)
+                }
+                3 -> root.findViewById<ViewGroup>(R.id.layout_image3)?.let {
+                    it.visibility = View.VISIBLE
+                    loadImages(it, item.imageUrls, item)
+                }
+                else -> root.findViewById<ViewGroup>(R.id.layout_image4)?.let {
+                    it.visibility = View.VISIBLE
+                    loadImages(it, item.imageUrls.take(4), item)
+                }
+            }
+        }
+
+        layoutQuote?.visibility = View.GONE
 
         // 추가 요소는 ItemFeedBinding인 경우만 처리
         if (b is ItemFeedBinding) {
@@ -140,15 +200,8 @@ class FeedViewHolder(
             // 팝업 메뉴 띄우기
             ivCommunity?.setOnClickListener { showProfilePopup(it) }
 
-            root.setOnClickListener {
-                val context = b.root.context
-                if (context is FragmentActivity) {
-                    val fragment = FeedDetailFragment.Companion.newInstance(item)
-                    context.supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container_view, fragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
+            b.root.setOnClickListener {
+                onItemClick(item)
             }
         }
 
@@ -181,7 +234,7 @@ class FeedViewHolder(
         ivQuote?.setOnClickListener { quoteToggle() }
 
         // 팝업 메뉴 띄우기
-        ivOverflow?.setOnClickListener { showOverflowPopup(it) }
+        ivOverflow?.setOnClickListener { showOverflowPopup(it, item) }
         ivProfile?.setOnClickListener { showProfilePopup(it) }
 
         // 롱클릭 피드백
@@ -266,19 +319,6 @@ class FeedViewHolder(
                         loadImages(layoutImage4 as ViewGroup, quoted.imageUrls, quoted)
                     }
                 }
-
-                // 인용 피드 클릭 시 디테일 이동
-                quoteView.setOnClickListener {
-                    val context = b.root.context
-                    if (context is FragmentActivity) {
-                        val fragment = FeedDetailFragment.Companion.newInstance(quoted)
-                        context.supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container_view, fragment)
-                            .addToBackStack(null)
-                            .commit()
-                    }
-                }
-
             } else {
                 quoteLayout.visibility = View.GONE
             }
@@ -311,18 +351,16 @@ class FeedViewHolder(
         imageView?.setColorFilter(color)
     }
 
-    private fun showOverflowPopup(anchor: View) {
+    private fun showOverflowPopup(anchor: View, item: FeedItem) {
         val context = anchor.context
         val inflater = LayoutInflater.from(context)
         val popupView = inflater.inflate(R.layout.menu_popup_overflow, null)
-
         val popupWindow = PopupWindow(
             popupView,
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
             true
         )
-
         // 팝업뷰 먼저 측정
         popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
         val popupWidth = popupView.measuredWidth
@@ -372,7 +410,7 @@ class FeedViewHolder(
         }
         popupView.findViewById<View>(R.id.btn_delete).setOnClickListener {
             popupWindow.dismiss()
-            Toast.makeText(context, "삭제 클릭", Toast.LENGTH_SHORT).show()
+            onDeleteRequest(item.id)
         }
     }
 
@@ -567,31 +605,21 @@ class FeedViewHolder(
     }
 
     private fun loadImages(layout: ViewGroup, urls: List<String>, item: FeedItem) {
-        val ids = listOf(
-            R.id.iv_image1,
-            R.id.iv_image2,
-            R.id.iv_image3,
-            R.id.iv_image4
-        )
-
-        val cornerRadius = 10
+        val ids = listOf(R.id.iv_image1, R.id.iv_image2, R.id.iv_image3, R.id.iv_image4)
+        val radiusPx = (10 * layout.resources.displayMetrics.density).toInt()
 
         for (i in urls.indices) {
-            val iv = layout.findViewById<ImageView>(ids[i])
+            val iv = layout.findViewById<ImageView?>(ids.getOrNull(i) ?: continue) ?: continue
 
             Glide.with(iv)
                 .load(urls[i])
-                .apply(RequestOptions().transform(CenterCrop(), RoundedCorners(cornerRadius)))
+                .apply(RequestOptions().transform(CenterCrop(), RoundedCorners(radiusPx)))
                 .into(iv)
 
             iv.setOnClickListener {
-                val context = iv.context
-                if (context is FragmentActivity) {
-                    val dialog = ImageDialogFragment(
-                        imageUrl = urls[i],
-                        feedItem = item
-                    )
-                    dialog.show(context.supportFragmentManager, "ImageDialog")
+                (iv.context as? FragmentActivity)?.let { fa ->
+                    ImageDialogFragment(imageUrl = urls[i], feedItem = item)
+                        .show(fa.supportFragmentManager, "ImageDialog")
                 }
             }
         }

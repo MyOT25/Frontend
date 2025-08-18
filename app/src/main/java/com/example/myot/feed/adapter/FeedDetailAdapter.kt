@@ -35,7 +35,8 @@ import java.util.Locale
 
 class FeedDetailAdapter(
     private val feedItem: FeedItem,
-    private val comments: List<CommentItem>
+    private val comments: List<CommentItem>,
+    private val onDeleteRequest: (Long) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
@@ -70,7 +71,7 @@ class FeedDetailAdapter(
         return when (viewType) {
             TYPE_FEED -> {
                 val binding = ItemFeedDetailBinding.inflate(inflater, parent, false)
-                FeedViewHolder(binding)
+                FeedViewHolder(binding, onDeleteRequest)
             }
             else -> {
                 val binding = ItemCommentBinding.inflate(inflater, parent, false)
@@ -91,10 +92,17 @@ class FeedDetailAdapter(
     }
 
 
-    class FeedViewHolder(private val binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
+    class FeedViewHolder(
+        private val binding: ViewBinding,
+        private val onDeleteRequest: (Long) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: FeedItem, isLastItem: Boolean) {
             if (binding is ItemFeedDetailBinding) {
-                com.example.myot.feed.adapter.FeedViewHolder(binding).bind(item, isLastItem)
+                FeedViewHolder(
+                    binding,
+                    onItemClick = {},
+                    onDeleteRequest = onDeleteRequest
+                ).bind(item, isLastItem)
             }
         }
     }
