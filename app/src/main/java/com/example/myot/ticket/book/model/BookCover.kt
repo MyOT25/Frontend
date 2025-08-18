@@ -15,11 +15,11 @@ data class BookCover(
     val musical_id: Int,
     val title: String,
     val poster: String,
-    // 날짜나 시즌
+    val watch_date: String,
     val theater: Theater
 )
 
 data class Theater(
     val name: String,
-    val region: Int
+    val region: String
 )

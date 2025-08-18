@@ -1,13 +1,11 @@
 package com.example.myot.retrofit2
 
-import com.example.myot.ticket.book.model.BookCoverResponse
 import com.example.myot.ticket.model.CastResponse
 import com.example.myot.ticket.model.MusicalSearchResponse
 import com.example.myot.ticket.model.RecordResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
@@ -17,11 +15,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TicketService {
-    @GET("api/viewingrecords/ticketbook")
-    suspend fun getMyBookCovers(
-        @Header("Authorization") token: String
-    ): Response<BookCoverResponse>
-
     @GET("api/viewingrecords/musicals")
     suspend fun searchMusical(
         @Query("name") name: String
