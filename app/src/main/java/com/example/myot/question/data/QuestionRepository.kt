@@ -43,6 +43,30 @@ class QuestionRepository(
         }
     }
 
+    suspend fun fetchQuestionsPopular(page: Int?, size: Int?): Result<List<QuestionItem>> {
+        return try {
+            val res = service.getQuestionsPopular(page, size)
+            val rawList: List<QuestionListItemDto> = res.success?.data ?: emptyList()
+            val items = rawList.mapNotNull { it.toModelOrNull() }
+            Result.success(items)
+        } catch (e: Exception) {
+            android.util.Log.e("QuestionRepo", "fetchQuestionsPopular failed", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun fetchQuestionsOldest(page: Int?, size: Int?): Result<List<QuestionItem>> {
+        return try {
+            val res = service.getQuestionsOldest(page, size)
+            val rawList: List<QuestionListItemDto> = res.success?.data ?: emptyList()
+            val items = rawList.mapNotNull { it.toModelOrNull() }
+            Result.success(items)
+        } catch (e: Exception) {
+            android.util.Log.e("QuestionRepo", "fetchQuestionsOldest failed", e)
+            Result.failure(e)
+        }
+    }
+
     private fun QuestionListItemDto.toModelOrNull(): QuestionItem? {
         val safeTitle = title.ifBlank { return null }
         val safeContent = content.orEmpty()
