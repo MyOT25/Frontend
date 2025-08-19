@@ -1,5 +1,6 @@
 package com.example.myot.retrofit2
 
+import com.example.myot.ticket.book.model.BookDetailResponse
 import com.example.myot.ticket.model.CastResponse
 import com.example.myot.ticket.model.MusicalSearchResponse
 import com.example.myot.ticket.model.RecordResponse

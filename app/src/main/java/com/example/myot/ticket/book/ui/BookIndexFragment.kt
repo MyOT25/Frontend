@@ -93,7 +93,8 @@ class BookIndexFragment : Fragment() {
                         // 데이터 전달
                         val bundle = Bundle().apply {
                             putString("title", viewModel.bookIndexes.value!!.title)
-                            putInt("season", selectedSeason.seasonMusicalId)
+                            putString("season", selectedSeason.label)
+                            putInt("musicalId", musicalId)
                         }
                         detailFragment.arguments = bundle
 

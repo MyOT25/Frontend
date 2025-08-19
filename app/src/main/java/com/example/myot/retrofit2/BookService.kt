@@ -1,6 +1,7 @@
 package com.example.myot.retrofit2
 
 import com.example.myot.ticket.book.model.BookCoverResponse
+import com.example.myot.ticket.book.model.BookDetailResponse
 import com.example.myot.ticket.book.model.BookIndexResponse
 import retrofit2.Response
 import retrofit2.http.GET
@@ -18,4 +19,10 @@ interface BookService {
         @Header("Authorization") token: String,
         @Path("musicalId") id: Int
     ): Response<BookIndexResponse>
+
+    @GET("api/ticketbook/count/{musicalId}")
+    suspend fun getTicketBookCount(
+        @Header("Authorization") token: String,
+        @Path("musicalId") musicalId: Int
+    ): Response<BookDetailResponse>
 }

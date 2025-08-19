@@ -22,4 +22,5 @@ object RetrofitClient {
     val authService: AuthService = retrofit.create(AuthService::class.java)
     val signupCommunityService: SignupCommunityService = retrofit.create(SignupCommunityService::class.java)
     val bookService: BookService = retrofit.create(BookService::class.java)
+    val calendarService: CalendarService = retrofit.create(CalendarService::class.java)
 }
