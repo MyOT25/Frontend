@@ -1,6 +1,16 @@
 package com.example.myot.feed.adapter
 
+import android.util.Log
+
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.example.myot.retrofit2.TokenStore
+import com.example.myot.retrofit2.RetrofitClient
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -43,6 +53,9 @@ class FeedViewHolder(
     private val onItemClick: (FeedItem) -> Unit,
     private val onDeleteRequest: (Long) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
+
+    private var likeInFlight = false
+    private var bookmarkInFlight = false
 
     fun bind(item: FeedItem, isLastItem: Boolean = false) {
         when (binding) {
@@ -89,7 +102,10 @@ class FeedViewHolder(
         tvComment?.text  = item.commentCount.toString()
         tvLike?.text     = item.likeCount.toString()
         tvRepost?.text   = item.repostCount.toString()
-        tvQuote?.text    = item.quoteCount.toString()
+        tvQuote?.text    = item.bookmarkCount.toString()
+
+        updateLikeColor(tvLike, ivLike, item.isLiked)
+        updateBookmarkColor(tvQuote, ivQuote, item.isBookmarked)
 
 
         if (item.userHandle.isNullOrBlank()) {
@@ -205,15 +221,113 @@ class FeedViewHolder(
             }
         }
 
-        // 좋아요/제개시/인용 클릭 이벤트
-        val likeToggle = {
-            item.isLiked = !item.isLiked
-            item.likeCount += if (item.isLiked) 1 else -1
-            tvLike?.text = item.likeCount.toString()
-            updateLikeColor(tvLike!!, ivLike!!, item.isLiked)
+        // 좋아요 기능
+        val likeClickListener = View.OnClickListener {
+            val tv = tvLike ?: return@OnClickListener
+            val iv = ivLike ?: return@OnClickListener
+            if (likeInFlight) return@OnClickListener
+            likeInFlight = true
+            tv.isEnabled = false
+            iv.isEnabled = false
+
+            val prevLiked = item.isLiked
+            val prevCount = item.likeCount
+            item.isLiked = !prevLiked
+            item.likeCount = kotlin.math.max(0, prevCount + if (item.isLiked) 1 else -1)
+            tv.text = item.likeCount.toString()
+            updateLikeColor(tv, iv, item.isLiked)
+
+            val activity = findFragmentActivity(b.root.context)
+            if (activity == null) {
+                // 롤백: lifecycleOwner 없음
+                item.isLiked = prevLiked
+                item.likeCount = prevCount
+                tv.text = item.likeCount.toString()
+                updateLikeColor(tv, iv, item.isLiked)
+                likeInFlight = false
+                tv.isEnabled = true
+                iv.isEnabled = true
+                Toast.makeText(b.root.context, "화면 컨텍스트를 찾을 수 없어요.", Toast.LENGTH_SHORT).show()
+                return@OnClickListener
+            }
+
+            activity.lifecycleScope.launch {
+                try {
+                    val raw = TokenStore.loadAccessToken(activity)
+                    if (raw.isNullOrBlank()) {
+                        // 롤백: 로그인 필요
+                        item.isLiked = prevLiked
+                        item.likeCount = prevCount
+                        tv.text = item.likeCount.toString()
+                        updateLikeColor(tv, iv, item.isLiked)
+                        likeInFlight = false
+                        tv.isEnabled = true
+                        iv.isEnabled = true
+                        android.widget.Toast.makeText(activity, "로그인이 필요합니다.", android.widget.Toast.LENGTH_SHORT).show()
+                    } else {
+                        val cleaned = raw.trim()
+                            .removePrefix("Bearer ")
+                            .trim()
+                            .removeSurrounding("\"")
+                        val bearer = "Bearer $cleaned"
+
+                        if (item.id <= 0L) {
+                            // 롤백: 잘못된 게시글 ID
+                            item.isLiked = prevLiked
+                            item.likeCount = prevCount
+                            tv.text = item.likeCount.toString()
+                            updateLikeColor(tv, iv, item.isLiked)
+                            likeInFlight = false
+                            tv.isEnabled = true
+                            iv.isEnabled = true
+                            android.widget.Toast.makeText(activity, "유효하지 않은 게시글입니다.", android.widget.Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+
+                        val res = withContext(Dispatchers.IO) {
+                            RetrofitClient.feedService.toggleLike(bearer, item.id)
+                        }
+                        if (res.isSuccessful) {
+                            // 토글 API 특성상 새로운 상태는 이전 상태의 반대가 되어야 함
+                            val newLiked = !prevLiked
+                            item.isLiked = newLiked
+                            item.likeCount = kotlin.math.max(0, prevCount + if (newLiked) 1 else -1)
+                            tv.text = item.likeCount.toString()
+                            updateLikeColor(tv, iv, item.isLiked)
+
+                            res.body()?.message?.takeIf { it.isNotBlank() }?.let {
+                                android.widget.Toast.makeText(activity, it, android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            // 롤백: HTTP 에러
+                            item.isLiked = prevLiked
+                            item.likeCount = prevCount
+                            tv.text = item.likeCount.toString()
+                            updateLikeColor(tv, iv, item.isLiked)
+                            val errMsg = withContext(Dispatchers.IO) { res.errorBody()?.string() }?.take(120) ?: ""
+                            android.widget.Toast.makeText(
+                                activity,
+                                "좋아요 처리 실패 (${res.code()}) ${errMsg}",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    // 롤백: 예외
+                    item.isLiked = prevLiked
+                    item.likeCount = prevCount
+                    tv.text = item.likeCount.toString()
+                    updateLikeColor(tv, iv, item.isLiked)
+                    android.widget.Toast.makeText(activity, "네트워크 오류: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                } finally {
+                    likeInFlight = false
+                    tv.isEnabled = true
+                    iv.isEnabled = true
+                }
+            }
         }
-        tvLike?.setOnClickListener { likeToggle() }
-        ivLike?.setOnClickListener { likeToggle() }
+        tvLike?.setOnClickListener(likeClickListener)
+        ivLike?.setOnClickListener(likeClickListener)
 
         val repostToggle = {
             item.isReposted = !item.isReposted
@@ -224,14 +338,114 @@ class FeedViewHolder(
         tvRepost?.setOnClickListener { repostToggle() }
         ivRepost?.setOnClickListener { repostToggle() }
 
-        val quoteToggle = {
-            item.isQuoted = !item.isQuoted
-            item.quoteCount += if (item.isQuoted) 1 else -1
-            tvQuote?.text = item.quoteCount.toString()
-            updateQuoteColor(tvQuote!!, ivQuote!!, item.isQuoted)
+        val bookmarkClickListener = View.OnClickListener {
+            val tv = tvQuote ?: return@OnClickListener
+            val iv = ivQuote ?: return@OnClickListener
+            if (bookmarkInFlight) return@OnClickListener
+            bookmarkInFlight = true
+            tv.isEnabled = false
+            iv.isEnabled = false
+
+            val prevBookmarked = item.isBookmarked
+            val prevCount = item.bookmarkCount
+            // Optimistic UI
+            item.isBookmarked = !prevBookmarked
+            item.bookmarkCount = kotlin.math.max(0, prevCount + if (item.isBookmarked) 1 else -1)
+            tv.text = item.bookmarkCount.toString()
+            updateBookmarkColor(tv, iv, item.isBookmarked)
+
+            val activity = findFragmentActivity(b.root.context)
+            if (activity == null) {
+                // 롤백: lifecycleOwner 없음
+                item.isBookmarked = prevBookmarked
+                item.bookmarkCount = prevCount
+                tv.text = item.bookmarkCount.toString()
+                updateBookmarkColor(tv, iv, item.isBookmarked)
+                bookmarkInFlight = false
+                tv.isEnabled = true
+                iv.isEnabled = true
+                Toast.makeText(b.root.context, "화면 컨텍스트를 찾을 수 없어요.", Toast.LENGTH_SHORT).show()
+                return@OnClickListener
+            }
+
+            activity.lifecycleScope.launch {
+                try {
+                    val raw = TokenStore.loadAccessToken(activity)
+                    if (raw.isNullOrBlank()) {
+                        // 롤백: 로그인 필요
+                        item.isBookmarked = prevBookmarked
+                        item.bookmarkCount = prevCount
+                        tv.text = item.bookmarkCount.toString()
+                        updateBookmarkColor(tv, iv, item.isBookmarked)
+                        bookmarkInFlight = false
+                        tv.isEnabled = true
+                        iv.isEnabled = true
+                        android.widget.Toast.makeText(activity, "로그인이 필요합니다.", android.widget.Toast.LENGTH_SHORT).show()
+                    } else {
+                        val cleaned = raw.trim()
+                            .removePrefix("Bearer ")
+                            .trim()
+                            .removeSurrounding("\"")
+                        val bearer = "Bearer $cleaned"
+
+                        if (item.id <= 0L) {
+                            // 롤백: 잘못된 게시글 ID
+                            item.isBookmarked = prevBookmarked
+                            item.bookmarkCount = prevCount
+                            tv.text = item.bookmarkCount.toString()
+                            updateBookmarkColor(tv, iv, item.isBookmarked)
+                            bookmarkInFlight = false
+                            tv.isEnabled = true
+                            iv.isEnabled = true
+                            android.widget.Toast.makeText(activity, "유효하지 않은 게시글입니다.", android.widget.Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+
+                        val res = withContext(Dispatchers.IO) {
+                            if (!prevBookmarked) RetrofitClient.feedService.addBookmark(bearer, item.id)
+                            else RetrofitClient.feedService.deleteBookmark(bearer, item.id)
+                        }
+                        if (res.isSuccessful) {
+                            // 성공: 토글 확정
+                            val newBookmarked = !prevBookmarked
+                            item.isBookmarked = newBookmarked
+                            item.bookmarkCount = kotlin.math.max(0, prevCount + if (newBookmarked) 1 else -1)
+                            tv.text = item.bookmarkCount.toString()
+                            updateBookmarkColor(tv, iv, item.isBookmarked)
+
+                            res.body()?.message?.takeIf { it.isNotBlank() }?.let {
+                                android.widget.Toast.makeText(activity, it, android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            // 롤백: HTTP 에러
+                            item.isBookmarked = prevBookmarked
+                            item.bookmarkCount = prevCount
+                            tv.text = item.bookmarkCount.toString()
+                            updateBookmarkColor(tv, iv, item.isBookmarked)
+                            val errMsg = withContext(Dispatchers.IO) { res.errorBody()?.string() }?.take(120) ?: ""
+                            android.widget.Toast.makeText(
+                                activity,
+                                "북마크 처리 실패 (${res.code()}) ${errMsg}",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    // 롤백: 예외
+                    item.isBookmarked = prevBookmarked
+                    item.bookmarkCount = prevCount
+                    tv.text = item.bookmarkCount.toString()
+                    updateBookmarkColor(tv, iv, item.isBookmarked)
+                    android.widget.Toast.makeText(activity, "네트워크 오류: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                } finally {
+                    bookmarkInFlight = false
+                    tv.isEnabled = true
+                    iv.isEnabled = true
+                }
+            }
         }
-        tvQuote?.setOnClickListener { quoteToggle() }
-        ivQuote?.setOnClickListener { quoteToggle() }
+        tvQuote?.setOnClickListener(bookmarkClickListener)
+        ivQuote?.setOnClickListener(bookmarkClickListener)
 
         // 팝업 메뉴 띄우기
         ivOverflow?.setOnClickListener { showOverflowPopup(it, item) }
@@ -244,8 +458,8 @@ class FeedViewHolder(
             ivLike to "like",
             tvRepost to "repost",
             ivRepost to "repost",
-            tvQuote to "quote",
-            ivQuote to "quote"
+            tvQuote to "bookmark",
+            ivQuote to "bookmark"
         ).forEach { (view, type) ->
             view?.setOnLongClickListener {
                 showFeedbackBottomSheet(context, type, item)
@@ -325,6 +539,15 @@ class FeedViewHolder(
         }
     }
 
+    private fun findFragmentActivity(ctx: Context): FragmentActivity? {
+        var current: Context? = ctx
+        while (current is ContextWrapper) {
+            if (current is FragmentActivity) return current
+            current = current.baseContext
+        }
+        return null
+    }
+
     private fun updateLikeColor(textView: TextView?, imageView: ImageView?, liked: Boolean) {
         val context = textView?.context ?: return
         val isDetail = binding is ItemFeedDetailBinding
@@ -342,11 +565,11 @@ class FeedViewHolder(
         imageView?.setColorFilter(color)
     }
 
-    private fun updateQuoteColor(textView: TextView?, imageView: ImageView?, quoted: Boolean) {
+    private fun updateBookmarkColor(textView: TextView?, imageView: ImageView?, bookmarked: Boolean) {
         val context = textView?.context ?: return
         val isDetail = binding is ItemFeedDetailBinding
         val inactiveColor = if (isDetail) R.color.gray3 else R.color.gray2
-        val color = context.getColor(if (quoted) R.color.point_purple else inactiveColor)
+        val color = context.getColor(if (bookmarked) R.color.point_purple else inactiveColor)
         textView.setTextColor(color)
         imageView?.setColorFilter(color)
     }
@@ -521,68 +744,126 @@ class FeedViewHolder(
 
         dialog.window?.setDimAmount(0.1f)
 
-        // 피드백 더미 데이터
-        val likeUsers = List(17) { "user${it + 1}" }
-        val repostUsers = List(22) { "user${it + 11}" }
-        val quoteFeeds = listOf(
-            FeedItem(
-                username = "인용러A",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "이 피드를 인용해서 작성한 피드입니다!",
-                quotedFeed = feedItem
-            ),
-            FeedItem(
-                username = "인용러B",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "또 다른 사용자가 이 피드를 인용했어요.".repeat(10),
-                quotedFeed = feedItem
-            ),
-            FeedItem(
-                username = "인용러C",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "인용했어요",
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=2",
-                    "https://picsum.photos/300/200?random=3",
-                    "https://picsum.photos/300/200?random=3",
-                    "https://picsum.photos/300/200?random=3"
-                ),
-                quotedFeed = feedItem
-            )
-        )
+        val activity = context as? FragmentActivity ?: return
 
-        val adapter = FeedbackPagerAdapter(
-            context as FragmentActivity,
-            likeUsers,
-            repostUsers,
-            quoteFeeds,
+        // 어댑터 1회만 생성하고, 이후 submit* 메서드로 채움
+        val pagerAdapter = FeedbackPagerAdapter(
+            activity,
             dialog
-        ) {
-            dialog.dismiss()
-        }
-        viewPager.adapter = adapter
-
+        ) { dialog.dismiss() }
+        viewPager.adapter = pagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "좋아요"
-                1 -> "재게시"
-                2 -> "인용"
-                else -> ""
-            }
+            tab.text = when (position) { 0 -> "좋아요"; 1 -> "재게시"; 2 -> "인용"; else -> "" }
         }.attach()
 
-        viewPager.setCurrentItem(
-            when (defaultType) {
-                "like" -> 0
-                "repost" -> 1
-                "quote" -> 2
-                else -> 0
-            }, false
-        )
+        val startIndex = when (defaultType) {
+            "like" -> 0
+            "repost" -> 1
+            "quote", "bookmark" -> 2
+            else -> 0
+        }
+        viewPager.setCurrentItem(startIndex, false)
+        viewPager.offscreenPageLimit = 3
+
+        // Lazy-load 플래그
+        var likesLoaded = false
+        var repostsLoaded = false
+
+        // 공통: 토큰 준비
+        suspend fun getBearer(): String {
+            val raw = TokenStore.loadAccessToken(activity)
+            return raw?.trim()
+                ?.removePrefix("Bearer ")
+                ?.trim()
+                ?.removeSurrounding("\"")
+                ?.let { "Bearer $it" }
+                ?: ""
+        }
+
+        // 좋아요 로딩
+        fun loadLikes() {
+            if (likesLoaded || feedItem.id <= 0L) return
+            activity.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getPostLikes(
+                            token = bearer,
+                            postId = feedItem.id,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (res.isSuccessful) {
+                        val body = res.body()
+
+                        val raw: List<com.example.myot.feed.data.PostLikeUser> =
+                            body?.success?.users ?: emptyList()
+
+                        val ui = raw.map { u ->
+                            com.example.myot.feed.model.FeedbackUserUi(
+                                nickname = u.nickname ?: "",
+                                loginId = null,
+                                profileImage = u.profileImage
+                            )
+                        }
+
+                        pagerAdapter.submitLikeUsers(ui)
+                        likesLoaded = true
+                    }
+                } catch (_: Exception) { }
+            }
+        }
+
+        // 재게시 로딩
+        fun loadReposts() {
+            if (repostsLoaded || feedItem.id <= 0L) return
+            activity.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getRepostedUsers(
+                            token = bearer,
+                            postId = feedItem.id,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (res.isSuccessful) {
+                        val entries = res.body()?.success.orEmpty()
+                        val ui = entries.mapNotNull { e ->
+                            val u = e.user ?: return@mapNotNull null
+                            com.example.myot.feed.model.FeedbackUserUi(
+                                nickname = u.nickname ?: u.loginId ?: "",
+                                loginId = u.loginId,
+                                profileImage = u.profileImage
+                            )
+                        }
+                        pagerAdapter.submitRepostUsers(ui)
+                        repostsLoaded = true
+                    }
+                } catch (_: Exception) { }
+            }
+        }
+
+        // 처음 눌러 들어온 탭만 즉시 로딩
+        when (defaultType) {
+            "like" -> loadLikes()
+            "repost" -> loadReposts()
+            "quote" -> {} // 필요시 구현
+            else -> loadLikes()
+        }
+
+        // 옆으로 넘길 때 해당 탭 Lazy-Load
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                when (position) {
+                    0 -> loadLikes()
+                    1 -> loadReposts()
+                }
+            }
+        })
 
         dialog.setOnShowListener {
             val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)

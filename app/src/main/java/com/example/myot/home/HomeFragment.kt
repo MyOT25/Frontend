@@ -67,7 +67,8 @@ class HomeFragment : Fragment() {
                     commentCount = 0,
                     likeCount = 0,
                     repostCount = 0,
-                    quoteCount = 0
+                    bookmarkCount = 0,
+                    isBookmarked = false
                 )
 
                 feedList.add(0, newFeed)
@@ -233,7 +234,9 @@ class HomeFragment : Fragment() {
             commentCount = commentCount ?: 0,
             likeCount = likeCount ?: 0,
             repostCount = repostCount ?: 0,
-            quoteCount = 0,
+            bookmarkCount = bookmarkCount ?: 0,
+            isLiked = postLikes ?: false,
+            isBookmarked = postBookmarks ?: false,
             profileImageUrl = user?.profileImage,
             communityCoverUrl = community?.coverImage,
             userHandle = null
@@ -390,7 +393,8 @@ class HomeFragment : Fragment() {
                     Toast.makeText(requireContext(), "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
-                val bearer = if (raw.startsWith("Bearer ")) raw else "Bearer $raw"
+                val cleaned = raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
+                val bearer = "Bearer $cleaned"
 
                 val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
                     com.example.myot.retrofit2.RetrofitClient.homeFeedService.getHomeFeed(bearer)
@@ -425,7 +429,8 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val raw = TokenStore.loadAccessToken(requireContext()) ?: return@launch
-                val bearer = if (raw.startsWith("Bearer ")) raw else "Bearer $raw"
+                val cleaned = raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
+                val bearer = "Bearer $cleaned"
 
                 val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
                     RetrofitClient.feedService.deletePost(bearer, postId)

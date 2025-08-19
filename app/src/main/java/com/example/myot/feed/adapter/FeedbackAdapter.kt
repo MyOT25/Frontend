@@ -3,15 +3,18 @@ package com.example.myot.feed.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.myot.R
+import com.example.myot.feed.model.FeedbackUserUi
 
-class FeedbackAdapter(private val users: List<String>) :
+class FeedbackAdapter(private var users: List<FeedbackUserUi>) :
     RecyclerView.Adapter<FeedbackAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivProfile = itemView.findViewById<ImageView?>(R.id.iv_profile)
         val tvUsername = itemView.findViewById<TextView>(R.id.tv_username)
         val tvUserid = itemView.findViewById<TextView>(R.id.tv_userid)
         val tvDescription = itemView.findViewById<TextView>(R.id.tv_description)
@@ -19,25 +22,51 @@ class FeedbackAdapter(private val users: List<String>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
+        val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_feedback, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(v)
     }
 
     override fun getItemCount(): Int = users.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val name = users[position]
-        holder.tvUsername.text = "$name"
-        holder.tvUserid.text = "@$name"
-        holder.tvDescription.text = "설명설명설명설명설명설명"
+        val u = users[position]
 
-        // 예시: 팔로우 버튼 토글
-        var isFollowing = false
-        holder.btnFollow.setOnClickListener {
-            isFollowing = !isFollowing
-            holder.btnFollow.text = if (isFollowing) "팔로잉" else "팔로우"
-            holder.btnFollow.isSelected = isFollowing
+        holder.tvUsername.text = u.nickname
+
+        val id = u.loginId?.trim().orEmpty()
+        if (id.isBlank()) {
+            holder.tvUserid.visibility = View.INVISIBLE
+        } else {
+            holder.tvUserid.visibility = View.VISIBLE
+            holder.tvUserid.text = if (id.startsWith("@")) id else "@$id"
         }
+
+        holder.tvDescription.visibility = View.INVISIBLE
+
+        holder.ivProfile?.let { iv ->
+            if (u.profileImage.isNullOrBlank()) {
+                iv.setImageResource(R.drawable.ic_no_profile)
+            } else {
+                Glide.with(iv)
+                    .load(u.profileImage)
+                    .placeholder(R.drawable.ic_no_profile)
+                    .error(R.drawable.ic_no_profile)
+                    .circleCrop()
+                    .into(iv)
+            }
+        }
+
+        var following = false
+        holder.btnFollow.setOnClickListener {
+            following = !following
+            holder.btnFollow.text = if (following) "팔로잉" else "팔로우"
+            holder.btnFollow.isSelected = following
+        }
+    }
+
+    fun submitUsers(newUsers: List<FeedbackUserUi>) {
+        users = newUsers
+        notifyDataSetChanged()
     }
 }

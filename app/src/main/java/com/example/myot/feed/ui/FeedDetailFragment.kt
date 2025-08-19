@@ -21,6 +21,7 @@ import com.example.myot.feed.model.CommentItem
 import com.example.myot.feed.model.FeedItem
 import com.example.myot.feed.adapter.FeedDetailAdapter
 import com.example.myot.feed.model.toFeedItem
+import com.example.myot.feed.model.toCommentItem
 import com.example.myot.retrofit2.RetrofitClient
 import com.example.myot.retrofit2.TokenStore
 import kotlinx.coroutines.launch
@@ -101,28 +102,61 @@ class FeedDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val raw = TokenStore.loadAccessToken(requireContext())
-                val bearer = raw?.let { if (it.startsWith("Bearer ")) it else "Bearer $it" } ?: ""
+                val bearer = raw?.trim()
+                    ?.removePrefix("Bearer ")
+                    ?.trim()
+                    ?.removeSurrounding("\"")
+                    ?.let { "Bearer $it" }
+                    ?: ""
+
                 if (postIdArg <= 0L) {
                     return@launch
                 }
-                val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    com.example.myot.retrofit2.RetrofitClient.feedService.getPostDetail(bearer, postIdArg)
+
+                // 1) 게시글 상세
+                val detailRes = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    RetrofitClient.feedService.getPostDetail(bearer, postIdArg)
                 }
-                if (res.isSuccessful) {
-                    val data = res.body()?.data
+
+                var feedForUi: FeedItem = baseItem
+                if (detailRes.isSuccessful) {
+                    val data = detailRes.body()?.data
                     if (data != null) {
-                        val mapped = data.toFeedItem()
-                        binding.rvFeedDetail.adapter = FeedDetailAdapter(
-                            feedItem = mapped,
-                            comments = commentList,
-                            onDeleteRequest = { postId -> requestDeletePost(postId) }
+                        val mappedRaw = data.toFeedItem()
+                        // 홈에서 넘어온 fallback과 상세 응답을 병합하여 초기 상태 고정
+                        val resolvedLiked = data.isLiked ?: feedItemArg?.isLiked ?: mappedRaw.isLiked
+                        val resolvedLikeCount = data.likeCount ?: feedItemArg?.likeCount ?: mappedRaw.likeCount
+                        feedForUi = mappedRaw.copy(
+                            isLiked = resolvedLiked,
+                            likeCount = resolvedLikeCount
                         )
                     } else {
                         Toast.makeText(requireContext(), "상세 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(requireContext(), "상세 불러오기 실패 (${res.code()})", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "상세 불러오기 실패 (${detailRes.code()})", Toast.LENGTH_SHORT).show()
                 }
+
+                // 2) 댓글 목록 (success 배열 기반)
+                var commentsForUi: List<CommentItem> = emptyList()
+                val commentsRes = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    RetrofitClient.feedService.getPostComments(bearer, postIdArg)
+                }
+                if (commentsRes.isSuccessful) {
+                    val list = commentsRes.body()?.success ?: emptyList()
+                    commentsForUi = list.map { it.toCommentItem() }
+                    // 댓글 수 동기화
+                    feedForUi = feedForUi.copy(commentCount = commentsForUi.size)
+                } else {
+                    Toast.makeText(requireContext(), "댓글 불러오기 실패 (${commentsRes.code()})", Toast.LENGTH_SHORT).show()
+                }
+
+                // 3) 어댑터 갱신
+                binding.rvFeedDetail.adapter = FeedDetailAdapter(
+                    feedItem = feedForUi,
+                    comments = commentsForUi,
+                    onDeleteRequest = { postId -> requestDeletePost(postId) }
+                )
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -175,7 +209,11 @@ class FeedDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val raw = com.example.myot.retrofit2.TokenStore.loadAccessToken(requireContext()) ?: return@launch
-                val bearer = if (raw.startsWith("Bearer ")) raw else "Bearer $raw"
+                val bearer = raw.trim()
+                    .removePrefix("Bearer ")
+                    .trim()
+                    .removeSurrounding("\"")
+                    .let { "Bearer $it" }
 
                 val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
                     com.example.myot.retrofit2.RetrofitClient.feedService.deletePost(bearer, postId)

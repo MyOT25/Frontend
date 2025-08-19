@@ -1,5 +1,7 @@
 package com.example.myot.feed.adapter
 
+import com.bumptech.glide.Glide
+
 import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
@@ -33,6 +35,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.example.myot.retrofit2.TokenStore
+import com.example.myot.retrofit2.RetrofitClient
 class FeedDetailAdapter(
     private val feedItem: FeedItem,
     private val comments: List<CommentItem>,
@@ -98,7 +106,7 @@ class FeedDetailAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: FeedItem, isLastItem: Boolean) {
             if (binding is ItemFeedDetailBinding) {
-                FeedViewHolder(
+                com.example.myot.feed.adapter.FeedViewHolder(
                     binding,
                     onItemClick = {},
                     onDeleteRequest = onDeleteRequest
@@ -113,11 +121,35 @@ class FeedDetailAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         private var isExpanded = false
+        private var likeInFlight = false
 
         fun bind(item: CommentItem, isLast: Boolean, hideUnderline: Boolean)  {
+            // 닉네임 / 시간
             binding.tvUsername.text = item.username
             binding.tvDate.text = item.date
-            binding.tvUserid.text = item.userid
+
+            // 로그인 아이디(@ 접두어 처리, 비어있으면 숨김)
+            val loginId = item.userid
+            if (loginId.isNotBlank()) {
+                binding.tvUserid.visibility = View.VISIBLE
+                binding.tvUserid.text = if (loginId.startsWith("@")) loginId else "@$loginId"
+            } else {
+                binding.tvUserid.text = ""
+                binding.tvUserid.visibility = View.INVISIBLE
+            }
+
+            // 프로필 이미지
+            val url = item.profileImageUrl
+            if (url.isNullOrBlank()) {
+                binding.ivProfile.setImageResource(R.drawable.ic_no_profile)
+            } else {
+                Glide.with(binding.ivProfile)
+                    .load(url)
+                    .placeholder(R.drawable.ic_no_profile)
+                    .error(R.drawable.ic_no_profile)
+                    .circleCrop()
+                    .into(binding.ivProfile)
+            }
 
             val text = item.content
             val isLongText = text.length > 160
@@ -202,10 +234,26 @@ class FeedDetailAdapter(
         }
 
         private fun toggleLike(item: CommentItem) {
-            item.isLiked = !item.isLiked
-            item.likeCount += if (item.isLiked) 1 else -1
+            if (likeInFlight) return
+            likeInFlight = true
+            binding.tvLike.isEnabled = false
+            binding.ivLike.isEnabled = false
+
+            val prevLiked = item.isLiked
+            val prevCount = item.likeCount
+
+            // Optimistic update
+            item.isLiked = !prevLiked
+            item.likeCount = (prevCount + if (item.isLiked) 1 else -1).coerceAtLeast(0)
             binding.tvLike.text = item.likeCount.toString()
             updateColor(binding.tvLike, binding.ivLike, item.isLiked, R.color.point_pink)
+
+            // TODO: 댓글 좋아요 API가 정해지면 여기서 네트워크 호출 후 성공/실패에 따라 유지/롤백 처리
+            // 현재는 UI 일관성/중복 클릭 방지 목적의 가드만 제공
+
+            likeInFlight = false
+            binding.tvLike.isEnabled = true
+            binding.ivLike.isEnabled = true
         }
 
         private fun toggleRepost(item: CommentItem) {
@@ -295,42 +343,15 @@ class FeedDetailAdapter(
 
             val tabLayout = view.findViewById<TabLayout>(R.id.tab_feedback)
             val viewPager = view.findViewById<ViewPager2>(R.id.vp_feedback)
-
             dialog.window?.setDimAmount(0.1f)
 
-            // 댓글 피드백 더미 데이터
-            val likeUsers = List(8) { "user${it + 1}" }
-            val repostUsers = List(3) { "user${it + 11}" }
+            val activity = context as? FragmentActivity ?: return
 
-
-            val quoteFeeds = listOf(
-                FeedItem(
-                    username = "댓글인용러1",
-                    community = feedItem.community,
-                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                    content = "이 댓글을 인용한 피드입니다.",
-                    quotedFeed = feedItem
-                ),
-                FeedItem(
-                    username = "댓글인용러2",
-                    community = feedItem.community,
-                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                    content = "이 댓글을 인용한 또다른 피드입니다.".repeat(5),
-                    quotedFeed = feedItem
-                )
-
-            )
-
-            val adapter = FeedbackPagerAdapter(
-                context as FragmentActivity,
-                likeUsers,
-                repostUsers,
-                quoteFeeds,
+            val pagerAdapter = FeedbackPagerAdapter(
+                activity,
                 dialog
-            ) {
-                dialog.dismiss()
-            }
-            viewPager.adapter = adapter
+            ) { dialog.dismiss() }
+            viewPager.adapter = pagerAdapter
 
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 tab.text = when (position) {
@@ -341,25 +362,83 @@ class FeedDetailAdapter(
                 }
             }.attach()
 
-            viewPager.setCurrentItem(
-                when (defaultType) {
-                    "like" -> 0
-                    "repost" -> 1
-                    "quote" -> 2
-                    else -> 0
-                }, false
-            )
+            val startIndex = when (defaultType) {
+                "like" -> 0
+                "repost" -> 1
+                "quote", "bookmark" -> 2
+                else -> 0
+            }
+            viewPager.setCurrentItem(startIndex, false)
+            viewPager.offscreenPageLimit = 3
+
+            // API 호출
+            activity.lifecycleScope.launch {
+                try {
+                    val raw = TokenStore.loadAccessToken(activity)
+                    val bearer = raw?.trim()
+                        ?.removePrefix("Bearer ")
+                        ?.trim()
+                        ?.removeSurrounding("\"")
+                        ?.let { "Bearer $it" } ?: ""
+
+                    if (feedItem.id <= 0L) return@launch
+
+                    // 1) 좋아요 사용자
+                    val likesRes = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getPostLikes(
+                            token = bearer,
+                            postId = feedItem.id,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (likesRes.isSuccessful) {
+                        val users = likesRes.body()?.success?.users.orEmpty()
+
+                        val likeUsersUi = users.map {
+                            com.example.myot.feed.model.FeedbackUserUi(
+                                nickname = it.nickname ?: "",
+                                loginId = null, // 좋아요 응답엔 loginId 없음
+                                profileImage = it.profileImage
+                            )
+                        }
+                        pagerAdapter.submitLikeUsers(likeUsersUi)
+                    }
+
+                    // 2) 재게시 사용자
+                    val repostRes = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getRepostedUsers(
+                            token = bearer,
+                            postId = feedItem.id,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (repostRes.isSuccessful) {
+                        val entries = repostRes.body()?.success ?: emptyList()
+                        val repostUsersUi = entries.mapNotNull { entry ->
+                            val u = entry.user ?: return@mapNotNull null
+                            com.example.myot.feed.model.FeedbackUserUi(
+                                nickname = u.nickname ?: u.loginId ?: "",
+                                loginId = u.loginId,
+                                profileImage = u.profileImage
+                            )
+                        }
+                        pagerAdapter.submitRepostUsers(repostUsersUi)
+                    }
+                } catch (_: Exception) {
+                    // 조용히 무시(원하면 토스트)
+                }
+            }
 
             dialog.setOnShowListener {
                 val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 bottomSheet?.let {
                     val behavior = BottomSheetBehavior.from(it as FrameLayout)
-
                     val screenHeight = context.resources.displayMetrics.heightPixels
                     val maxHeight = (screenHeight * 0.97).toInt()
                     it.layoutParams.height = maxHeight
                     it.requestLayout()
-
                     behavior.peekHeight = (500 * context.resources.displayMetrics.density).toInt()
                     behavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     behavior.skipCollapsed = false

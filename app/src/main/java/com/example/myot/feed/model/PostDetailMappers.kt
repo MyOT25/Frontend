@@ -15,6 +15,9 @@ fun PostDetailData.toFeedItem(): FeedItem {
         commentCount = commentCount ?: 0,
         likeCount = likeCount ?: 0,
         repostCount = repostCount ?: 0,
+        bookmarkCount = bookmarkCount ?: 0,
+        isLiked = isLiked ?: false,
+        isBookmarked = false,
         profileImageUrl = user.profileImage,
         communityCoverUrl = community?.coverImage,
         userHandle = null

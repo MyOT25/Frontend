@@ -1,48 +1,46 @@
 package com.example.myot.feed.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.feed.adapter.FeedbackAdapter
+import com.example.myot.feed.model.FeedbackUserUi
 
 class FeedbackListFragment : Fragment() {
 
-    private lateinit var userList: List<String>
+    private val userList = mutableListOf<FeedbackUserUi>()
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: FeedbackAdapter
 
     companion object {
-        fun newInstance(data: List<String>): FeedbackListFragment {
-            val fragment = FeedbackListFragment()
-            val args = Bundle()
-            args.putStringArrayList("data", ArrayList(data))
-            fragment.arguments = args
-            return fragment
-        }
+        fun newInstance(): FeedbackListFragment = FeedbackListFragment()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        userList = arguments?.getStringArrayList("data") ?: emptyList()
-    }
-
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: android.view.LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): android.view.View {
         val root = FrameLayout(requireContext())
-        val recyclerView = RecyclerView(requireContext()).apply {
+        adapter = FeedbackAdapter(userList)
+        recyclerView = RecyclerView(requireContext()).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = FeedbackAdapter(userList)
+            adapter = this@FeedbackListFragment.adapter
             layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
         root.addView(recyclerView)
-
         return root
     }
 
+    fun submitUsers(newUsers: List<FeedbackUserUi>) {
+        userList.clear()
+        userList.addAll(newUsers)
+        if (this::adapter.isInitialized) adapter.notifyDataSetChanged()
+    }
 }

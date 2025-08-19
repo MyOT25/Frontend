@@ -13,16 +13,22 @@ import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.DialogImageViewBinding
 import com.example.myot.feed.adapter.FeedbackPagerAdapter
 import com.example.myot.feed.model.FeedItem
+import com.example.myot.retrofit2.RetrofitClient
+import com.example.myot.retrofit2.TokenStore
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -172,48 +178,14 @@ class ImageDialogFragment(
 
         dialog.window?.setDimAmount(0.1f)
 
-        // 피드백 더미 데이터
-        val likeUsers = List(10) { "user_like_${it + 1}" }
-        val repostUsers = List(8) { "user_repost_${it + 1}" }
-        val quoteFeeds = listOf(
-            FeedItem(
-                username = "인용러A",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "이 피드를 인용해서 작성한 피드입니다!",
-                quotedFeed = feedItem
-            ),
-            FeedItem(
-                username = "인용러B",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "또 다른 사용자가 이 피드를 인용했어요.".repeat(10),
-                quotedFeed = feedItem
-            ),
-            FeedItem(
-                username = "인용러C",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "인용했어요",
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=2",
-                    "https://picsum.photos/300/200?random=3",
-                    "https://picsum.photos/300/200?random=3",
-                    "https://picsum.photos/300/200?random=3"
-                ),
-                quotedFeed = feedItem
-            )
+        // 어댑터: 빈 상태로 시작 (API 응답으로 채움)
+        val fa = context as? FragmentActivity ?: return
+        val pagerAdapter = FeedbackPagerAdapter(
+            fa = fa,
+            dialog = dialog,
+            onFeedClick = onFeedClick
         )
-
-        val adapter = FeedbackPagerAdapter(
-            context as FragmentActivity,
-            likeUsers,
-            repostUsers,
-            quoteFeeds,
-            dialog,
-            onFeedClick
-        )
-        viewPager.adapter = adapter
+        viewPager.adapter = pagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
@@ -232,6 +204,67 @@ class ImageDialogFragment(
                 else -> 0
             }, false
         )
+
+        // 좋아요/재게시 목록 API 호출하여 어댑터에 주입
+        fa.lifecycleScope.launch {
+            try {
+                val raw = TokenStore.loadAccessToken(fa)
+                val bearer = raw?.trim()
+                    ?.removePrefix("Bearer ")
+                    ?.trim()
+                    ?.removeSurrounding("\"")
+                    ?.let { "Bearer $it" }
+                    ?: ""
+
+                if (feedItem.id > 0L) {
+                    // 1) 좋아요 목록
+                    val likesRes = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getPostLikes(
+                            token = bearer,
+                            postId = feedItem.id,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (likesRes.isSuccessful) {
+                        val users = likesRes.body()?.success?.users.orEmpty()
+                        val likeUsersUi = users.map {
+                            com.example.myot.feed.model.FeedbackUserUi(
+                                nickname = it.nickname ?: "",
+                                loginId = null, // 좋아요 응답에는 로그인 아이디 없음
+                                profileImage = it.profileImage
+                            )
+                        }
+                        pagerAdapter.submitLikeUsers(likeUsersUi)
+                    }
+
+                    // 2) 재게시 사용자 목록
+                    val repostRes = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getRepostedUsers(
+                            token = bearer,
+                            postId = feedItem.id,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (repostRes.isSuccessful) {
+                        val entries = repostRes.body()?.success.orEmpty()
+                        val repostUsersUi = entries.mapNotNull { e ->
+                            e.user?.let { u ->
+                                com.example.myot.feed.model.FeedbackUserUi(
+                                    nickname = u.nickname ?: u.loginId ?: "",
+                                    loginId = u.loginId,
+                                    profileImage = u.profileImage
+                                )
+                            }
+                        }
+                        pagerAdapter.submitRepostUsers(repostUsersUi)
+                    }
+                }
+            } catch (_: Exception) {
+                // 조용히 실패 처리
+            }
+        }
 
         dialog.setOnShowListener {
             val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
