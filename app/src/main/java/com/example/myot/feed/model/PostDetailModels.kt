@@ -16,6 +16,7 @@ data class PostDetailData(
     val bookmarkCount: Int?,
     val isBookmarked: Boolean?,
     val isRepost: Boolean?,
+    var isCommented: Boolean = false,
     val repostTarget: Any?,
     val user: PostUser,
     val postImages: List<PostImage> = emptyList(),

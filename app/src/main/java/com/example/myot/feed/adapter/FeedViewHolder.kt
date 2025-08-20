@@ -112,7 +112,8 @@
 
             updateLikeColor(tvLike, ivLike, item.isLiked)
             updateBookmarkColor(tvQuote, ivQuote, item.isBookmarked)
-
+            updateRepostColor(tvRepost, ivRepost, item.isReposted)
+            updateCommentColor(tvComment, ivComment, item.isCommented)
 
             if (item.userHandle.isNullOrBlank()) {
                 tvUserId?.apply {
@@ -570,12 +571,19 @@
             textView.setTextColor(color)
             imageView?.setColorFilter(color)
         }
-
         private fun updateBookmarkColor(textView: TextView?, imageView: ImageView?, bookmarked: Boolean) {
             val context = textView?.context ?: return
             val isDetail = binding is ItemFeedDetailBinding
             val inactiveColor = if (isDetail) R.color.gray3 else R.color.gray2
             val color = context.getColor(if (bookmarked) R.color.point_purple else inactiveColor)
+            textView.setTextColor(color)
+            imageView?.setColorFilter(color)
+        }
+        private fun updateCommentColor(textView: TextView?, imageView: ImageView?, commented: Boolean) {
+            val context = textView?.context ?: return
+            val isDetail = binding is ItemFeedDetailBinding
+            val inactiveColor = if (isDetail) R.color.gray3 else R.color.gray2
+            val color = context.getColor(if (commented) R.color.point_green else inactiveColor)
             textView.setTextColor(color)
             imageView?.setColorFilter(color)
         }
@@ -843,7 +851,8 @@
                                 com.example.myot.feed.model.FeedbackUserUi(
                                     nickname = u.nickname ?: "",
                                     loginId = u.loginId,
-                                    profileImage = u.profileImage
+                                    profileImage = u.profileImage,
+                                    userId = u.id
                                 )
                             }
 
@@ -875,7 +884,8 @@
                                 com.example.myot.feed.model.FeedbackUserUi(
                                     nickname = u.nickname ?: u.loginId ?: "",
                                     loginId = u.loginId,
-                                    profileImage = u.profileImage
+                                    profileImage = u.profileImage,
+                                    userId = u.id
                                 )
                             }
                             pagerAdapter.submitRepostUsers(ui)

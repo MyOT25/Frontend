@@ -130,18 +130,20 @@ class FeedDetailFragment : Fragment() {
                     val data = detailRes.body()?.data
                     if (data != null) {
                         val mappedRaw = data.toFeedItem()
-                        // 홈에서 넘어온 fallback과 상세 응답을 병합하여 초기 상태 고정
                         val resolvedLiked = data.isLiked ?: feedItemArg?.isLiked ?: mappedRaw.isLiked
                         val resolvedLikeCount = data.likeCount ?: feedItemArg?.likeCount ?: mappedRaw.likeCount
-                        // ✅ 북마크 병합 (상세가 우선, 없으면 fallback → mappedRaw)
                         val resolvedBookmarked = data.isBookmarked ?: feedItemArg?.isBookmarked ?: mappedRaw.isBookmarked
                         val resolvedBookmarkCount = data.bookmarkCount ?: feedItemArg?.bookmarkCount ?: mappedRaw.bookmarkCount
+                        val resolvedReposted = data.isRepost ?: feedItemArg?.isReposted ?: mappedRaw.isReposted
+                        val resolvedCommented = feedItemArg?.isCommented ?: mappedRaw.isCommented
 
                         feedForUi = mappedRaw.copy(
                             isLiked = resolvedLiked,
                             likeCount = resolvedLikeCount,
                             isBookmarked = resolvedBookmarked,
-                            bookmarkCount = resolvedBookmarkCount
+                            bookmarkCount = resolvedBookmarkCount,
+                            isReposted = resolvedReposted,
+                            isCommented = resolvedCommented
                         )
                         headerForUi = feedForUi
                     } else {

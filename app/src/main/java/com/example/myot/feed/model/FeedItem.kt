@@ -22,6 +22,7 @@ data class FeedItem(
     var isReposted: Boolean = false,
     var isQuoted: Boolean = false,
     var isBookmarked: Boolean = false,
+    var isCommented: Boolean = false,
 
     val profileImageUrl: String? = null,
     val communityCoverUrl: String? = null,
@@ -35,5 +36,6 @@ data class FeedItem(
 data class FeedbackUserUi(
     val nickname: String,
     val loginId: String? = null,
-    val profileImage: String? = null
+    val profileImage: String? = null,
+    val userId: Long? = null
 ) : Parcelable

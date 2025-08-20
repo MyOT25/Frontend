@@ -354,10 +354,7 @@ class FeedDetailAdapter(
                 transaction.addToBackStack(null)
                 transaction.commit()
             }
-
         }
-
-
 
         private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem) {
             val dialog = BottomSheetDialog(context)
@@ -422,7 +419,8 @@ class FeedDetailAdapter(
                             com.example.myot.feed.model.FeedbackUserUi(
                                 nickname = it.nickname ?: "",
                                 loginId = it.loginId,
-                                profileImage = it.profileImage
+                                profileImage = it.profileImage,
+                                userId = it.id
                             )
                         }
                         pagerAdapter.submitLikeUsers(likeUsersUi)
@@ -444,7 +442,8 @@ class FeedDetailAdapter(
                             com.example.myot.feed.model.FeedbackUserUi(
                                 nickname = u.nickname ?: u.loginId ?: "",
                                 loginId = u.loginId,
-                                profileImage = u.profileImage
+                                profileImage = u.profileImage,
+                                userId = u.id
                             )
                         }
                         pagerAdapter.submitRepostUsers(repostUsersUi)

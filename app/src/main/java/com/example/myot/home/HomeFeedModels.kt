@@ -20,6 +20,8 @@ data class HomeFeedPost(
     val likeCount: Int?,
     val repostCount: Int?,
     val bookmarkCount: Int?,
+    val postComments: Boolean?,
+    val reposts: Boolean?,
     val isRepost: Boolean?,
     val repostType: String?,
     val user: HomeFeedUser?,

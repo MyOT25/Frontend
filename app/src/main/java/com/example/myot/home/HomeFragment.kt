@@ -238,6 +238,8 @@ class HomeFragment : Fragment() {
             bookmarkCount = bookmarkCount ?: 0,
             isLiked = postLikes ?: false,
             isBookmarked = postBookmarks ?: false,
+            isReposted   = reposts ?: false,
+            isCommented  = postComments ?: false,
             profileImageUrl = user?.profileImage,
             communityCoverUrl = community?.coverImage,
             userHandle = null

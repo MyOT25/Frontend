@@ -22,6 +22,8 @@ fun PostDetailData.toFeedItem(): FeedItem {
         bookmarkCount = bookmarkCount ?: 0,
         isLiked = isLiked ?: false,
         isBookmarked = isBookmarked ?: false,
+        isReposted = isRepost ?: false,
+        isCommented = false,
         profileImageUrl = user.profileImage,
         communityCoverUrl = community?.coverImage,
         userHandle = handle

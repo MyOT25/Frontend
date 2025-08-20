@@ -47,6 +47,7 @@ class ImageDialogFragment(
     private var isLiked = false
     private var isReposted = false
     private var isQuoted = false
+    private var isCommented = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -120,6 +121,7 @@ class ImageDialogFragment(
         isLiked = feedItem.isLiked
         isReposted = feedItem.isReposted
         isQuoted = feedItem.isQuoted
+        isCommented = feedItem.isCommented
 
         updateFeedbackViews()
 
@@ -263,7 +265,8 @@ class ImageDialogFragment(
                             com.example.myot.feed.model.FeedbackUserUi(
                                 nickname = it.nickname ?: "",
                                 loginId = it.loginId,
-                                profileImage = it.profileImage
+                                profileImage = it.profileImage,
+                                userId = it.id
                             )
                         }
                         pagerAdapter.submitLikeUsers(likeUsersUi)
@@ -293,7 +296,8 @@ class ImageDialogFragment(
                                 com.example.myot.feed.model.FeedbackUserUi(
                                     nickname = u.nickname ?: u.loginId ?: "",
                                     loginId = u.loginId,
-                                    profileImage = u.profileImage
+                                    profileImage = u.profileImage,
+                                    userId = u.id
                                 )
                             }
                         }
@@ -349,6 +353,7 @@ class ImageDialogFragment(
         updateLikeColor(binding.tvLike, binding.ivLike, isLiked)
         updateRepostColor(binding.tvRepost, binding.ivRepost, isReposted)
         updateQuoteColor(binding.tvQuote, binding.ivQuote, isQuoted)
+        updateCommentColor(binding.tvComment, binding.ivComment, isCommented)
     }
 
     private fun updateLikeColor(textView: TextView?, imageView: ImageView?, liked: Boolean) {
@@ -369,6 +374,13 @@ class ImageDialogFragment(
         val context = textView?.context ?: return
         val color = context.getColor(if (quoted) R.color.point_purple else R.color.white)
         textView.setTextColor(color)
+        imageView?.setColorFilter(color)
+    }
+
+    private fun updateCommentColor(textView: TextView?, imageView: ImageView?, commented: Boolean) {
+        val context = (textView ?: imageView)?.context ?: return
+        val color = context.getColor(if (commented) R.color.point_green else R.color.white)
+        textView?.setTextColor(color)
         imageView?.setColorFilter(color)
     }
 
