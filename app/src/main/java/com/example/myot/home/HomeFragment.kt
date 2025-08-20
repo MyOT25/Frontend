@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.myot.MainActivity
 import com.example.myot.R
 import com.example.myot.community.ui.CommunityFragment
 import com.example.myot.databinding.FragmentHomeBinding

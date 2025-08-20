@@ -19,7 +19,9 @@ import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.DialogImageViewBinding
 import com.example.myot.feed.adapter.FeedbackPagerAdapter
+import com.example.myot.feed.data.QuoteApi
 import com.example.myot.feed.model.FeedItem
+import com.example.myot.feed.model.toFeedItemWithQuoted
 import com.example.myot.retrofit2.RetrofitClient
 import com.example.myot.retrofit2.TokenStore
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -168,7 +170,12 @@ class ImageDialogFragment(
         imageView.setOnLongClickListener { longClickAction() }
     }
 
-    private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem, onFeedClick: () -> Unit ) {
+    private fun showFeedbackBottomSheet(
+        context: Activity,
+        defaultType: String,
+        feedItem: FeedItem,
+        onFeedClick: () -> Unit
+    ) {
         val dialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.bottomsheet_feed_feedback, null)
         dialog.setContentView(view)
@@ -178,7 +185,6 @@ class ImageDialogFragment(
 
         dialog.window?.setDimAmount(0.1f)
 
-        // 어댑터: 빈 상태로 시작 (API 응답으로 채움)
         val fa = context as? FragmentActivity ?: return
         val pagerAdapter = FeedbackPagerAdapter(
             fa = fa,
@@ -188,46 +194,71 @@ class ImageDialogFragment(
         viewPager.adapter = pagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "좋아요"
-                1 -> "재게시"
-                2 -> "인용"
-                else -> ""
-            }
+            tab.text = when (position) { 0 -> "좋아요"; 1 -> "재게시"; 2 -> "인용"; else -> "" }
         }.attach()
 
-        viewPager.setCurrentItem(
-            when (defaultType) {
-                "like" -> 0
-                "repost" -> 1
-                "quote" -> 2
-                else -> 0
-            }, false
-        )
+        val startIndex = when (defaultType) {
+            "like" -> 0
+            "repost" -> 1
+            "quote", "bookmark" -> 2
+            else -> 0
+        }
+        viewPager.setCurrentItem(startIndex, false)
+        viewPager.offscreenPageLimit = 3
 
-        // 좋아요/재게시 목록 API 호출하여 어댑터에 주입
-        fa.lifecycleScope.launch {
-            try {
-                val raw = TokenStore.loadAccessToken(fa)
-                val bearer = raw?.trim()
-                    ?.removePrefix("Bearer ")
-                    ?.trim()
-                    ?.removeSurrounding("\"")
-                    ?.let { "Bearer $it" }
-                    ?: ""
+        // ★ Lazy-load 플래그
+        var likesLoaded = false
+        var repostsLoaded = false
+        var quotesLoaded = false
 
-                if (feedItem.id > 0L) {
-                    // 1) 좋아요 목록
-                    val likesRes = withContext(Dispatchers.IO) {
+        // ★ 공통 토큰
+        suspend fun getBearer(): String {
+            val raw = TokenStore.loadAccessToken(fa)
+            return raw?.trim()
+                ?.removePrefix("Bearer ")
+                ?.trim()
+                ?.removeSurrounding("\"")
+                ?.let { "Bearer $it" } ?: ""
+        }
+
+        // ★ 인용 로딩
+        fun loadQuotes() {
+            if (quotesLoaded || (feedItem.id ?: -1L) <= 0L) return
+            fa.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
+                        RetrofitClient.retrofit.create(QuoteApi::class.java)
+                            .getQuotedPosts(bearer, feedItem.id!!)
+                    }
+                    val ui = (res.success ?: emptyList()).map { dto ->
+                        dto.toFeedItemWithQuoted(feedItem)
+                    }
+                    viewPager.post { pagerAdapter.submitQuoteFeeds(ui) }
+                } catch (_: Exception) {
+                    viewPager.post { pagerAdapter.submitQuoteFeeds(emptyList()) }
+                } finally {
+                    quotesLoaded = true
+                }
+            }
+        }
+
+        // ★ 좋아요 로딩
+        fun loadLikes() {
+            if (likesLoaded || (feedItem.id ?: -1L) <= 0L) return
+            fa.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
                         RetrofitClient.feedService.getPostLikes(
                             token = bearer,
-                            postId = feedItem.id,
+                            postId = feedItem.id!!,
                             page = 1,
                             limit = 20
                         )
                     }
-                    if (likesRes.isSuccessful) {
-                        val users = likesRes.body()?.success?.users.orEmpty()
+                    if (res.isSuccessful) {
+                        val users = res.body()?.success?.users.orEmpty()
                         val likeUsersUi = users.map {
                             com.example.myot.feed.model.FeedbackUserUi(
                                 nickname = it.nickname ?: "",
@@ -237,18 +268,26 @@ class ImageDialogFragment(
                         }
                         pagerAdapter.submitLikeUsers(likeUsersUi)
                     }
+                } catch (_: Exception) { } finally { likesLoaded = true }
+            }
+        }
 
-                    // 2) 재게시 사용자 목록
-                    val repostRes = withContext(Dispatchers.IO) {
+        // ★ 재게시 로딩
+        fun loadReposts() {
+            if (repostsLoaded || (feedItem.id ?: -1L) <= 0L) return
+            fa.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
                         RetrofitClient.feedService.getRepostedUsers(
                             token = bearer,
-                            postId = feedItem.id,
+                            postId = feedItem.id!!,
                             page = 1,
                             limit = 20
                         )
                     }
-                    if (repostRes.isSuccessful) {
-                        val entries = repostRes.body()?.success.orEmpty()
+                    if (res.isSuccessful) {
+                        val entries = res.body()?.success.orEmpty()
                         val repostUsersUi = entries.mapNotNull { e ->
                             e.user?.let { u ->
                                 com.example.myot.feed.model.FeedbackUserUi(
@@ -260,17 +299,32 @@ class ImageDialogFragment(
                         }
                         pagerAdapter.submitRepostUsers(repostUsersUi)
                     }
-                }
-            } catch (_: Exception) {
-                // 조용히 실패 처리
+                } catch (_: Exception) { } finally { repostsLoaded = true }
             }
         }
+
+        // ★ 시작 탭 즉시 로드
+        when (startIndex) {
+            0 -> loadLikes()
+            1 -> loadReposts()
+            2 -> loadQuotes()
+        }
+
+        // ★ 스와이프 시에도 로드
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                when (position) {
+                    0 -> loadLikes()
+                    1 -> loadReposts()
+                    2 -> loadQuotes()
+                }
+            }
+        })
 
         dialog.setOnShowListener {
             val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             bottomSheet?.let {
                 val behavior = BottomSheetBehavior.from(it as FrameLayout)
-
                 val screenHeight = context.resources.displayMetrics.heightPixels
                 val maxHeight = (screenHeight * 0.64).toInt()
                 it.layoutParams.height = maxHeight
@@ -283,7 +337,6 @@ class ImageDialogFragment(
                 behavior.isHideable = true
             }
         }
-
         dialog.show()
     }
 

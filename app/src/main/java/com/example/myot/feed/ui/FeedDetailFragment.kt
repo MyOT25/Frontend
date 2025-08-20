@@ -346,13 +346,26 @@ class FeedDetailFragment : Fragment() {
             }
         )
     }
+
+    override fun onPause() {
+        super.onPause()
+        (activity as? com.example.myot.MainActivity)?.apply {
+            hideKeyboardAndClearFocus()
+            hideCommentBar()
+        }
+    }
+
     override fun onDestroyView() {
+        (activity as? com.example.myot.MainActivity)?.apply {
+            hideKeyboardAndClearFocus()
+            hideCommentBar()
+        }
+
         super.onDestroyView()
 
         val nextFragment = parentFragmentManager.findFragmentById(R.id.fragment_container_view)
-
         if (nextFragment !is com.example.myot.profile.ProfileFragment &&
-            nextFragment !is CommentDetailFragment
+            nextFragment !is com.example.myot.comment.ui.CommentDetailFragment
         ) {
             requireActivity().findViewById<View>(R.id.top_bar).visibility = View.VISIBLE
         }
