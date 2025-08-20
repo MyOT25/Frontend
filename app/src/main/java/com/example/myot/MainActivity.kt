@@ -235,7 +235,8 @@ class MainActivity : AppCompatActivity() {
     fun showCommentBar(
         scrollable: View,
         hint: String = "댓글을 입력하세요",
-        onSend: (String, Boolean) -> Unit
+        onSend: (String, Boolean) -> Unit,
+        allowAnonymous: Boolean = true
     ) {
         // 바텀 네비 숨기고 댓글바/스페이서 보이기
         binding.bottomNavigationView.visibility = View.INVISIBLE
@@ -249,22 +250,29 @@ class MainActivity : AppCompatActivity() {
         binding.commentBottomSpacer.bringToFront()
         binding.commentBottomSpacer.translationZ = 23f
 
-        // 힌트/커서(깜빡임) 끄기
-        binding.commentBar.etComment.hint = null
+        // 입력창은 보이되 자동 포커스/자동 키보드는 열지 않는다.
+        binding.commentBar.etComment.hint = hint
         binding.commentBar.etComment.clearFocus()
         binding.commentBar.etComment.isCursorVisible = false
         binding.commentBar.etComment.setOnFocusChangeListener { v, has ->
             (v as android.widget.EditText).isCursorVisible = has
         }
         binding.commentBar.etComment.setOnClickListener {
-            it.requestFocus()
+            it.requestFocus() // 눌렀을 때만 포커스 및 키보드
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
         }
 
         var isAnonymous = false
         fun applyProfileIcon() {
-            binding.commentBar.ivProfile.setImageResource(
-                if (isAnonymous) R.drawable.ic_profile_anonymous else R.drawable.ic_profile
-            )
+            if (allowAnonymous) {
+                binding.commentBar.ivProfile.visibility = View.VISIBLE
+                binding.commentBar.ivProfile.setImageResource(
+                    if (isAnonymous) R.drawable.ic_profile_anonymous else R.drawable.ic_profile
+                )
+            } else {
+                binding.commentBar.ivProfile.visibility = View.GONE
+            }
         }
 
         binding.commentBar.btnSend.setOnClickListener {
@@ -303,6 +311,7 @@ class MainActivity : AppCompatActivity() {
 
         applyProfileIcon()
         binding.commentBar.ivProfile.setOnClickListener {
+            if (!allowAnonymous) return@setOnClickListener
             isAnonymous = !isAnonymous
             applyProfileIcon()
         }
@@ -342,7 +351,7 @@ class MainActivity : AppCompatActivity() {
         androidx.core.view.ViewCompat.setWindowInsetsAnimationCallback(
             content,
             object : androidx.core.view.WindowInsetsAnimationCompat.Callback(
-                androidx.core.view.WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE
+                DISPATCH_MODE_CONTINUE_ON_SUBTREE
             ) {
                 override fun onProgress(
                     insets: androidx.core.view.WindowInsetsCompat,
@@ -400,7 +409,4 @@ class MainActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
-
-
-
 }

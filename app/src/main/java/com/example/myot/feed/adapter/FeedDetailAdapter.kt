@@ -31,36 +31,54 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.example.myot.retrofit2.TokenStore
 import com.example.myot.retrofit2.RetrofitClient
+
 class FeedDetailAdapter(
     private val feedItem: FeedItem,
-    private val comments: List<CommentItem>,
-    private val onDeleteRequest: (Long) -> Unit
+    private val comments: MutableList<CommentItem>,
+    private val onDeleteRequest: (Long) -> Unit,
+    private val onCommentClick: (() -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
     private val underlineHiddenPositions = mutableSetOf<Int>()
 
+    private var headerCommentCountOverride: Int? = null
+
+    fun incrementHeaderCommentCount() {
+        val base = feedItem.commentCount ?: 0
+        val newCount = (headerCommentCountOverride ?: base) + 1
+        headerCommentCountOverride = newCount
+        notifyItemChanged(0)
+    }
+
+    fun prependComment(newItem: CommentItem) {
+        comments.add(0, newItem)
+        recomputeUnderlineHiddenPositions()
+        notifyItemInserted(1)
+    }
+
     init {
-        for (i in 1 until comments.size) {
-            if (extractMentionedUserid(comments[i].content) != null) {
-                underlineHiddenPositions.add(i - 1)
-            }
-        }
+        recomputeUnderlineHiddenPositions()
     }
 
     private fun extractMentionedUserid(text: String): String? {
         val regex = Regex("@\\w+")
         return regex.find(text)?.value
+    }
+
+    private fun recomputeUnderlineHiddenPositions() {
+        underlineHiddenPositions.clear()
+        for (i in 1 until comments.size) {
+            if (extractMentionedUserid(comments[i].content) != null) {
+                underlineHiddenPositions.add(i - 1)
+            }
+        }
     }
 
     companion object {
@@ -99,18 +117,23 @@ class FeedDetailAdapter(
         }
     }
 
-
-    class FeedViewHolder(
+    inner class FeedViewHolder(
         private val binding: ViewBinding,
         private val onDeleteRequest: (Long) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: FeedItem, isLastItem: Boolean) {
             if (binding is ItemFeedDetailBinding) {
+                val itemForBind = if (headerCommentCountOverride != null) {
+                    item.copy(commentCount = headerCommentCountOverride!!)
+                } else item
+
+                // 기존 내부 뷰홀더 바인딩 (그대로 유지)
                 com.example.myot.feed.adapter.FeedViewHolder(
                     binding,
                     onItemClick = {},
-                    onDeleteRequest = onDeleteRequest
-                ).bind(item, isLastItem)
+                    onDeleteRequest = onDeleteRequest,
+                    onCommentClick = onCommentClick
+                ).bind(itemForBind, isLastItem)
             }
         }
     }
@@ -248,9 +271,6 @@ class FeedDetailAdapter(
             binding.tvLike.text = item.likeCount.toString()
             updateColor(binding.tvLike, binding.ivLike, item.isLiked, R.color.point_pink)
 
-            // TODO: 댓글 좋아요 API가 정해지면 여기서 네트워크 호출 후 성공/실패에 따라 유지/롤백 처리
-            // 현재는 UI 일관성/중복 클릭 방지 목적의 가드만 제공
-
             likeInFlight = false
             binding.tvLike.isEnabled = true
             binding.ivLike.isEnabled = true
@@ -334,7 +354,10 @@ class FeedDetailAdapter(
                 transaction.addToBackStack(null)
                 transaction.commit()
             }
+
         }
+
+
 
         private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem) {
             val dialog = BottomSheetDialog(context)
@@ -448,7 +471,6 @@ class FeedDetailAdapter(
             }
             dialog.show()
         }
-
 
     }
 }

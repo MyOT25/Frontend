@@ -1,4 +1,3 @@
-// SignupStep1Fragment.kt
 package com.example.myot.signup
 
 import SignupStep2Fragment

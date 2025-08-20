@@ -2,6 +2,7 @@
 
     import com.example.myot.feed.model.PostDetailResponse
     import retrofit2.Response
+    import retrofit2.http.Body
     import retrofit2.http.DELETE
     import retrofit2.http.GET
     import retrofit2.http.Header
@@ -26,6 +27,29 @@
         val postId: Long,
         val isBookmarked: Boolean,
         val message: String
+    )
+
+    data class CreateCommentRequest(
+        val content: String
+    )
+
+    data class CreateCommentSuccess(
+        val id: Long,
+        val content: String,
+        val createdAt: String?,
+        val user: CommentUser?
+    )
+    data class CommentUser(
+        val id: Long?,
+        val nickname: String?,
+        val loginId: String?,
+        val profileImage: String?
+    )
+
+    data class CreateCommentResponse(
+        val resultType: String,
+        val error: Any?,
+        val success: CreateCommentSuccess?
     )
 
     data class CommentsListResponse(
@@ -132,4 +156,11 @@
             @Query("page") page: Int = 1,
             @Query("limit") limit: Int = 20
         ): Response<RepostedUsersEnvelope>
+
+        @POST("/api/posts/{postId}/comments")
+        suspend fun createComment(
+            @Header("Authorization") token: String,
+            @Path("postId") postId: Long,
+            @Body body: CreateCommentRequest
+        ): Response<CreateCommentResponse>
     }

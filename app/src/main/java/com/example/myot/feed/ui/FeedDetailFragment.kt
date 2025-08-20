@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.myot.databinding.*
+import com.example.myot.feed.data.CreateCommentRequest
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.R
 import com.example.myot.comment.ui.CommentDetailFragment
@@ -48,11 +49,15 @@ class FeedDetailFragment : Fragment() {
     private var feedItemArg: FeedItem? = null
     private var postIdArg: Long = -1L
 
+    private lateinit var adapter: FeedDetailAdapter
+    private val commentItems = mutableListOf<CommentItem>()
+
     // 새로고침 변수
     private var isRefreshing = false
     private var isDragging = false
     private var startY = 0f
     private val triggerDistance = 150f
+    private var headerForUi: FeedItem? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -63,6 +68,7 @@ class FeedDetailFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.post { openFeedCommentEditor() }
         super.onViewCreated(view, savedInstanceState)
         requireActivity().findViewById<View>(R.id.top_bar).visibility = View.GONE
 
@@ -82,7 +88,7 @@ class FeedDetailFragment : Fragment() {
             community = "",
             commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0
         )
-        val commentList = emptyList<CommentItem>()
+        headerForUi = baseItem
 
         binding.customRefreshView.apply {
             rotation = 0f
@@ -91,10 +97,11 @@ class FeedDetailFragment : Fragment() {
             scaleY = 1f
         }
 
-        val adapter = FeedDetailAdapter(
+        adapter = FeedDetailAdapter(
             feedItem = baseItem,
-            comments = commentList,
-            onDeleteRequest = { postId -> requestDeletePost(postId) }
+            comments = commentItems,
+            onDeleteRequest = { postId -> requestDeletePost(postId) },
+            onCommentClick = { openFeedCommentEditor() }
         )
         binding.rvFeedDetail.layoutManager = LinearLayoutManager(requireContext())
         binding.rvFeedDetail.adapter = adapter
@@ -113,7 +120,7 @@ class FeedDetailFragment : Fragment() {
                     return@launch
                 }
 
-                // 1) 게시글 상세
+                    // 1) 게시글 상세
                 val detailRes = withContext(kotlinx.coroutines.Dispatchers.IO) {
                     RetrofitClient.feedService.getPostDetail(bearer, postIdArg)
                 }
@@ -136,6 +143,7 @@ class FeedDetailFragment : Fragment() {
                             isBookmarked = resolvedBookmarked,
                             bookmarkCount = resolvedBookmarkCount
                         )
+                        headerForUi = feedForUi
                     } else {
                         Toast.makeText(requireContext(), "상세 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
                     }
@@ -153,16 +161,19 @@ class FeedDetailFragment : Fragment() {
                     commentsForUi = list.map { it.toCommentItem() }
                     // 댓글 수 동기화
                     feedForUi = feedForUi.copy(commentCount = commentsForUi.size)
+                    headerForUi = feedForUi
                 } else {
                     Toast.makeText(requireContext(), "댓글 불러오기 실패 (${commentsRes.code()})", Toast.LENGTH_SHORT).show()
                 }
 
-                // 3) 어댑터 갱신
-                binding.rvFeedDetail.adapter = FeedDetailAdapter(
+                adapter = FeedDetailAdapter(
                     feedItem = feedForUi,
-                    comments = commentsForUi,
-                    onDeleteRequest = { postId -> requestDeletePost(postId) }
+                    comments = commentsForUi.toMutableList(),
+                    onDeleteRequest = { postId -> requestDeletePost(postId) },
+                    onCommentClick = { openFeedCommentEditor() }
                 )
+
+                binding.rvFeedDetail.adapter = adapter
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -209,6 +220,7 @@ class FeedDetailFragment : Fragment() {
             }
             false
         }
+
     }
 
     private fun requestDeletePost(postId: Long) {
@@ -253,6 +265,87 @@ class FeedDetailFragment : Fragment() {
         }.show()
     }
 
+    private fun openFeedCommentEditor() {
+        val act = requireActivity() as com.example.myot.MainActivity
+        act.showCommentBar(
+            scrollable = binding.nestedScrollView,
+            hint = "댓글을 입력하세요",
+            allowAnonymous = false,
+            onSend = { text, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        val raw = TokenStore.loadAccessToken(requireContext())
+                        val bearer = raw?.trim()
+                            ?.removePrefix("Bearer ")
+                            ?.trim()
+                            ?.removeSurrounding("\"")
+                            ?.let { "Bearer $it" }
+                            ?: ""
+
+                        val postId = postIdArg
+                        if (postId <= 0L) {
+                            Toast.makeText(requireContext(), "잘못된 게시물입니다.", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+
+                        val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            RetrofitClient.feedService.createComment(
+                                token = bearer,
+                                postId = postId,
+                                body = CreateCommentRequest(content = text)
+                            )
+                        }
+
+                        if (res.isSuccessful && res.body()?.success != null) {
+                            // 작성 성공 후, 최신 댓글 목록 재요청 (이름/프로필/내용까지 채워진 데이터 반영)
+                            val listRes = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                RetrofitClient.feedService.getPostComments(bearer, postId)
+                            }
+                            if (listRes.isSuccessful) {
+                                val freshComments = listRes.body()?.success?.map { it.toCommentItem() } ?: emptyList()
+
+                                // 헤더 댓글 수 반영
+                                val newHeader = (headerForUi ?: FeedItem(
+                                    id = postId,
+                                    username = "",
+                                    content = "",
+                                    imageUrls = emptyList(),
+                                    date = "",
+                                    community = "",
+                                    commentCount = 0,
+                                    likeCount = 0,
+                                    repostCount = 0,
+                                    quoteCount = 0
+                                )).copy(
+                                    commentCount = freshComments.size
+                                )
+                                headerForUi = newHeader
+
+                                // 어댑터 갱신
+                                adapter = FeedDetailAdapter(
+                                    feedItem = newHeader,
+                                    comments = freshComments.toMutableList(),
+                                    onDeleteRequest = { pid -> requestDeletePost(pid) },
+                                    onCommentClick = { openFeedCommentEditor() }
+                                )
+                                binding.rvFeedDetail.adapter = adapter
+
+                                // 입력창 닫기
+                                act.hideKeyboardAndClearFocus()
+                                act.hideCommentBar()
+                            } else {
+                                Toast.makeText(requireContext(), "댓글 새로고침 실패 (${listRes.code()})", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "댓글 등록 실패 (${res.code()})", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        )
+    }
     override fun onDestroyView() {
         super.onDestroyView()
 

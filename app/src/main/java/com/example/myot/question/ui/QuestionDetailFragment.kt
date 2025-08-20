@@ -99,52 +99,54 @@ class QuestionDetailFragment : Fragment() {
 
         (activity as? MainActivity)?.showCommentBar(
             scrollable = binding.rvQuestionDetail,
-            hint = "댓글을 입력하세요"
-        ) { text, isAnonymous ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                // 댓글 등록
-                repository.createComment(detailItem.id, text, isAnonymous)
-                    .onSuccess {
-                        // 내가 댓글 쓴 상태 반영
-                        commentedSet.add(detailItem.id)
+            hint = "댓글을 입력하세요",
+            onSend = { text, isAnonymous ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    // 댓글 등록
+                    repository.createComment(detailItem.id, text, isAnonymous)
+                        .onSuccess {
+                            // 내가 댓글 쓴 상태 반영
+                            commentedSet.add(detailItem.id)
 
-                        // 최신 댓글 목록 다시 로드
-                        val updatedAnswers = repository.fetchAnswers(detailItem.id).getOrElse { emptyList() }
+                            // 최신 댓글 목록 다시 로드
+                            val updatedAnswers = repository.fetchAnswers(detailItem.id).getOrElse { emptyList() }
 
-                        // 헤더의 댓글 수 +1
-                        val newHeader = (headerItem ?: detailItem).copy(
-                            commentCount = ((headerItem?.commentCount ?: detailItem.commentCount ?: 0) + 1)
-                        )
-                        headerItem = newHeader
+                            // 헤더의 댓글 수 +1
+                            val newHeader = (headerItem ?: detailItem).copy(
+                                commentCount = ((headerItem?.commentCount ?: detailItem.commentCount ?: 0) + 1)
+                            )
+                            headerItem = newHeader
 
-                        adapter = QuestionDetailAdapter(
-                            item = newHeader,
-                            imageUrls = headerImages,
-                            answers = updatedAnswers,
-                            onQuestionLikeClick = likeHandler,
-                            getQuestionLiked = { id -> likedSet.contains(id) },
-                            getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
-                            onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
-                            getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
-                            getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
-                            getQuestionCommented = { id -> commentedSet.contains(id) },
-                            onDeleteClick = { qid -> confirmAndDelete(qid) }
-                        )
-                        binding.rvQuestionDetail.adapter = adapter
-                        adapter.notifyHeaderChanged()
+                            adapter = QuestionDetailAdapter(
+                                item = newHeader,
+                                imageUrls = headerImages,
+                                answers = updatedAnswers,
+                                onQuestionLikeClick = likeHandler,
+                                getQuestionLiked = { id -> likedSet.contains(id) },
+                                getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
+                                onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
+                                getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
+                                getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
+                                getQuestionCommented = { id -> commentedSet.contains(id) },
+                                onDeleteClick = { qid -> confirmAndDelete(qid) }
+                            )
+                            binding.rvQuestionDetail.adapter = adapter
+                            adapter.notifyHeaderChanged()
 
-                        binding.rvQuestionDetail.scrollToPosition(updatedAnswers.size)
+                            binding.rvQuestionDetail.scrollToPosition(updatedAnswers.size)
 
-                        (activity as? MainActivity)?.apply {
-                            hideKeyboardAndClearFocus()
-                            hideCommentBar()
+                            (activity as? MainActivity)?.apply {
+                                hideKeyboardAndClearFocus()
+                                hideCommentBar()
+                            }
                         }
-                    }
-                    .onFailure {
-                        Toast.makeText(requireContext(), "댓글 등록 실패: ${it.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }
-        }
+                        .onFailure {
+                            Toast.makeText(requireContext(), "댓글 등록 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            },
+            allowAnonymous = true
+        )
 
         detailItem = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arguments?.getParcelable("question", QuestionItem::class.java)

@@ -58,15 +58,23 @@ class FeedbackAdapter(private var users: List<FeedbackUserUi>) :
         }
 
         var following = false
+        updateFollowButton(holder.btnFollow, following)
+
         holder.btnFollow.setOnClickListener {
             following = !following
-            holder.btnFollow.text = if (following) "팔로잉" else "팔로우"
-            holder.btnFollow.isSelected = following
+            updateFollowButton(holder.btnFollow, following)
         }
     }
 
-    fun submitUsers(newUsers: List<FeedbackUserUi>) {
-        users = newUsers
-        notifyDataSetChanged()
+    private fun updateFollowButton(btn: TextView, following: Boolean) {
+        if (following) {
+            btn.text = "팔로잉"
+            btn.setBackgroundResource(R.drawable.btn_following_selector)
+            btn.setTextColor(btn.context.getColor(R.color.gray2))
+        } else {
+            btn.text = "팔로우"
+            btn.setBackgroundResource(R.drawable.btn_follow_selector)
+            btn.setTextColor(btn.context.getColor(R.color.btn_follow_text_selector))
+        }
     }
 }

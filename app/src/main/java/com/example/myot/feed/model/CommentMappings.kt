@@ -1,6 +1,7 @@
 package com.example.myot.feed.model
 
 import com.example.myot.feed.data.CommentDto
+import com.example.myot.feed.data.CreateCommentSuccess
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -9,23 +10,30 @@ fun CommentDto.toCommentItem(): CommentItem {
     val loginId = this.user?.loginId ?: this.user?.username ?: ""
 
     return CommentItem(
+        id = this.id, // ← 서버에 id 있으면 그대로
         username = nickname,
         userid = loginId,
         content = this.content.orEmpty(),
         date = displayDateFromIso(this.createdAt),
         profileImageUrl = this.user?.profileImage,
-
-        // 서버 응답에 카운트/상태 정보가 없으므로 기본값으로 세팅
-        commentCount = 0,
-        likeCount = 0,
-        repostCount = 0,
-        quoteCount = 0,
-
-        isLiked = false,
-        isReposted = false,
-        isQuoted = false,
-
+        commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0,
+        isLiked = false, isReposted = false, isQuoted = false,
         isAnonymous = (this.anonymous == true)
+    )
+}
+
+fun CreateCommentSuccess.toCommentItem(): CommentItem {
+    val loginIdText = this.user?.loginId?.takeIf { !it.isNullOrBlank() }
+    val handle = loginIdText?.let { "@$it" }
+    return CommentItem(
+        id = this.id, // ← 생성된 댓글 id
+        username = this.user?.nickname ?: loginIdText ?: "익명",
+        userid = handle ?: "",
+        content = this.content.orEmpty(),
+        date = this.createdAt ?: "",
+        profileImageUrl = this.user?.profileImage,
+        commentCount = 0, likeCount = 0, repostCount = 0, quoteCount = 0,
+        isLiked = false, isReposted = false, isQuoted = false
     )
 }
 

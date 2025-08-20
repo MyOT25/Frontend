@@ -51,7 +51,8 @@ import kotlin.math.max
 class FeedViewHolder(
     private val binding: ViewBinding,
     private val onItemClick: (FeedItem) -> Unit,
-    private val onDeleteRequest: (Long) -> Unit
+    private val onDeleteRequest: (Long) -> Unit,
+    private val onCommentClick: (() -> Unit)? = null
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var likeInFlight = false
@@ -78,6 +79,7 @@ class FeedViewHolder(
         val tvContent  = root.findViewById<TextView>(R.id.tv_content)
         val tvDate     = root.findViewById<TextView>(R.id.tv_date)
         val tvComment  = root.findViewById<TextView>(R.id.tv_comment)
+        val ivComment  = root.findViewById<ImageView?>(R.id.iv_comment)
         val tvLike     = root.findViewById<TextView>(R.id.tv_like)
         val tvRepost   = root.findViewById<TextView>(R.id.tv_repost)
         val tvQuote    = root.findViewById<TextView>(R.id.tv_quote)
@@ -93,6 +95,10 @@ class FeedViewHolder(
         val ivQuote    = root.findViewById<ImageView>(R.id.iv_quote)
         val ivOverflow = root.findViewById<ImageView>(R.id.iv_overflow)
         val ivDivLine  = root.findViewById<View>(R.id.iv_div_line)
+
+        val openCommentEditor = View.OnClickListener { onCommentClick?.invoke() }
+        tvComment?.setOnClickListener(openCommentEditor)
+        ivComment?.setOnClickListener(openCommentEditor)
 
         // 텍스트/카운트
         tvUsername?.text = item.username
