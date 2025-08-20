@@ -804,7 +804,7 @@ class FeedViewHolder(
                         val ui = raw.map { u ->
                             com.example.myot.feed.model.FeedbackUserUi(
                                 nickname = u.nickname ?: "",
-                                loginId = null,
+                                loginId = u.loginId,
                                 profileImage = u.profileImage
                             )
                         }

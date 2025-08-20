@@ -231,7 +231,7 @@ class ImageDialogFragment(
                         val likeUsersUi = users.map {
                             com.example.myot.feed.model.FeedbackUserUi(
                                 nickname = it.nickname ?: "",
-                                loginId = null, // 좋아요 응답에는 로그인 아이디 없음
+                                loginId = it.loginId,
                                 profileImage = it.profileImage
                             )
                         }

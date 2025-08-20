@@ -24,6 +24,7 @@ data class PostDetailData(
 
 data class PostUser(
     val id: Long,
+    val loginId: String?,
     val nickname: String?,
     val profileImage: String?
 )

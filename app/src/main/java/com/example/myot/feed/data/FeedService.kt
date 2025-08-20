@@ -50,6 +50,7 @@
 
     data class PostLikeUser(
         val id: Long?,
+        val loginId: String?,
         val nickname: String?,
         val profileImage: String?
     )

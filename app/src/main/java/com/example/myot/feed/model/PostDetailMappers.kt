@@ -5,9 +5,13 @@ import java.util.*
 
 fun PostDetailData.toFeedItem(): FeedItem {
     val images = postImages.mapNotNull { it.url }.filter { it.isNotBlank() }
+
+    val loginIdText = user.loginId?.takeIf { it.isNotBlank() }
+    val handle = loginIdText?.let { "@$it" }
+
     return FeedItem(
         id = this.id?.toLong() ?: -1L,
-        username = user.nickname ?: "익명",
+        username = user.nickname ?: loginIdText ?: "익명",
         content = content.orEmpty(),
         imageUrls = images,
         date = isoToDisplayDate(createdAt),
@@ -17,10 +21,10 @@ fun PostDetailData.toFeedItem(): FeedItem {
         repostCount = repostCount ?: 0,
         bookmarkCount = bookmarkCount ?: 0,
         isLiked = isLiked ?: false,
-        isBookmarked = false,
+        isBookmarked = isBookmarked ?: false,
         profileImageUrl = user.profileImage,
         communityCoverUrl = community?.coverImage,
-        userHandle = null
+        userHandle = handle
     )
 }
 

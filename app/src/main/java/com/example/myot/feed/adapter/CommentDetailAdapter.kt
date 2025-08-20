@@ -64,6 +64,7 @@ class CommentDetailAdapter(
 
         fun bind(feed: FeedItem, comment: CommentItem) {
 
+            binding.tvFeedUserid.text = feed.userHandle
             binding.tvFeedUsername.text = feed.username
             binding.tvFeedContent.text = if (feed.content.length > 31) {
                 feed.content.substring(0, 31) + "..."

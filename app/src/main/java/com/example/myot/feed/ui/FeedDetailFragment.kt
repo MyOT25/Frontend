@@ -126,9 +126,15 @@ class FeedDetailFragment : Fragment() {
                         // 홈에서 넘어온 fallback과 상세 응답을 병합하여 초기 상태 고정
                         val resolvedLiked = data.isLiked ?: feedItemArg?.isLiked ?: mappedRaw.isLiked
                         val resolvedLikeCount = data.likeCount ?: feedItemArg?.likeCount ?: mappedRaw.likeCount
+                        // ✅ 북마크 병합 (상세가 우선, 없으면 fallback → mappedRaw)
+                        val resolvedBookmarked = data.isBookmarked ?: feedItemArg?.isBookmarked ?: mappedRaw.isBookmarked
+                        val resolvedBookmarkCount = data.bookmarkCount ?: feedItemArg?.bookmarkCount ?: mappedRaw.bookmarkCount
+
                         feedForUi = mappedRaw.copy(
                             isLiked = resolvedLiked,
-                            likeCount = resolvedLikeCount
+                            likeCount = resolvedLikeCount,
+                            isBookmarked = resolvedBookmarked,
+                            bookmarkCount = resolvedBookmarkCount
                         )
                     } else {
                         Toast.makeText(requireContext(), "상세 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
