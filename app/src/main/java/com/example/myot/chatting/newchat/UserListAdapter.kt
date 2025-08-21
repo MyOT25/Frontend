@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+// 유저 어댑터
 class UserListAdapter(
     private val userList: List<User>,
     private val onUserClick: (User) -> Unit

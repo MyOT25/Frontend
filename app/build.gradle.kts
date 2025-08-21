@@ -68,4 +68,6 @@ dependencies {
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
     implementation ("com.google.android.material:material:1.13.0-rc01")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    implementation ("com.google.code.gson:gson:2.9.0") //로그 검사용 json implementation
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")   // OkHttp logging interceptor
 }
