@@ -52,7 +52,7 @@ interface CommunityService {
     suspend fun getMyCommunityProfile(
         @Header("Authorization") token: String,
         @Path("communityId") communityId: Int
-    ): Response<MultiProfilesResponse>
+    ): Response<CommunityProfileResponse>
 
     @GET("api/community/mine")
     suspend fun getMyCommunities(
