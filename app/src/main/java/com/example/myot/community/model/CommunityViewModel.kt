@@ -28,8 +28,6 @@ class CommunityViewModel @Inject constructor(
     val communityMode: StateFlow<CommunityMode> = _communityMode.asStateFlow()
 
     val token = AuthStore.bearerOrThrow()
-    //val token =
-    //    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImxvZ2luSWQiOiJ0ZXN0dXNlcjA1IiwiaWF0IjoxNzU1MjQxNjY3LCJleHAiOjE3NTU4NDY0Njd9.Qa4rVwsUqqYLUNUptvJC4Z-HwA27zMNnlf7K8fwjQEA"
 
     fun setCommunityMode(mode: CommunityMode) {
         _communityMode.value = mode

@@ -106,7 +106,7 @@ class RecordDetailFragment : Fragment() {
                 }
 
                 when (dto) {
-                    is Musical -> dto                                        // 이미 Musical이면 그대로 사용
+                    is Musical -> dto
                     else -> null
                 }
             } catch (e: Exception) {

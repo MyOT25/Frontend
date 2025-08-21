@@ -107,6 +107,11 @@
             android:id="@+id/rv_casting"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
+        
+        <com.example.myot.ticket.book.model.SeatingChartView
+            android:id="@+id/seat_view"
+            android:layout_width="match_parent"
+            android:layout_marginStart="20dp"
+            android:layout_height="600dp"/>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
