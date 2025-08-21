@@ -39,3 +39,4 @@ data class FeedbackUserUi(
     val profileImage: String? = null,
     val userId: Long? = null
 ) : Parcelable
+

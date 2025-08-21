@@ -224,28 +224,70 @@ class HomeFragment : Fragment() {
     }
 
     private fun HomeFeedPost.toFeedItem(): FeedItem {
-        val quotedFeed: FeedItem? = null // 서버 스펙상 인용 필드는 없음
+        val quoted: FeedItem? =
+            if (isRepost == true && repostType == "quote" && repostTarget != null) {
+                val rt = repostTarget
+                val imgs = (rt.postImages ?: emptyList())
+                    .mapNotNull { it.url }
+                    .filter { it.isNullOrBlank().not() }
+
+                FeedItem(
+                    id = rt.id,
+                    username = rt.user?.nickname ?: rt.user?.loginId ?: "익명",
+                    community = rt.community?.type.orEmpty(),
+                    date = formatDate(rt.createdAt),
+                    content = rt.content.orEmpty(),
+                    imageUrls = imgs,
+
+                    commentCount = 0,
+                    likeCount = 0,
+                    repostCount = 0,
+                    quoteCount = 0,
+                    bookmarkCount = 0,
+
+                    isLiked = false,
+                    isReposted = false,
+                    isQuoted = false,
+                    isBookmarked = false,
+                    isCommented = false,
+
+                    profileImageUrl = rt.user?.profileImage,
+                    communityCoverUrl = rt.community?.coverImage,
+                    userHandle = rt.user?.loginId?.let { "@$it" },
+
+                    quotedFeed = null
+                )
+            } else null
+
+        val imgs = (postImages ?: emptyList())
+            .mapNotNull { it.url }
+            .filter { it.isNullOrBlank().not() }
+
         return FeedItem(
-            id = this.id?.toLong() ?: -1L,
-            username = user?.nickname ?: "",
-            content = content ?: "",
-            imageUrls = (postImages ?: emptyList()).mapNotNull { it.url }.filter { it.isNullOrBlank().not() },
+            id = id,
+            username = user?.nickname ?: user?.loginId ?: "익명",
+            community = community?.type.orEmpty(),
             date = formatDate(createdAt),
-            community = community?.type ?: "",     // 필요시 커뮤니티 표시 규칙에 맞게 변경
+            content = content.orEmpty(),
+            imageUrls = imgs,
+
             commentCount = commentCount ?: 0,
             likeCount = likeCount ?: 0,
             repostCount = repostCount ?: 0,
             bookmarkCount = bookmarkCount ?: 0,
+
             isLiked = postLikes ?: false,
             isBookmarked = postBookmarks ?: false,
-            isReposted   = reposts ?: false,
-            isCommented  = postComments ?: false,
+            isReposted = reposts ?: false,
+            isCommented = postComments ?: false,
+
             profileImageUrl = user?.profileImage,
             communityCoverUrl = community?.coverImage,
-            userHandle = null
+            userHandle = user?.loginId?.let { "@$it" },
+
+            quotedFeed = quoted
         )
     }
-
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     private fun renderCommunityStrip(list: List<CommunityUi>) {

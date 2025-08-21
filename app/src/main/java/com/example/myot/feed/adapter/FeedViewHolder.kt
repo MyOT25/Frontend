@@ -501,6 +501,21 @@
                     }
                     val quoteView = inflater.inflate(layoutResId, quoteLayout, false)
                     quoteLayout.addView(quoteView)
+
+                    quoteView.setOnClickListener {
+                        val ctx = b.root.context as? FragmentActivity ?: return@setOnClickListener
+                        val q = item.quotedFeed ?: return@setOnClickListener
+
+                        val fragment = FeedDetailFragment.newInstance(
+                            postId = q.id,
+                            fallbackFeedItem = q
+                        )
+                        ctx.supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container_view, fragment)
+                            .addToBackStack(null)
+                            .commit()
+                    }
+
                     // 텍스트 설정
                     quoteView.findViewById<TextView>(R.id.tv_username)?.text = quoted.username
                     quoteView.findViewById<TextView>(R.id.tv_content)?.let { tv ->
@@ -543,6 +558,7 @@
                 } else {
                     quoteLayout.visibility = View.GONE
                 }
+
             }
         }
 

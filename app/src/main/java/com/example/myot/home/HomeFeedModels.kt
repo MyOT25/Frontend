@@ -28,13 +28,16 @@ data class HomeFeedPost(
     val postImages: List<HomeFeedImage>?,
     val community: HomeFeedCommunity?,
     val postLikes: Boolean?,
-    val postBookmarks: Boolean?
+    val postBookmarks: Boolean?,
+
+    val repostTarget: HomeFeedRepostTarget? = null
 )
 
 data class HomeFeedUser(
     val id: Long?,
     val nickname: String?,
-    val profileImage: String?
+    val profileImage: String?,
+    val loginId: String? = null
 )
 
 data class HomeFeedImage(
@@ -43,6 +46,15 @@ data class HomeFeedImage(
 
 data class HomeFeedCommunity(
     val id: Long?,
-    val type: String?,         // ex) "musical"
+    val type: String?,
     val coverImage: String?
+)
+
+data class HomeFeedRepostTarget(
+    val id: Long,
+    val content: String?,
+    val createdAt: String?,
+    val user: HomeFeedUser?,
+    val postImages: List<HomeFeedImage>?,
+    val community: HomeFeedCommunity?
 )
