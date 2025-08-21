@@ -2,12 +2,14 @@ package com.example.myot.ticket.calendar.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.myot.R
 import com.example.myot.databinding.FragmentCalendarBinding
 import com.example.myot.ticket.calendar.model.CalendarViewModel
+import com.example.myot.ticket.ui.RecordDetailFragment
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.collectLatest
 
@@ -22,11 +24,23 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
         _binding = FragmentCalendarBinding.bind(view)
 
         binding.ticketCalendar.listener = object : TicketCalendarView.Listener {
-            override fun onClickDay(date: java.time.LocalDate, hasRecord: Boolean) {
-                if (hasRecord) {
-                    // TODO: 상세 화면으로 이동
-                    // findNavController().navigate(...)
-                }
+            override fun onClickDay(date: java.time.LocalDate, hasRecord: Boolean) { /* no-op */ }
+
+            override fun onClickPost(postId: Int, musicalTitle: String) {
+
+                val fm = requireActivity().supportFragmentManager
+                fm.beginTransaction()
+                    .replace(
+                        R.id.fragment_container_view,
+                        RecordDetailFragment().apply {
+                            arguments = bundleOf(
+                                "postId" to postId,
+                                "musicalTitle" to musicalTitle
+                            )
+                        }
+                    )
+                    .addToBackStack("RecordDetail")
+                    .commit()
             }
         }
 
@@ -38,16 +52,9 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             vm.ui.collectLatest { state ->
-                binding.tvMonth.text =
-                    state.yearMonth.format(DateTimeFormatter.ofPattern("M월"))
-
-                binding.ticketCalendar.setMonth(
-                    state.yearMonth.year, state.yearMonth.monthValue
-                )
-                binding.ticketCalendar.setRecords(state.records)
-
-                // 필요 시 로딩/에러 UI 처리
-                // binding.progress.isVisible = state.isLoading
+                binding.tvMonth.text = state.yearMonth.format(DateTimeFormatter.ofPattern("M월"))
+                binding.ticketCalendar.setMonth(state.yearMonth.year, state.yearMonth.monthValue)
+                binding.ticketCalendar.setRecords(state.records) // Map<Int, List<RecordCell>>
             }
         }
 

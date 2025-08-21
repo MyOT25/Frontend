@@ -1,8 +1,9 @@
 package com.example.myot.retrofit2
 
-import com.example.myot.ticket.book.model.BookDetailResponse
+import com.example.myot.ticket.model.ApiEnvelope
 import com.example.myot.ticket.model.CastResponse
 import com.example.myot.ticket.model.MusicalSearchResponse
+import com.example.myot.ticket.model.RecordDetailResponse
 import com.example.myot.ticket.model.RecordResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -40,4 +41,10 @@ interface TicketService {
         @Header("Authorization") token: String,
         @Path("musicalId") musicalId: Int
     ): Response<CastResponse>
+
+    @GET("api/viewingrecords/{postId}")
+    suspend fun getViewingRecord(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: Int
+    ): ApiEnvelope<RecordDetailResponse>
 }

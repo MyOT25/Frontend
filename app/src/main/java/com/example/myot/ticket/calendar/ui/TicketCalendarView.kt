@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.myot.R
+import com.example.myot.ticket.calendar.model.RecordCell
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.floor
@@ -54,20 +55,17 @@ class TicketCalendarView @JvmOverloads constructor(
         typeface = ResourcesCompat.getFont(context, R.font.roboto_regular)
     }
 
-    private val weekdayTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = sp(12f)
-        color = Color.parseColor("#8E8E93")
-        typeface = Typeface.DEFAULT_BOLD
+    private val weekdayPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        textSize = sp(10f)
+        color = ContextCompat.getColor(context, R.color.gray3)
+        typeface = ResourcesCompat.getFont(context, R.font.roboto_regular)
         textAlign = Paint.Align.CENTER
     }
-
-    private var weekdayLabels = arrayOf("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
-    fun setWeekdayLabels(labels: List<String>) {
-        if (labels.size == 7) {
-            weekdayLabels = labels.toTypedArray()
-            invalidate()
-        }
+    private var headerH = run {
+        val fm = weekdayPaint.fontMetrics; (fm.descent - fm.ascent) + dp(10f)
     }
+    private var weekdayLabels = arrayOf("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+    fun setWeekdayLabels(labels: List<String>) { if (labels.size == 7) { weekdayLabels = labels.toTypedArray(); invalidate() } }
 
     private val dayTextBounds = Rect()
     private val cellPadding = dp(2f)
@@ -75,56 +73,38 @@ class TicketCalendarView @JvmOverloads constructor(
     private var cellH = 0f
     private val colCount = 7
     private val rowCount = 6
+    private val cellCorner = dp(8f)
 
-    private val cellCorner = dp(3f)
+    private val dayBg: Drawable? by lazy { ContextCompat.getDrawable(context, R.drawable.bg_calendar_day) }
 
-    /** 헤더 높이(텍스트 높이 + 여백) */
-    private var headerH = computeHeaderHeight()
-    private fun computeHeaderHeight(): Float {
-        val fm = weekdayTextPaint.fontMetrics
-        return (fm.descent - fm.ascent) + dp(10f)
-    }
-
-    // 배경 드로어블(각 날짜 칸에 적용)
-    private val dayBg: Drawable? by lazy {
-        ContextCompat.getDrawable(context, R.drawable.bg_calendar_day)
-    }
-
-    // 이미지 캐시
-    private val imageCache: MutableMap<Pair<Int, Int>, Bitmap> = mutableMapOf()
-    // 기록 맵(day -> imageUrl)
-    private val recordMap: MutableMap<Int, List<String>> = mutableMapOf()
+    // ✅ 캐시/데이터
+    private val imageCache: MutableMap<Pair<Int, Int>, Bitmap> = mutableMapOf() // (day, idx) -> bmp
+    private val recordMap: MutableMap<Int, List<RecordCell>> = mutableMapOf()   // day -> cells(max3)
 
     interface Listener {
         fun onClickDay(date: LocalDate, hasRecord: Boolean)
         fun onClickWholeMini() {}
+        fun onClickPost(postId: Int, musicalTitle: String) {} // ✅ postId 전달
     }
     var listener: Listener? = null
 
     fun setMode(m: Mode) { mode = m; invalidate() }
-
     fun setMonth(year: Int, month: Int) {
         ym = YearMonth.of(year, month)
         daysInMonth = ym.lengthOfMonth()
         val first = ym.atDay(1)
-        firstDayIndex = (first.dayOfWeek.value % 7) // Sun->0
-        imageCache.clear()
-        invalidate()
+        firstDayIndex = (first.dayOfWeek.value % 7)
+        imageCache.clear(); invalidate()
     }
-
-    fun setRecords(dayToImageUrls: Map<Int, List<String>>) {
-        recordMap.clear()
-        // 4장 이상이 들어와도 3장으로 자름
-        dayToImageUrls.forEach { (d, urls) ->
-            recordMap[d] = urls.take(3)
-        }
-        invalidate()
+    fun setRecords(dayToCells: Map<Int, List<RecordCell>>) {
+        recordMap.clear(); recordMap.putAll(dayToCells); invalidate()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
         val h = MeasureSpec.getSize(heightMeasureSpec)
-        headerH = computeHeaderHeight()
+        val fm = weekdayPaint.fontMetrics
+        headerH = (fm.descent - fm.ascent) + dp(10f)
         val availH = (h - headerH).coerceAtLeast(0f)
         cellW = w / colCount.toFloat()
         cellH = availH / rowCount.toFloat()
@@ -134,33 +114,20 @@ class TicketCalendarView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         drawWeekHeader(canvas)
-        drawGrid(canvas)
         drawCellsBackground(canvas)
-        drawDays(canvas)
-        drawImages(canvas)
+        drawDays(canvas)    // 숫자: 이미지 없는 날만
+        drawImages(canvas)  // centerCrop 1~3장
     }
 
     private fun drawWeekHeader(canvas: Canvas) {
-        val fm = weekdayTextPaint.fontMetrics
+        val fm = weekdayPaint.fontMetrics
         val baseY = -fm.ascent + dp(2f)
         for (c in 0 until colCount) {
             val cx = c * cellW + cellW / 2f
-            canvas.drawText(weekdayLabels[c], cx, baseY, weekdayTextPaint)
+            canvas.drawText(weekdayLabels[c], cx, baseY, weekdayPaint)
         }
     }
 
-    private fun drawGrid(canvas: Canvas) {
-        for (r in 0..rowCount) {
-            val y = r * cellH
-            canvas.drawLine(0f, y, width.toFloat(), y, gridPaint)
-        }
-        for (c in 0..colCount) {
-            val x = c * cellW
-            canvas.drawLine(x, 0f, x, height.toFloat(), gridPaint)
-        }
-    }
-
-    /** 각 날짜 칸에 bg_calendar_day.xml 그리기 */
     private fun drawCellsBackground(canvas: Canvas) {
         val rect = Rect()
         for (day in 1..daysInMonth) {
@@ -173,8 +140,7 @@ class TicketCalendarView @JvmOverloads constructor(
                 ((c + 1) * cellW).toInt(),
                 (headerH + (r + 1) * cellH).toInt()
             )
-            dayBg?.setBounds(rect)
-            dayBg?.draw(canvas)
+            dayBg?.setBounds(rect); dayBg?.draw(canvas)
         }
     }
 
@@ -182,29 +148,21 @@ class TicketCalendarView @JvmOverloads constructor(
         val fm = dayTextPaint.fontMetrics
         val baseY = -fm.ascent + dp(2f)
         for (day in 1..daysInMonth) {
-            // 일정 있으면 숫자 그리지 않기
-            val hasImages = recordMap[day]?.isNotEmpty() == true
-            if (hasImages) continue
-            
+            if (recordMap[day]?.isNotEmpty() == true) continue // 이미지 있으면 숫자 숨김
             val pos = firstDayIndex + (day - 1)
             val r = pos / colCount
             val c = pos % colCount
-            val cx = c * cellW
-            val cy = headerH + r * cellH
-            val label = day.toString()
-            dayTextPaint.getTextBounds(label, 0, label.length, dayTextBounds)
-            val tx = cx + dp(6f)
-            val ty = cy + baseY
-            canvas.drawText(label, tx, ty, dayTextPaint)
+            val x = c * cellW + dp(6f)
+            val y = headerH + r * cellH + baseY
+            canvas.drawText(day.toString(), x, y, dayTextPaint)
         }
     }
 
     private fun drawImages(canvas: Canvas) {
         for (day in 1..daysInMonth) {
-            val urls = recordMap[day] ?: continue
-            if (urls.isEmpty()) continue
+            val cells = recordMap[day] ?: continue
+            if (cells.isEmpty()) continue
 
-            // 셀 전체 영역(패딩만 남기고 전부 이미지로)
             val pos = firstDayIndex + (day - 1)
             val r = pos / colCount
             val c = pos % colCount
@@ -215,61 +173,54 @@ class TicketCalendarView @JvmOverloads constructor(
                 headerH + (r + 1) * cellH - cellPadding
             )
 
-            // 라운드 클리핑(셀 전체)
-            val cellPath = Path().apply { addRoundRect(outer, cellCorner, cellCorner, Path.Direction.CW) }
+            val path = Path().apply { addRoundRect(outer, cellCorner, cellCorner, Path.Direction.CW) }
             canvas.withSave {
-                canvas.clipPath(cellPath)
-
-                // 타일 rect 계산 (1~3개)
-                val tiles = calcTiles(outer, urls.size)
-
-                // 각 타일에 개별 이미지(centerCrop)
+                canvas.clipPath(path)
+                val tiles = calcTiles(outer, cells.size)
                 tiles.forEachIndexed { idx, tile ->
                     val key = day to idx
-                    val cached = imageCache[key]
-                    if (cached == null) {
+                    val bmp = imageCache[key]
+                    if (bmp == null) {
                         Glide.with(this@TicketCalendarView)
                             .asBitmap()
-                            .load(urls[idx])
+                            .load(cells[idx].imageUrl)
                             .into(object : CustomTarget<Bitmap>() {
                                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                                    imageCache[key] = resource
-                                    invalidate()
+                                    imageCache[key] = resource; invalidate()
                                 }
                                 override fun onLoadCleared(placeholder: Drawable?) {}
                             })
                     } else {
-                        val src = centerCropSrcRect(cached, tile)
-                        canvas.drawBitmap(cached, src, tile, null)
+                        val src = centerCropSrcRect(bmp, tile)
+                        canvas.drawBitmap(bmp, src, tile, null)
                     }
                 }
             }
         }
     }
 
-    /** 1개: 전체 / 2개: 좌우 반반 / 3개: 상단 전체(1/2h) + 하단 좌우 반반 */
-    private fun calcTiles(outer: RectF, count: Int): List<RectF> {
-        return when (count.coerceIn(1, 3)) {
-            1 -> listOf(RectF(outer))
-            2 -> {
-                val midX = (outer.left + outer.right) / 2f
-                listOf(
-                    RectF(outer.left, outer.top, midX, outer.bottom),
-                    RectF(midX, outer.top, outer.right, outer.bottom)
-                )
-            }
-            else -> {
-                val midY = (outer.top + outer.bottom) / 2f
-                val halfY = RectF(outer.left, outer.top, outer.right, midY)           // 상단 전체
-                val midX = (outer.left + outer.right) / 2f
-                val bottomLeft = RectF(outer.left, midY, midX, outer.bottom)         // 하단 좌
-                val bottomRight = RectF(midX, midY, outer.right, outer.bottom)       // 하단 우
-                listOf(halfY, bottomLeft, bottomRight)
-            }
+    /** 1장: 전체 / 2장: 좌우 / 3장: 상단 전체 + 하단 좌우 */
+    private fun calcTiles(outer: RectF, count: Int): List<RectF> = when (count.coerceIn(1, 3)) {
+        1 -> listOf(RectF(outer))
+        2 -> {
+            val midX = (outer.left + outer.right) / 2f
+            listOf(
+                RectF(outer.left, outer.top, midX, outer.bottom),
+                RectF(midX, outer.top, outer.right, outer.bottom)
+            )
+        }
+        else -> {
+            val midY = (outer.top + outer.bottom) / 2f
+            val midX = (outer.left + outer.right) / 2f
+            listOf(
+                RectF(outer.left, outer.top, outer.right, midY),          // idx 0 (상단 전체)
+                RectF(outer.left, midY, midX, outer.bottom),               // idx 1 (하단 좌)
+                RectF(midX, midY, outer.right, outer.bottom)               // idx 2 (하단 우)
+            )
         }
     }
 
-    /** centerCrop: dst를 꽉 채우도록 src를 중앙에서 잘라냄 */
+    /** centerCrop: dst를 꽉 채우도록 src 영역을 중앙에서 잘라냄 */
     private fun centerCropSrcRect(bmp: Bitmap, dst: RectF): Rect {
         val bw = bmp.width.toFloat()
         val bh = bmp.height.toFloat()
@@ -291,27 +242,48 @@ class TicketCalendarView @JvmOverloads constructor(
         when (mode) {
             Mode.MINI -> listener?.onClickWholeMini()
             Mode.DEFAULT -> {
-                // 요일 헤더 영역 클릭은 무시
-                if (event.y < headerH) return true
-
-                val c = (event.x / cellW).toInt().coerceIn(0, colCount - 1)
-                val r = (event.y / cellH).toInt().coerceIn(0, rowCount - 1)
-                val pos = r * colCount + c
+                if (event.y < headerH) return true // 헤더 클릭 무시
+                val col = (event.x / cellW).toInt().coerceIn(0, colCount - 1)
+                val row = ((event.y - headerH) / cellH).toInt().coerceIn(0, rowCount - 1)
+                val pos = row * colCount + col
                 val day = pos - firstDayIndex + 1
-                if (day in 1..daysInMonth) {
-                    val date = ym.atDay(day)
-                    val has = recordMap.containsKey(day)
-                    // ✅ 클릭 확인용 Toast
-                    Toast.makeText(
-                        context,
-                        "Clicked: ${date}  hasRecord=$has",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    listener?.onClickDay(date, has)
+                if (day !in 1..daysInMonth) return true
+
+                val date = ym.atDay(day)
+                val cells = recordMap[day].orEmpty()
+                val has = cells.isNotEmpty()
+
+                // ✅ 어느 타일을 눌렀는지 계산
+                if (has) {
+                    val outer = RectF(
+                        col * cellW + cellPadding,
+                        headerH + row * cellH + cellPadding,
+                        (col + 1) * cellW - cellPadding,
+                        headerH + (row + 1) * cellH - cellPadding
+                    )
+                    val idx = hitTileIndex(cells.size, outer, event.x, event.y).coerceIn(0, cells.size - 1)
+                    listener?.onClickPost(cells[idx].postId,  cells[idx].musicalTitle)
+                } else {
+                    //Toast.makeText(context, "Clicked: $date  (no record)", Toast.LENGTH_SHORT).show()
+                    listener?.onClickDay(date, false)
                 }
             }
         }
         return true
+    }
+
+    /** 터치 좌표 → 타일 index(0..2) */
+    private fun hitTileIndex(count: Int, outer: RectF, x: Float, y: Float): Int = when (count.coerceIn(1, 3)) {
+        1 -> 0
+        2 -> if (x < (outer.left + outer.right) / 2f) 0 else 1
+        else -> {
+            val midY = (outer.top + outer.bottom) / 2f
+            if (y < midY) 0
+            else {
+                val midX = (outer.left + outer.right) / 2f
+                if (x < midX) 1 else 2
+            }
+        }
     }
 
     private fun dp(v: Float) = v * resources.displayMetrics.density
