@@ -10,7 +10,6 @@
         android:id="@+id/iv_actor"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:background="@drawable/ig_community_profile_sample"
         android:clipToOutline="true"
         android:scaleType="fitCenter" />
 

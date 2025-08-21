@@ -7,7 +7,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.myot.R
 import com.example.myot.databinding.ActivityRecordBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class RecordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRecordBinding

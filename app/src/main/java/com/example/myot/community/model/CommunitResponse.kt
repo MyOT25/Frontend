@@ -25,7 +25,7 @@ data class Community(
 )
 
 data class JoinLeaveRequest(
-    val userId: Int,
+    val userId: Long,
     val communityId: Int,
     val action: String,  // "join" or "leave"
     val profileType: String, // "BASIC" or "MULTI"
@@ -82,7 +82,7 @@ data class CommunityProfileResponse(
 
 data class Profile(
     val id: Int,
-    val userId: Int,
+    val userId: Long,
     val communityId: Int,
     val nickname: String,
     val image: String,

@@ -1,27 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:padding="16dp"
-    tools:context=".ticket.ui.RecordFragment">
+    android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/rootContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_change_musical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginBottom="10dp"
-            android:text="관극 변경"
-            android:textColor="@color/point_blue" />
+        <!-- 상단 헤더 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@android:color/white"
+            android:elevation="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <ImageButton
+                android:id="@+id/btn_calendar_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="뒤로가기"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="관극 기록"
+                android:textColor="@color/gray2"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+        </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -29,7 +51,7 @@
             android:paddingVertical="10dp">
 
             <ImageView
-                android:id="@+id/iv_record_info_poster"
+                android:id="@+id/iv_detail_info_poster"
                 android:layout_width="101dp"
                 android:layout_height="133dp"
                 android:src="@drawable/ig_poster_placeholder"
@@ -38,7 +60,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tv_record_info_title"
+                android:id="@+id/tv_detail_info_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -47,12 +69,12 @@
                 android:textColor="@color/gray1"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@+id/iv_record_info_poster"
+                app:layout_constraintStart_toEndOf="@+id/iv_detail_info_poster"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <!-- 장소 -->
             <TextView
-                android:id="@+id/tv_record_info_theater_title"
+                android:id="@+id/tv_detail_info_theater_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -60,11 +82,11 @@
                 android:text="장소:"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/tv_record_info_title"
-                app:layout_constraintTop_toBottomOf="@+id/tv_record_info_title" />
+                app:layout_constraintStart_toStartOf="@+id/tv_detail_info_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_detail_info_title" />
 
             <TextView
-                android:id="@+id/tv_record_info_theater"
+                android:id="@+id/tv_detail_info_theater"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -72,13 +94,13 @@
                 android:text="TextView"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_record_info_theater_title"
-                app:layout_constraintStart_toEndOf="@+id/tv_record_info_theater_title"
-                app:layout_constraintTop_toTopOf="@+id/tv_record_info_theater_title" />
+                app:layout_constraintBottom_toBottomOf="@+id/tv_detail_info_theater_title"
+                app:layout_constraintStart_toEndOf="@+id/tv_detail_info_theater_title"
+                app:layout_constraintTop_toTopOf="@+id/tv_detail_info_theater_title" />
 
             <!-- 기간 -->
             <TextView
-                android:id="@+id/tv_record_info_period_title"
+                android:id="@+id/tv_detail_info_period_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -86,11 +108,11 @@
                 android:text="기간:"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/tv_record_info_title"
-                app:layout_constraintTop_toBottomOf="@+id/tv_record_info_theater_title" />
+                app:layout_constraintStart_toStartOf="@+id/tv_detail_info_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_detail_info_theater_title" />
 
             <TextView
-                android:id="@+id/tv_record_info_period"
+                android:id="@+id/tv_detail_info_period"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -99,24 +121,24 @@
                 android:text="TextView"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_record_info_period_title"
-                app:layout_constraintStart_toEndOf="@+id/tv_record_info_period_title"
-                app:layout_constraintTop_toTopOf="@+id/tv_record_info_period_title" />
+                app:layout_constraintBottom_toBottomOf="@+id/tv_detail_info_period_title"
+                app:layout_constraintStart_toEndOf="@+id/tv_detail_info_period_title"
+                app:layout_constraintTop_toTopOf="@+id/tv_detail_info_period_title" />
 
             <!-- 배우 -->
             <TextView
-                android:id="@+id/tv_record_info_casting_title"
+                android:id="@+id/tv_detail_info_casting_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_regular"
                 android:text="배우:"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/tv_record_info_title"
-                app:layout_constraintTop_toBottomOf="@+id/tv_record_info_period_title" />
+                app:layout_constraintStart_toStartOf="@+id/tv_detail_info_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_detail_info_period_title" />
 
             <TextView
-                android:id="@+id/tv_record_info_casting"
+                android:id="@+id/tv_detail_info_casting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -124,24 +146,24 @@
                 android:text="TextView"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_record_info_casting_title"
-                app:layout_constraintStart_toEndOf="@+id/tv_record_info_casting_title"
-                app:layout_constraintTop_toTopOf="@+id/tv_record_info_casting_title" />
+                app:layout_constraintBottom_toBottomOf="@+id/tv_detail_info_casting_title"
+                app:layout_constraintStart_toEndOf="@+id/tv_detail_info_casting_title"
+                app:layout_constraintTop_toTopOf="@+id/tv_detail_info_casting_title" />
 
             <!-- 평균 별점 -->
             <TextView
-                android:id="@+id/tv_record_info_rating_avg_title"
+                android:id="@+id/tv_detail_info_rating_avg_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_regular"
                 android:text="평균 별점:"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/tv_record_info_title"
-                app:layout_constraintTop_toBottomOf="@+id/tv_record_info_casting_title" />
+                app:layout_constraintStart_toStartOf="@+id/tv_detail_info_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_detail_info_casting_title" />
 
             <TextView
-                android:id="@+id/tv_record_info_rating_avg"
+                android:id="@+id/tv_detail_info_rating_avg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -149,195 +171,169 @@
                 android:text="TextView"
                 android:textColor="@color/gray1"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_record_info_rating_avg_title"
-                app:layout_constraintStart_toEndOf="@+id/tv_record_info_rating_avg_title"
-                app:layout_constraintTop_toTopOf="@+id/tv_record_info_rating_avg_title" />
+                app:layout_constraintBottom_toBottomOf="@+id/tv_detail_info_rating_avg_title"
+                app:layout_constraintStart_toEndOf="@+id/tv_detail_info_rating_avg_title"
+                app:layout_constraintTop_toTopOf="@+id/tv_detail_info_rating_avg_title" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+        <!-- 일시 -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_outer_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
             android:paddingVertical="10dp">
 
             <TextView
-                android:id="@+id/tv_record_date"
+                android:id="@+id/labelDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_semibold"
                 android:text="일시"
+                android:textColor="@color/point_purple"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
-                android:id="@+id/layout_inner_date"
+                android:id="@+id/chipsDate"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_record_date"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintStart_toEndOf="@id/labelDate"
+                app:layout_constraintTop_toTopOf="@id/labelDate">
 
                 <include
-                    android:id="@+id/input_year"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeYear"
+                    layout="@layout/item_record_badge" />
 
                 <include
-                    android:id="@+id/input_month"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeMonth"
+                    layout="@layout/item_record_badge" />
 
                 <include
-                    android:id="@+id/input_day"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeDay"
+                    layout="@layout/item_record_badge" />
 
                 <include
-                    android:id="@+id/input_time"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeTime"
+                    layout="@layout/item_record_badge" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- 좌석 -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_outer_seating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
             android:paddingVertical="10dp">
 
             <TextView
-                android:id="@+id/tv_record_seating"
+                android:id="@+id/labelSeat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_semibold"
                 android:text="좌석"
+                android:textColor="@color/point_purple"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
-                android:id="@+id/layout_inner_seating"
+                android:id="@+id/chipsSeat"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_record_seating"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintStart_toEndOf="@id/labelSeat"
+                app:layout_constraintTop_toTopOf="@id/labelSeat">
 
                 <include
-                    android:id="@+id/input_floor"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeFloor"
+                    layout="@layout/item_record_badge" />
 
                 <include
-                    android:id="@+id/input_zone"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeZone"
+                    layout="@layout/item_record_badge" />
 
                 <include
-                    android:id="@+id/input_row"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeRow"
+                    layout="@layout/item_record_badge" />
 
                 <include
-                    android:id="@+id/input_number"
-                    layout="@layout/item_record_input" />
+                    android:id="@+id/badgeNumber"
+                    layout="@layout/item_record_badge" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- 출연 -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_outer_casting"
+            android:id="@+id/outerCasting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:paddingVertical="10dp" >
+            android:paddingVertical="10dp">
 
             <TextView
-                android:id="@+id/tv_record_casting"
+                android:id="@+id/labelCasting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_semibold"
                 android:text="출연"
+                android:textColor="@color/point_purple"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
-                android:id="@+id/layout_casting_container"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:id="@+id/containerCasting"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                app:chipSpacing="8dp"
                 android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_record_casting"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/labelCasting"
+                app:layout_constraintTop_toTopOf="@id/labelCasting" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- 후기 -->
         <LinearLayout
-            android:id="@+id/layout_inner_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
             android:orientation="horizontal"
             android:paddingVertical="10dp">
 
             <TextView
-                android:id="@+id/tv_record_content"
+                android:id="@+id/labelContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_semibold"
                 android:text="후기"
-                android:textSize="14sp" />
+                android:textColor="@color/point_purple"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/et_record_content"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvContent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:background="@drawable/bg_record_input_selector"
-                android:ellipsize="none"
-                android:fontFamily="@font/roboto_regular"
-                android:gravity="left"
-                android:hint="후기를 남겨주세요!"
-                android:inputType="textMultiLine"
-                android:maxLines="1"
-                android:minLines="1"
-                android:overScrollMode="ifContentScrolls"
+                android:background="@drawable/bg_record_badge"
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="10dp"
-                android:scrollbars="vertical"
-                android:scrollHorizontally="false"
                 android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- 별점 -->
         <RatingBar
-            android:id="@+id/ratingbar_record"
+            android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
             android:layout_height="70dp"
             android:layout_gravity="center"
-            android:layout_marginVertical="20dp"
-            android:isIndicator="false"
+            android:isIndicator="true"
             android:maxHeight="70dp"
             android:minHeight="70dp"
             android:numStars="5"
             android:progressDrawable="@drawable/ratingbar_record"
-            android:rating="0"
             android:stepSize="0.5" />
-
-        <ImageView
-            android:id="@+id/btn_record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="10dp"
-            android:src="@drawable/ic_record_deactivate" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

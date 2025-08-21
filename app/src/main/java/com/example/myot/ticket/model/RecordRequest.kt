@@ -1,8 +1,5 @@
 package com.example.myot.ticket.model
 
-import android.adservices.adid.AdId
-import android.graphics.Picture
-
 data class Musical(
     val id: Int,
     val name: String,
@@ -33,15 +30,6 @@ data class MusicalSearchResult(
     val data: List<Musical>
 )
 
-data class RecordRequest(
-    val musicalId: Int,
-    val watchDate: String,
-    val watchTime: String,
-    val seat: String,
-    val content: String,
-    val rating: Float
-)
-
 data class RecordResponse(
     val resultType: String,
     val error: Any?,
@@ -61,7 +49,8 @@ data class WatchRecord(
     val date: String,
     val time: String,
     val content: String,
-    val rating: Float
+    val rating: Float,
+    val averageRating: Float
 )
 
 data class BasicResponse(
@@ -72,4 +61,35 @@ data class BasicResponse(
 
 data class BasicSuccess(
     val message: String
+)
+
+data class CastResponse(
+    val resultType: String,
+    val error: String?,
+    val success: CastSuccess?
+)
+
+data class CastSuccess(
+    val message: String,
+    val data: CastData
+)
+
+data class CastData(
+    val musicalId: Int,
+    val roles: List<Role>
+)
+
+data class Role(
+    val role: String,
+    val actors: List<Actor>
+)
+
+data class Actor(
+    val actorId: Int,
+    val name: String,
+    val image: String,
+    val birthDate: String,
+    val profile: String?,
+    val snsLink: String?,
+    val performanceCount: Int
 )

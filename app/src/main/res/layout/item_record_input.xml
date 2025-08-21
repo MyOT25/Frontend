@@ -16,7 +16,6 @@
         android:background="@android:color/transparent"
         android:inputType="text"
         android:gravity="center"
-        android:maxLength="4"
         android:hint="YYYY"
         android:textColorHint="#00000000"
         android:textColor="@color/record_input_text_selector"
