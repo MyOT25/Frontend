@@ -10,6 +10,7 @@ import com.example.myot.community.model.PatchProfileRequest
 import com.example.myot.community.model.PatchProfileResponse
 import com.example.myot.community.model.ProfileRequest
 import com.example.myot.community.model.ProfileResponse
+import com.example.myot.home.MyCommunitiesResponse
 import com.example.myot.community.model.basicResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -51,7 +52,19 @@ interface CommunityService {
     suspend fun getMyCommunityProfile(
         @Header("Authorization") token: String,
         @Path("communityId") communityId: Int
-    ): Response<CommunityProfileResponse>
+    ): Response<MultiProfilesResponse>
+
+    @GET("api/community/mine")
+    suspend fun getMyCommunities(
+        @Header("Authorization") token: String
+    ): Response<MyCommunitiesResponse>
+
+    @GET("api/community/{type}/{id}")
+    suspend fun getCommunityDetail(
+        @Header("Authorization") token: String,
+        @Path("type") type: String,
+        @Path("id") id: Int
+    ): Response<CommunityResponse>
 
     @PATCH("api/community/profile/type/{communityId}")
     suspend fun patchMultiProfileType(

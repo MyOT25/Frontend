@@ -1,4 +1,3 @@
-// SignupStep1Fragment.kt
 package com.example.myot.signup
 
 import SignupStep2Fragment
@@ -42,6 +41,7 @@ class SignupStep1Fragment : Fragment(), SignupStep  {
         }
         binding.etName.addTextChangedListener(watcher)
         binding.etEmail.addTextChangedListener(watcher)
+        binding.etBirth.addTextChangedListener(watcher)
 
         updateUi()
     }
@@ -53,32 +53,52 @@ class SignupStep1Fragment : Fragment(), SignupStep  {
 
         val name  = binding.etName.text?.toString()?.trim().orEmpty()
         val email = binding.etEmail.text?.toString()?.trim().orEmpty()
+        val birth = binding.etBirth.text?.toString()?.trim().orEmpty()
 
         val nameValid  = isValidName(name)
         val emailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        val birthValid = isValidBirth(birth)
 
         binding.etName.setTextColor(if (nameValid) purple else gray3)
         binding.etEmail.setTextColor(if (emailValid) purple else gray3)
+        binding.etBirth.setTextColor(if (birthValid) purple else gray3)
 
         val showEmailError = email.isNotBlank() && !emailValid
         binding.tvEmailError.isVisible = showEmailError
 
-        (activity as? SignupFlowActivity)?.setNextEnabled(nameValid && emailValid)
+        val showBirthError = birth.isNotBlank() && !birthValid
+        binding.tvBirthError.isVisible = showBirthError
+
+        (activity as? SignupFlowActivity)?.setNextEnabled(nameValid && emailValid && birthValid)
     }
 
     override fun onNextClicked() {
         val name  = binding.etName.text?.toString()?.trim().orEmpty()
         val email = binding.etEmail.text?.toString()?.trim().orEmpty()
+        val birth = binding.etBirth.text?.toString()?.trim().orEmpty()
         if (name.isEmpty() || email.isEmpty()) return
 
         vm.name.value = name
         vm.email.value = email
+        vm.birth.value = birth
 
         (activity as? SignupFlowActivity)?.goNext(SignupStep2Fragment())
     }
 
     private fun isValidName(name: String): Boolean {
         return name.isNotBlank() && NAME_REGEX.matches(name)
+    }
+
+    private fun isValidBirth(birth: String): Boolean {
+        if (!Regex("^\\d{8}$").matches(birth)) return false
+
+        return try {
+            val sdf = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.KOREA)
+            sdf.isLenient = false
+            sdf.parse(birth) != null
+        } catch (e: Exception) {
+            false
+        }
     }
 
     override fun onDestroyView() {

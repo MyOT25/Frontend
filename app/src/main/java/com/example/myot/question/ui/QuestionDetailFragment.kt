@@ -3,9 +3,11 @@ package com.example.myot.question.ui
 import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -14,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myot.MainActivity
+import com.example.myot.R
 import com.example.myot.databinding.FragmentQuestionDetailBinding
 import com.example.myot.question.adapter.QuestionDetailAdapter
 import com.example.myot.question.data.QuestionRepository
@@ -96,52 +99,54 @@ class QuestionDetailFragment : Fragment() {
 
         (activity as? MainActivity)?.showCommentBar(
             scrollable = binding.rvQuestionDetail,
-            hint = "댓글을 입력하세요"
-        ) { text, isAnonymous ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                // 댓글 등록
-                repository.createComment(detailItem.id, text, isAnonymous)
-                    .onSuccess {
-                        // 내가 댓글 쓴 상태 반영
-                        commentedSet.add(detailItem.id)
+            hint = "댓글을 입력하세요",
+            onSend = { text, isAnonymous ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    // 댓글 등록
+                    repository.createComment(detailItem.id, text, isAnonymous)
+                        .onSuccess {
+                            // 내가 댓글 쓴 상태 반영
+                            commentedSet.add(detailItem.id)
 
-                        // 최신 댓글 목록 다시 로드
-                        val updatedAnswers = repository.fetchAnswers(detailItem.id).getOrElse { emptyList() }
+                            // 최신 댓글 목록 다시 로드
+                            val updatedAnswers = repository.fetchAnswers(detailItem.id).getOrElse { emptyList() }
 
-                        // 헤더의 댓글 수 +1
-                        val newHeader = (headerItem ?: detailItem).copy(
-                            commentCount = ((headerItem?.commentCount ?: detailItem.commentCount ?: 0) + 1)
-                        )
-                        headerItem = newHeader
+                            // 헤더의 댓글 수 +1
+                            val newHeader = (headerItem ?: detailItem).copy(
+                                commentCount = ((headerItem?.commentCount ?: detailItem.commentCount ?: 0) + 1)
+                            )
+                            headerItem = newHeader
 
-                        adapter = QuestionDetailAdapter(
-                            item = newHeader,
-                            imageUrls = headerImages,
-                            answers = updatedAnswers,
-                            onQuestionLikeClick = likeHandler,
-                            getQuestionLiked = { id -> likedSet.contains(id) },
-                            getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
-                            onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
-                            getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
-                            getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
-                            getQuestionCommented = { id -> commentedSet.contains(id) },
-                            onDeleteClick = { qid -> confirmAndDelete(qid) }
-                        )
-                        binding.rvQuestionDetail.adapter = adapter
-                        adapter.notifyHeaderChanged()
+                            adapter = QuestionDetailAdapter(
+                                item = newHeader,
+                                imageUrls = headerImages,
+                                answers = updatedAnswers,
+                                onQuestionLikeClick = likeHandler,
+                                getQuestionLiked = { id -> likedSet.contains(id) },
+                                getQuestionLikeCount = { id -> likeCountMap[id] ?: 0 },
+                                onAnswerLikeClick = { aId, liked -> handleAnswerLikeClick(aId, liked) },
+                                getAnswerLiked = { aId -> answerLikedSet.contains(aId) },
+                                getAnswerLikeCount = { aId -> answerLikeCountMap[aId] ?: 0 },
+                                getQuestionCommented = { id -> commentedSet.contains(id) },
+                                onDeleteClick = { qid -> confirmAndDelete(qid) }
+                            )
+                            binding.rvQuestionDetail.adapter = adapter
+                            adapter.notifyHeaderChanged()
 
-                        binding.rvQuestionDetail.scrollToPosition(updatedAnswers.size)
+                            binding.rvQuestionDetail.scrollToPosition(updatedAnswers.size)
 
-                        (activity as? MainActivity)?.apply {
-                            hideKeyboardAndClearFocus()
-                            hideCommentBar()
+                            (activity as? MainActivity)?.apply {
+                                hideKeyboardAndClearFocus()
+                                hideCommentBar()
+                            }
                         }
-                    }
-                    .onFailure {
-                        Toast.makeText(requireContext(), "댓글 등록 실패: ${it.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }
-        }
+                        .onFailure {
+                            Toast.makeText(requireContext(), "댓글 등록 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            },
+            allowAnonymous = true
+        )
 
         detailItem = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arguments?.getParcelable("question", QuestionItem::class.java)
@@ -272,7 +277,6 @@ class QuestionDetailFragment : Fragment() {
         }
     }
 
-
     private fun confirmAndDelete(questionId: Long) {
         if (isDeleting) return
         isDeleting = true
@@ -284,7 +288,7 @@ class QuestionDetailFragment : Fragment() {
                     (activity as? MainActivity)?.openQuestionTab()
                 }
                 .onFailure {
-                    Toast.makeText(requireContext(), "삭제 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+                    showToast("본인이 작성한 질문만 삭제할 수 있어요.")
                     isDeleting = false
                 }
         }
@@ -303,6 +307,19 @@ class QuestionDetailFragment : Fragment() {
             fragment.arguments = bundle
             return fragment
         }
+    }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).toInt()
+
+    private fun showToast(message: String) {
+        val v = layoutInflater.inflate(R.layout.toast_simple, null)
+        v.findViewById<TextView>(R.id.tv_toast).text = message
+
+        Toast(requireContext()).apply {
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 64.dp)
+            view = v
+        }.show()
     }
 
 }

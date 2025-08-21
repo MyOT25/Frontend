@@ -40,17 +40,6 @@ class QuestionSearchFragment : Fragment() {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
-//        val dummyList = emptyList<QuestionItem>()
-//        val adapter = QuestionAdapter(dummyList) { item ->
-//            val fragment = QuestionDetailFragment.newInstance(item)
-//
-//            parentFragmentManager.beginTransaction()
-//                .replace(R.id.fragment_container_view, fragment)
-//                .addToBackStack(null)
-//                .commit()
-//        }
-//        binding.rvSearchResults.layoutManager = LinearLayoutManager(requireContext())
-//        binding.rvSearchResults.adapter = adapter
     }
 
     override fun onDestroyView() {
@@ -60,8 +49,8 @@ class QuestionSearchFragment : Fragment() {
 
     private fun setupDummyHashtags() {
         val dummyTags = listOf(
-            "#좋아요 많은 질문", "#댓글 많은", "#검색량 많은 키워드",
-            "#좋아요 많은 질문 2222", "#검색량 많은 키워드22"
+            "#뮤지컬추천", "#대학로", "#지킬앤하이드",
+            "#캐스팅", "#웃는남자후기", "#세종문화회관", "#뮤지컬후기"
         )
 
         binding.flexHashtags.removeAllViews()

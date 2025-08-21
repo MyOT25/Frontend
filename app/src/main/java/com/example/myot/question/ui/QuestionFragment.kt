@@ -39,6 +39,9 @@ class QuestionFragment : Fragment() {
     private val likeCountMap = mutableMapOf<Long, Int>()
     private val commentedSet = mutableSetOf<Long>()
 
+    private enum class SortType { RECENT, POPULAR, OLDEST }
+    private var currentSort: SortType = SortType.RECENT
+
     private val writeResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -148,7 +151,7 @@ class QuestionFragment : Fragment() {
             removeDuration = 0
         }
 
-        loadQuestions(page = 1, limit = 20)
+        loadQuestions(page = 1, limit = 20, sort = currentSort)
 
         binding.btnSortEdit.setOnClickListener { showSortPopup(it) }
 
@@ -190,16 +193,35 @@ class QuestionFragment : Fragment() {
         }
     }
 
-    private fun loadQuestions(page: Int = 1, limit: Int = 20) {
+    private fun updateSortAndReload(sort: SortType) {
+        if (currentSort == sort) return
+        currentSort = sort
+        // 첫 페이지부터 다시 로드
+        loadQuestions(page = 1, limit = 20, sort = currentSort)
+        binding.rvFeeds.scrollToPosition(0)
+    }
+
+    private fun loadQuestions(page: Int = 1, limit: Int = 20, sort: SortType = currentSort) {
         viewLifecycleOwner.lifecycleScope.launch {
-            repository.fetchQuestions(page, limit).onSuccess { items ->
+            // 1) 서버에서 최신순(기본) 데이터를 받아오고
+            repository.fetchQuestions(page, limit).onSuccess { itemsFromServer ->
+                // 2) 정렬 방식에 따라 정렬 (서버 popular/oldest 엔드포인트 연동 전 임시 동작)
+                val sdf = java.text.SimpleDateFormat("yyyy/MM/dd HH:mm", java.util.Locale.getDefault())
+                val sorted = when (sort) {
+                    SortType.RECENT -> itemsFromServer // 기본: 최신순
+                    SortType.POPULAR -> itemsFromServer.sortedByDescending { it.likeCount }
+                    SortType.OLDEST -> itemsFromServer.sortedBy { item ->
+                        try { sdf.parse(item.createdAt)?.time ?: Long.MAX_VALUE } catch (_: Exception) { Long.MAX_VALUE }
+                    }
+                }
+
                 questionList.clear()
-                questionList.addAll(items)
+                questionList.addAll(sorted)
                 adapter.notifyDataSetChanged()
 
                 val hasToken = AuthStore.bearerOrNull() != null
                 if (hasToken) {
-                    items.forEach { q ->
+                    sorted.forEach { q ->
                         launch {
                             repository.fetchMyInteraction(q.id).onSuccess { me ->
                                 if (me.hasLiked) likedSet.add(q.id) else likedSet.remove(q.id)
@@ -259,15 +281,15 @@ class QuestionFragment : Fragment() {
         // 정렬 항목 리스너
         popupView.findViewById<View>(R.id.btn_sort_popular).setOnClickListener {
             popupWindow.dismiss()
-            Toast.makeText(context, "인기 순 클릭", Toast.LENGTH_SHORT).show()
+            updateSortAndReload(SortType.POPULAR)
         }
         popupView.findViewById<View>(R.id.btn_sort_recent).setOnClickListener {
             popupWindow.dismiss()
-            Toast.makeText(context, "최신 순 클릭", Toast.LENGTH_SHORT).show()
+            updateSortAndReload(SortType.RECENT)
         }
         popupView.findViewById<View>(R.id.btn_sort_old).setOnClickListener {
             popupWindow.dismiss()
-            Toast.makeText(context, "오래된 순 클릭", Toast.LENGTH_SHORT).show()
+            updateSortAndReload(SortType.OLDEST)
         }
     }
 }

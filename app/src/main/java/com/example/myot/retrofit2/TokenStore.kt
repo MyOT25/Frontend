@@ -23,4 +23,6 @@ object TokenStore {
         val v = prefs(ctx).getLong(KEY_USER_ID, -1L)
         return if (v > 0) v else null
     }
+
+    fun getAccessToken(ctx: Context): String? = loadAccessToken(ctx)
 }

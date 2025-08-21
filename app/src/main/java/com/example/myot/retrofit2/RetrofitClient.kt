@@ -1,5 +1,9 @@
 package com.example.myot.retrofit2
 
+import com.example.myot.feed.data.FeedService
+import com.example.myot.feed.data.QuoteApi
+import com.example.myot.home.HomeFeedService
+import com.example.myot.profile.ProfileService
 import com.example.myot.profile.data.ProfileFeedService
 import com.example.myot.question.data.QuestionService
 import com.example.myot.signup.data.SignupCommunityService
@@ -9,7 +13,7 @@ import kotlin.jvm.java
 
 object RetrofitClient {
     private const val BASE_URL = "http://43.203.70.205:3000/"
-    private val retrofit: Retrofit = Retrofit.Builder()
+    internal val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
@@ -21,6 +25,9 @@ object RetrofitClient {
     val profileFeedService: ProfileFeedService = retrofit.create(ProfileFeedService::class.java)
     val authService: AuthService = retrofit.create(AuthService::class.java)
     val signupCommunityService: SignupCommunityService = retrofit.create(SignupCommunityService::class.java)
+    val homeFeedService: HomeFeedService = retrofit.create(HomeFeedService::class.java)
+    val feedService: FeedService = retrofit.create(FeedService::class.java)
+    val profileService: ProfileService = retrofit.create(ProfileService::class.java)
     val bookService: BookService = retrofit.create(BookService::class.java)
     val calendarService: CalendarService = retrofit.create(CalendarService::class.java)
 }

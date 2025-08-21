@@ -13,16 +13,24 @@ import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.myot.R
 import com.example.myot.databinding.DialogImageViewBinding
 import com.example.myot.feed.adapter.FeedbackPagerAdapter
+import com.example.myot.feed.data.QuoteApi
 import com.example.myot.feed.model.FeedItem
+import com.example.myot.feed.model.toFeedItemWithQuoted
+import com.example.myot.retrofit2.RetrofitClient
+import com.example.myot.retrofit2.TokenStore
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,6 +47,7 @@ class ImageDialogFragment(
     private var isLiked = false
     private var isReposted = false
     private var isQuoted = false
+    private var isCommented = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -112,6 +121,7 @@ class ImageDialogFragment(
         isLiked = feedItem.isLiked
         isReposted = feedItem.isReposted
         isQuoted = feedItem.isQuoted
+        isCommented = feedItem.isCommented
 
         updateFeedbackViews()
 
@@ -162,7 +172,12 @@ class ImageDialogFragment(
         imageView.setOnLongClickListener { longClickAction() }
     }
 
-    private fun showFeedbackBottomSheet(context: Activity, defaultType: String, feedItem: FeedItem, onFeedClick: () -> Unit ) {
+    private fun showFeedbackBottomSheet(
+        context: Activity,
+        defaultType: String,
+        feedItem: FeedItem,
+        onFeedClick: () -> Unit
+    ) {
         val dialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.bottomsheet_feed_feedback, null)
         dialog.setContentView(view)
@@ -172,72 +187,148 @@ class ImageDialogFragment(
 
         dialog.window?.setDimAmount(0.1f)
 
-        // 피드백 더미 데이터
-        val likeUsers = List(10) { "user_like_${it + 1}" }
-        val repostUsers = List(8) { "user_repost_${it + 1}" }
-        val quoteFeeds = listOf(
-            FeedItem(
-                username = "인용러A",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "이 피드를 인용해서 작성한 피드입니다!",
-                quotedFeed = feedItem
-            ),
-            FeedItem(
-                username = "인용러B",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "또 다른 사용자가 이 피드를 인용했어요.".repeat(10),
-                quotedFeed = feedItem
-            ),
-            FeedItem(
-                username = "인용러C",
-                community = feedItem.community,
-                date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                content = "인용했어요",
-                imageUrls = listOf(
-                    "https://picsum.photos/300/200?random=2",
-                    "https://picsum.photos/300/200?random=3",
-                    "https://picsum.photos/300/200?random=3",
-                    "https://picsum.photos/300/200?random=3"
-                ),
-                quotedFeed = feedItem
-            )
+        val fa = context as? FragmentActivity ?: return
+        val pagerAdapter = FeedbackPagerAdapter(
+            fa = fa,
+            dialog = dialog,
+            onFeedClick = onFeedClick
         )
-
-        val adapter = FeedbackPagerAdapter(
-            context as FragmentActivity,
-            likeUsers,
-            repostUsers,
-            quoteFeeds,
-            dialog,
-            onFeedClick
-        )
-        viewPager.adapter = adapter
+        viewPager.adapter = pagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "좋아요"
-                1 -> "재게시"
-                2 -> "인용"
-                else -> ""
-            }
+            tab.text = when (position) { 0 -> "좋아요"; 1 -> "재게시"; 2 -> "인용"; else -> "" }
         }.attach()
 
-        viewPager.setCurrentItem(
-            when (defaultType) {
-                "like" -> 0
-                "repost" -> 1
-                "quote" -> 2
-                else -> 0
-            }, false
-        )
+        val startIndex = when (defaultType) {
+            "like" -> 0
+            "repost" -> 1
+            "quote", "bookmark" -> 2
+            else -> 0
+        }
+        viewPager.setCurrentItem(startIndex, false)
+        viewPager.offscreenPageLimit = 3
+
+        // ★ Lazy-load 플래그
+        var likesLoaded = false
+        var repostsLoaded = false
+        var quotesLoaded = false
+
+        // ★ 공통 토큰
+        suspend fun getBearer(): String {
+            val raw = TokenStore.loadAccessToken(fa)
+            return raw?.trim()
+                ?.removePrefix("Bearer ")
+                ?.trim()
+                ?.removeSurrounding("\"")
+                ?.let { "Bearer $it" } ?: ""
+        }
+
+        // ★ 인용 로딩
+        fun loadQuotes() {
+            if (quotesLoaded || (feedItem.id ?: -1L) <= 0L) return
+            fa.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
+                        RetrofitClient.retrofit.create(QuoteApi::class.java)
+                            .getQuotedPosts(bearer, feedItem.id!!)
+                    }
+                    val ui = (res.success ?: emptyList()).map { dto ->
+                        dto.toFeedItemWithQuoted(feedItem)
+                    }
+                    viewPager.post { pagerAdapter.submitQuoteFeeds(ui) }
+                } catch (_: Exception) {
+                    viewPager.post { pagerAdapter.submitQuoteFeeds(emptyList()) }
+                } finally {
+                    quotesLoaded = true
+                }
+            }
+        }
+
+        // ★ 좋아요 로딩
+        fun loadLikes() {
+            if (likesLoaded || (feedItem.id ?: -1L) <= 0L) return
+            fa.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getPostLikes(
+                            token = bearer,
+                            postId = feedItem.id!!,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (res.isSuccessful) {
+                        val users = res.body()?.success?.users.orEmpty()
+                        val likeUsersUi = users.map {
+                            com.example.myot.feed.model.FeedbackUserUi(
+                                nickname = it.nickname ?: "",
+                                loginId = it.loginId,
+                                profileImage = it.profileImage,
+                                userId = it.id
+                            )
+                        }
+                        pagerAdapter.submitLikeUsers(likeUsersUi)
+                    }
+                } catch (_: Exception) { } finally { likesLoaded = true }
+            }
+        }
+
+        // ★ 재게시 로딩
+        fun loadReposts() {
+            if (repostsLoaded || (feedItem.id ?: -1L) <= 0L) return
+            fa.lifecycleScope.launch {
+                try {
+                    val bearer = getBearer()
+                    val res = withContext(Dispatchers.IO) {
+                        RetrofitClient.feedService.getRepostedUsers(
+                            token = bearer,
+                            postId = feedItem.id!!,
+                            page = 1,
+                            limit = 20
+                        )
+                    }
+                    if (res.isSuccessful) {
+                        val entries = res.body()?.success.orEmpty()
+                        val repostUsersUi = entries.mapNotNull { e ->
+                            e.user?.let { u ->
+                                com.example.myot.feed.model.FeedbackUserUi(
+                                    nickname = u.nickname ?: u.loginId ?: "",
+                                    loginId = u.loginId,
+                                    profileImage = u.profileImage,
+                                    userId = u.id
+                                )
+                            }
+                        }
+                        pagerAdapter.submitRepostUsers(repostUsersUi)
+                    }
+                } catch (_: Exception) { } finally { repostsLoaded = true }
+            }
+        }
+
+        // ★ 시작 탭 즉시 로드
+        when (startIndex) {
+            0 -> loadLikes()
+            1 -> loadReposts()
+            2 -> loadQuotes()
+        }
+
+        // ★ 스와이프 시에도 로드
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                when (position) {
+                    0 -> loadLikes()
+                    1 -> loadReposts()
+                    2 -> loadQuotes()
+                }
+            }
+        })
 
         dialog.setOnShowListener {
             val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             bottomSheet?.let {
                 val behavior = BottomSheetBehavior.from(it as FrameLayout)
-
                 val screenHeight = context.resources.displayMetrics.heightPixels
                 val maxHeight = (screenHeight * 0.64).toInt()
                 it.layoutParams.height = maxHeight
@@ -250,7 +341,6 @@ class ImageDialogFragment(
                 behavior.isHideable = true
             }
         }
-
         dialog.show()
     }
 
@@ -263,6 +353,7 @@ class ImageDialogFragment(
         updateLikeColor(binding.tvLike, binding.ivLike, isLiked)
         updateRepostColor(binding.tvRepost, binding.ivRepost, isReposted)
         updateQuoteColor(binding.tvQuote, binding.ivQuote, isQuoted)
+        updateCommentColor(binding.tvComment, binding.ivComment, isCommented)
     }
 
     private fun updateLikeColor(textView: TextView?, imageView: ImageView?, liked: Boolean) {
@@ -283,6 +374,13 @@ class ImageDialogFragment(
         val context = textView?.context ?: return
         val color = context.getColor(if (quoted) R.color.point_purple else R.color.white)
         textView.setTextColor(color)
+        imageView?.setColorFilter(color)
+    }
+
+    private fun updateCommentColor(textView: TextView?, imageView: ImageView?, commented: Boolean) {
+        val context = (textView ?: imageView)?.context ?: return
+        val color = context.getColor(if (commented) R.color.point_green else R.color.white)
+        textView?.setTextColor(color)
         imageView?.setColorFilter(color)
     }
 

@@ -27,7 +27,8 @@ data class SignupRequestDto(
     val email: String,
     val loginId: String,
     val password: String,
-    val nickname: String
+    val nickname: String,
+    val birthDate: String
 )
 
 data class SignupResponseDto(

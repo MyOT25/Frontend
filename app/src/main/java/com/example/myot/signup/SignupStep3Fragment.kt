@@ -82,9 +82,20 @@ class SignupStep3Fragment : Fragment(), SignupStep {
         val email = vm.email.value.orEmpty()
         val pw = vm.password.value.orEmpty()
         val loginId = vm.loginId.value.orEmpty()
-        if (name.isBlank() || email.isBlank() || pw.isBlank() || loginId.isBlank()) return
+        val birthRaw = vm.birth.value.orEmpty()
+
+        if (name.isBlank() || email.isBlank() || pw.isBlank() || loginId.isBlank() || birthRaw.isBlank()) return
 
         val nickname = name
+
+        val birthDate = runCatching {
+            val inFmt  = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.KOREA).apply { isLenient = false }
+            val outFmt = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.KOREA)
+            outFmt.format(inFmt.parse(birthRaw)!!)
+        }.getOrElse {
+            (activity as? SignupFlowActivity)?.setNextEnabled(false)
+            return
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repo.signup(
@@ -93,7 +104,8 @@ class SignupStep3Fragment : Fragment(), SignupStep {
                     email = email,
                     loginId = loginId,
                     password = pw,
-                    nickname = nickname
+                    nickname = nickname,
+                    birthDate = birthDate
                 )
             ).onSuccess {
                 repo.login(loginId, pw).onSuccess { login ->

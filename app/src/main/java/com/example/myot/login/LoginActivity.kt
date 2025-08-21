@@ -184,15 +184,15 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
-    private fun showToast(message: String) {
-        val v = LayoutInflater.from(this).inflate(R.layout.toast_simple, null)
-        v.findViewById<TextView>(R.id.tv_toast).text = message
+        private fun showToast(message: String) {
+            val v = LayoutInflater.from(this).inflate(R.layout.toast_simple, null)
+            v.findViewById<TextView>(R.id.tv_toast).text = message
 
-        Toast(this).apply {
-            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, (64).dp)
-            view = v
-        }.show()
-    }
+            Toast(this).apply {
+                setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, (64).dp)
+                view = v
+            }.show()
+        }
 
     private val Int.dp: Int get() =
         (this * resources.displayMetrics.density).toInt()

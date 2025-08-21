@@ -21,6 +21,18 @@ interface QuestionService {
         @Query("limit") limit: Int? = null
     ): ApiResponse<List<QuestionListItemDto>?>
 
+    @GET("api/questions/popular")
+    suspend fun getQuestionsPopular(
+        @Query("page") page: Int? = null,
+        @Query("size") size: Int? = null
+    ): ApiResponse<List<QuestionListItemDto>?>
+
+    @GET("api/questions/oldest")
+    suspend fun getQuestionsOldest(
+        @Query("page") page: Int? = null,
+        @Query("size") size: Int? = null
+    ): ApiResponse<List<QuestionListItemDto>?>
+
     @POST("api/questions/{questionId}/like")
     suspend fun likeQuestion(
         @Path("questionId") questionId: Long,

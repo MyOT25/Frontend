@@ -5,10 +5,12 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CommentItem(
+    val id: Long? = null,
     val username: String,
     val userid: String,
     val content: String,
     val date: String,
+    val profileImageUrl: String? = null,
 
     var commentCount: Int = 0,
     var likeCount: Int = 0,
