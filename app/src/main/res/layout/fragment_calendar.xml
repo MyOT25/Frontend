@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white">
 
@@ -79,15 +79,11 @@
 
     </LinearLayout>
 
-    <!-- 달력 그리드 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_calendar"
+    <com.example.myot.ticket.calendar.ui.TicketCalendarView
+        android:id="@+id/ticket_calendar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@android:color/white"
-        android:paddingHorizontal="8dp"
-        android:paddingTop="8dp"
-        android:clipToPadding="false"
-        tools:listitem="@layout/item_calendar_day" />
+        android:padding="8dp"
+        app:tcv_mode="normal" />
 </LinearLayout>

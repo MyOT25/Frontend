@@ -17,7 +17,7 @@ import retrofit2.http.Query
 
 interface CalendarService {
     @GET("api/viewingrecords/monthly-summary")
-    fun getMonthlyRecords(
+    suspend fun getMonthlyRecords(
         @Header("Authorization") token: String,
         @Query("year") year: Int,
         @Query("month") month: Int

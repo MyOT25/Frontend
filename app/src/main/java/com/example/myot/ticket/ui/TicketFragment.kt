@@ -14,9 +14,16 @@ import com.example.myot.ticket.book.ui.BookListFragment
 import com.example.myot.ticket.model.TicketToday
 import com.example.myot.ticket.ui.adapter.TicketTodayAdapter
 import android.content.Intent
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import com.example.myot.retrofit2.RetrofitClient
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.example.myot.ticket.calendar.model.CalendarViewModel
+import com.example.myot.ticket.calendar.ui.CalendarFragment
+import com.example.myot.ticket.calendar.ui.TicketCalendarView
 import com.example.myot.ticket.model.TicketViewModel
+import kotlinx.coroutines.flow.collectLatest
+import java.time.format.DateTimeFormatter
 
 class TicketFragment : Fragment() {
 
@@ -29,6 +36,7 @@ class TicketFragment : Fragment() {
     private val swipeThreshold = 150f // px 기준 (이 이상 밀면 실행)
 
     private val viewModel: TicketViewModel by activityViewModels()
+    private val vm: CalendarViewModel by viewModels({ requireActivity() })
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTicketBinding.inflate(inflater, container, false)
@@ -40,9 +48,38 @@ class TicketFragment : Fragment() {
         setRecentTicket()
         setTicketBook()
 
+
+
         viewModel.recordSaved.observe(viewLifecycleOwner) { saved ->
             if (saved == true) {
                 // TODO: UI 갱신 로직
+            }
+        }
+
+        binding.calendarMini.setMode(TicketCalendarView.Mode.MINI)
+        binding.calendarMini.listener = object : TicketCalendarView.Listener {
+            override fun onClickDay(date: java.time.LocalDate, hasRecord: Boolean) {}
+            override fun onClickWholeMini() {
+                val calendarFragment = CalendarFragment()
+
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, calendarFragment)
+                    .addToBackStack("TicketFragment")
+                    .commit()
+            }
+        }
+
+        // 이번 달 데이터 표시
+        vm.loadCurrentMonth()
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            vm.ui.collectLatest { state ->
+                binding.tvTicketMonth.text =
+                    state.yearMonth.format(DateTimeFormatter.ofPattern("M월"))
+                binding.calendarMini.setMonth(
+                    state.yearMonth.year, state.yearMonth.monthValue
+                )
+                binding.calendarMini.setRecords(state.records)
             }
         }
     }
@@ -121,6 +158,8 @@ class TicketFragment : Fragment() {
                 .commit()
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

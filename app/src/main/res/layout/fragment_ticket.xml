@@ -114,12 +114,22 @@
         app:layout_constraintWidth_percent="0.55">
 
         <TextView
-            android:id="@+id/tv_month"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_ticket_month"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_semibold"
-            android:text="7월"
-            android:textSize="20sp" />
+            android:text="n월"
+            android:textSize="20sp"
+            android:paddingBottom="4dp"/>
+
+        <com.example.myot.ticket.calendar.ui.TicketCalendarView
+            android:id="@+id/calendar_mini"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="4dp"
+            app:tcv_mode="mini"/>
+
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

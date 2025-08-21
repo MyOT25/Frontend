@@ -1,5 +1,7 @@
 package com.example.myot.ticket.calendar.model
 
+import java.time.LocalDate
+
 // 응답 데이터 클래스들
 data class MonthlyRecordsResponse(
     val resultType: String,
@@ -64,6 +66,14 @@ data class CalendarDay(
     val isToday: Boolean,
     val entries: List<CalendarEntry>
 )
+
+// CalendarDay.kt
+data class CalendarDate(
+    val date: LocalDate?,
+    val isToday: Boolean = false,
+    val imageUrls: List<String> = emptyList()
+)
+
 
 data class CalendarEntry(
     val id: String,
