@@ -1,6 +1,7 @@
 package com.example.myot.ticket.book.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,7 +15,10 @@ import com.example.myot.R
 import com.example.myot.databinding.FragmentBookDetailBinding
 import com.example.myot.ticket.book.model.BookViewModel
 import com.example.myot.ticket.book.model.RoleWithActors
+import com.example.myot.ticket.book.model.SeatHighlightInfo
 import com.example.myot.ticket.book.ui.adapter.TBRoleAdapter
+import org.json.JSONObject
+import org.json.JSONArray
 
 class BookDetailFragment : Fragment() {
 
@@ -77,11 +81,50 @@ class BookDetailFragment : Fragment() {
         // musicalId가 유효한지 확인
         if (musicalId != -1) {
             setActors()
+            setSeatView()
         } else {
             Toast.makeText(requireContext(), "유효하지 않은 musical입니다.", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
         }
     }
+
+    private fun setSeatView() {
+        viewModel.enableSeatAssetsMode(true)
+        viewModel.fetchSeatData(requireContext(), musicalId)
+
+        viewModel.seatData.observe(viewLifecycleOwner) { data ->
+            // 하이라이트 좌석 (API 성공 시 서버 데이터, 실패 시 ViewModel에서 assets 폴백)
+            binding.seatView.setHighlightedSeats(data.seats)
+
+            // theaterId에 맞는 좌석맵 JSON 불러서 세팅
+            val assetName = seatMapAssetFor(data.theaterId)
+            runCatching {
+                val json = requireContext().assets.open(assetName).bufferedReader().use { it.readText() }
+                binding.seatView.setSeatData(org.json.JSONObject(json))
+            }.onFailure {
+                it.printStackTrace()
+                // 좌석맵이 없거나 에러면 기본 맵으로 폴백
+                val fallback = "sejong_big.json"
+                kotlin.runCatching {
+                    val json = requireContext().assets.open(fallback).bufferedReader().use { it.readText() }
+                    binding.seatView.setSeatData(JSONObject(json))
+                }
+            }
+        }
+
+        viewModel.error.observe(viewLifecycleOwner) { msg ->
+            if (!msg.isNullOrBlank()) {
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /** theaterId → 좌석맵 에셋 파일명 매핑 */
+    private fun seatMapAssetFor(theaterId: Int): String = when (theaterId) {
+        1 -> "sejong_big.json"
+        else -> "sejong_big.json" // 기본 폴백
+    }
+
 
     @SuppressLint("SetTextI18n")
     private fun setActors() {
