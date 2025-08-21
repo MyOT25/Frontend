@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 포커스 -->
+    <item android:color="@color/black" android:state_focused="true"/>
+    <!-- 값 있음 -->
+    <item android:color="@color/gray2" android:state_activated="true"/>
+    <!-- 기본 -->
+    <item android:color="@color/gray4"/>
+</selector>

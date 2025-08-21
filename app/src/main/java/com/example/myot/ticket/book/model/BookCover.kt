@@ -1,6 +1,25 @@
 package com.example.myot.ticket.book.model
 
+data class BookCoverResponse(
+    val resultType: String,
+    val error: Int?,
+    val success: BookCoverSuccess
+)
+
+data class BookCoverSuccess(
+    val message: String,
+    val data: List<BookCover>
+)
+
 data class BookCover(
+    val musical_id: Int,
     val title: String,
-    val imageUrl: String
+    val poster: String,
+    val watch_date: String,
+    val theater: Theater
+)
+
+data class Theater(
+    val name: String,
+    val region: String
 )

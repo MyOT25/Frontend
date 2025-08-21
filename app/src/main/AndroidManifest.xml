@@ -6,7 +6,6 @@
 
     <application
         android:name=".MyOTApplication"
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -16,6 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyOT"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
         <activity
@@ -37,6 +37,9 @@
             android:windowSoftInputMode="adjustResize"/>
 
         <activity
+            android:name=".ticket.ui.RecordActivity"
+            android:exported="false" />
+        <activity
             android:name=".memorybook.EditMemoryActivity"
             android:exported="false" />
         <activity
@@ -48,11 +51,9 @@
         <activity
             android:name=".write.WriteQuestionActivity"
             android:exported="false" />
-
         <activity
             android:name=".write.WriteFeedActivity"
             android:exported="false" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true">

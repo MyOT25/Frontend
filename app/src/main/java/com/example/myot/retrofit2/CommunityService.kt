@@ -1,23 +1,31 @@
 package com.example.myot.retrofit2
 
+import com.example.myot.community.model.CommunityProfileResponse
 import com.example.myot.community.model.CommunityResponse
+import com.example.myot.community.model.DeleteProfileResponse
 import com.example.myot.community.model.JoinLeaveRequest
 import com.example.myot.community.model.JoinLeaveResponse
-import com.example.myot.community.model.MultiProfilesResponse
+import com.example.myot.community.model.MultiProfileResponse
+import com.example.myot.community.model.PatchProfileRequest
+import com.example.myot.community.model.PatchProfileResponse
 import com.example.myot.community.model.ProfileRequest
 import com.example.myot.community.model.ProfileResponse
 import com.example.myot.home.MyCommunitiesResponse
+import com.example.myot.community.model.basicResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 
 interface CommunityService {
-    @GET("api/community/musical/{communityId}")
+    @GET("api/community/{type}/{communityId}")
     suspend fun getCommunityInfo(
         @Header("Authorization") token: String,
+        @Path("type") type: String,
         @Path("communityId") communityId: Int
     ): Response<CommunityResponse>
 
@@ -34,14 +42,14 @@ interface CommunityService {
     ): Response<ProfileResponse>
 
     @GET("api/community/user-profile/{communityId}/{userId}")
-    suspend fun getUserMultiProfiles(
+    suspend fun getUserMultiProfile(
         @Header("Authorization") token: String,
         @Path("communityId") communityId: Int,
         @Path("userId") userId: Int
-    ): Response<MultiProfilesResponse>
+    ): Response<MultiProfileResponse>
 
     @GET("api/community/profile/my/{communityId}")
-    suspend fun getMyMultiProfiles(
+    suspend fun getMyCommunityProfile(
         @Header("Authorization") token: String,
         @Path("communityId") communityId: Int
     ): Response<MultiProfilesResponse>
@@ -58,4 +66,16 @@ interface CommunityService {
         @Path("id") id: Int
     ): Response<CommunityResponse>
 
+    @PATCH("api/community/profile/type/{communityId}")
+    suspend fun patchMultiProfileType(
+        @Header("Authorization") token: String,
+        @Path("communityId") communityId: Int,
+        @Body request: PatchProfileRequest
+    ): PatchProfileResponse
+
+    @DELETE("api/community/profile/{profileId}")
+    suspend fun deleteMultiProfile(
+        @Header("Authorization") token: String,
+        @Path("profileId") profileId: Int
+    ): Response<DeleteProfileResponse>
 }

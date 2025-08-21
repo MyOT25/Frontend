@@ -21,10 +21,13 @@ object RetrofitClient {
     val communityService: CommunityService = retrofit.create(CommunityService::class.java)
     val memorybookService: MemorybookService = retrofit.create(MemorybookService::class.java)
     val questionService: QuestionService = retrofit.create(QuestionService::class.java)
+    val ticketService: TicketService = retrofit.create(TicketService::class.java)
     val profileFeedService: ProfileFeedService = retrofit.create(ProfileFeedService::class.java)
     val authService: AuthService = retrofit.create(AuthService::class.java)
     val signupCommunityService: SignupCommunityService = retrofit.create(SignupCommunityService::class.java)
     val homeFeedService: HomeFeedService = retrofit.create(HomeFeedService::class.java)
     val feedService: FeedService = retrofit.create(FeedService::class.java)
     val profileService: ProfileService = retrofit.create(ProfileService::class.java)
+    val bookService: BookService = retrofit.create(BookService::class.java)
+    val calendarService: CalendarService = retrofit.create(CalendarService::class.java)
 }

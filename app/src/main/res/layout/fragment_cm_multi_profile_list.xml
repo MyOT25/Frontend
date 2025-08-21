@@ -1,16 +1,265 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottomsheet"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/bg_bottomsheet">
+    android:paddingVertical="24dp">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_multi_profiles"
+    <!-- 멀티 프로필 -->
+    <FrameLayout
+        android:id="@+id/layout_full_multi_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="72dp"
+        android:paddingHorizontal="24dp">
+
+        <!-- 프로필 내용 -->
+        <LinearLayout
+            android:id="@+id/btn_delete"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:layout_marginStart="80dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_profile_delete" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="삭제"
+                android:textColor="@color/point_pink" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_multi_profile"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:gravity="center_vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_profile" />
+
+            <LinearLayout
+                android:layout_width="330dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_multi_profile_nickName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_semibold"
+                    android:text="멀티프로필 1" />
+
+                <TextView
+                    android:id="@+id/tv_multi_profile_introduce"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_medium"
+                    android:text="소개글소개글소개글"
+                    android:textColor="@color/gray3"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iv_multi_selected"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_selected_profile" />
+        </LinearLayout>
+
+        <!-- 삭제 버튼 -->
+    </FrameLayout>
+
+    <!-- 기본 프로필 -->
+    <FrameLayout
+        android:id="@+id/layout_basic_profile"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:paddingHorizontal="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/iv_basic_profile_image"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="프로필"
+                android:src="@drawable/ic_profile" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_basic_profile_nickName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="멀티프로필 1"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_basic_profile_introduce"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="소개글소개글소개글"
+                    android:textColor="#888888"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iv_basic_selected"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_selected_profile" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/layoutAddMultiProfile"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:paddingHorizontal="24dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:gravity="center_vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_add_multi_profile" />
+
+            <TextView
+                android:id="@+id/tv_add_multi_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:fontFamily="@font/roboto_semibold"
+                android:text="멀티 프로필 추가"
+                android:textColor="@color/point_blue" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- 탈퇴 버튼 -->
+    <ImageView
+        android:id="@+id/btnLeave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingVertical="10dp"
+        android:src="@drawable/ic_cm_leave" />
+    <!--
+        <LinearLayout
+            android:id="@+id/layout_selected_multi_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/iv_multi_profile_image"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="프로필"
+                android:src="@drawable/ic_profile" />
+
+            <LinearLayout
+                android:id="@+id/layout_multi_profile_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_multi_profile_nickName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="멀티프로필 1"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_multi_profile_introduce"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="소개글소개글소개글"
+                    android:textColor="#888888"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_selected_profile" />
+        </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_default_profile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:clipToPadding="false"/>
+        android:orientation="horizontal"
+        android:padding="16dp">
 
+        <ImageView
+            android:id="@+id/iv_default_profile_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_profile" />
+
+        <LinearLayout
+            android:id="@+id/layout_default_profile_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_default_profile_nickName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="기본 프로필"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_default_profile_introduce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="소개글소개글소개글"
+                android:textColor="#888888"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+    -->
 </LinearLayout>

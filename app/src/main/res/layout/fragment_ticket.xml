@@ -57,14 +57,50 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/roboto_semibold"
             android:paddingHorizontal="20dp"
-            android:text="오늘의 관극"
+            android:text="최근 관람한 관극"
             android:textSize="20sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_add_ticket"
+            android:layout_width="230dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:layout_marginVertical="16dp"
+            android:background="@drawable/bg_add_ticket"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/addIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="100dp"
+                android:layout_marginEnd="30dp"
+                android:src="@drawable/ic_add_ticket"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/roboto_semibold"
+                android:text="기록 추가"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@+id/addIcon"
+                app:layout_constraintStart_toStartOf="@+id/addIcon"
+                app:layout_constraintTop_toBottomOf="@+id/addIcon" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_today"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            android:visibility="visible" />
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -78,12 +114,22 @@
         app:layout_constraintWidth_percent="0.55">
 
         <TextView
-            android:id="@+id/tv_month"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_ticket_month"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_semibold"
-            android:text="7월"
-            android:textSize="20sp" />
+            android:text="n월"
+            android:textSize="20sp"
+            android:paddingBottom="4dp"/>
+
+        <com.example.myot.ticket.calendar.ui.TicketCalendarView
+            android:id="@+id/calendar_mini"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="4dp"
+            app:tcv_mode="mini"/>
+
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

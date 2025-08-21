@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 배경 (비어있는 별) -->
+    <item android:id="@android:id/background"
+        android:drawable="@drawable/ic_star_empty" />
+
+    <!-- 중간 단계 (절반 별) -->
+    <item android:id="@android:id/secondaryProgress"
+        android:drawable="@drawable/ic_star_half" />
+
+    <!-- 채워진 별 -->
+    <item android:id="@android:id/progress"
+        android:drawable="@drawable/ic_star_full" />
+</layer-list>

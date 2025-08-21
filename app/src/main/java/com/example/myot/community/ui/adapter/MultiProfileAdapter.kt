@@ -8,7 +8,8 @@ import com.example.myot.databinding.ItemMultiProfileBinding
 
 class MultiProfileAdapter(
     private var profiles: List<Profile>,
-    private val onClick: (Profile) -> Unit
+    private val onProfileSelected: (Profile) -> Unit,
+    private val onProfileDeleted: (Profile) -> Unit
 ) :
     RecyclerView.Adapter<MultiProfileAdapter.ProfileViewHolder>() {
 
@@ -16,9 +17,8 @@ class MultiProfileAdapter(
         fun bind(profile: Profile) {
             binding.tvMultiProfileNickName.text = profile.nickname
             binding.tvMultiProfileIntroduce.text = profile.bio
-            binding.layoutMultiProfile.setOnClickListener {
-                onClick(profile)
-            }
+            binding.layoutMultiProfile.setOnClickListener { onProfileSelected(profile) }
+            binding.layoutProfileDelete.setOnClickListener { onProfileDeleted(profile) }
         }
     }
 

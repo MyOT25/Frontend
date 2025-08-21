@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.gridlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,4 +65,9 @@ dependencies {
     implementation ("androidx.datastore:datastore-preferences:1.1.7")
     implementation("com.google.dagger:hilt-android:2.56.2")
     ksp ("com.google.dagger:hilt-android-compiler:2.56.2")
+    implementation ("com.google.android.flexbox:flexbox:3.0.0")
+    implementation ("com.google.android.material:material:1.13.0-rc01")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    implementation ("com.google.code.gson:gson:2.9.0") //로그 검사용 json implementation
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")   // OkHttp logging interceptor
 }
