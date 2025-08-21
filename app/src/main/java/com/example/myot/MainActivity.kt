@@ -14,9 +14,13 @@ import android.text.TextWatcher
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.core.view.updatePadding
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myot.chatting.ChatFragment
@@ -29,18 +33,31 @@ import com.example.myot.notification.NotificationAdapter
 import com.example.myot.notification.NotificationItem
 import com.example.myot.retrofit2.AuthStore
 import com.example.myot.retrofit2.TokenStore
+import com.google.android.material.navigation.NavigationView
+
+// 드로어 각 화면 프래그먼트 import
+import com.example.myot.drawer.TicketMarkFragment
+import com.example.myot.drawer.communitymanager.CommunityManagerFragment
+import com.example.myot.drawer.NotificationFragment
+import com.example.myot.drawer.SubscribeFragment
+import com.example.myot.drawer.SettingFragment
+import com.example.myot.drawer.CustomerCenterFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
     private var imeVisibleFlag: Boolean = false
     private var commentTextWatcher: TextWatcher? = null
+
+    // 드로어 관련 변수
+    private lateinit var topBar: View
+    private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 액세스 토큰 로드
         AuthStore.accessToken = TokenStore.loadAccessToken(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -48,45 +65,61 @@ class MainActivity : AppCompatActivity() {
         // 네비게이션 바 종류에 맞게 바텀 네비 크기 변경
         adjustBottomNavMargin()
 
-        // 시스템 상단/하단 바까지 화면 처리
+        // 시스템 상단/하단 바 투명 처리
         setTransparentSystemBars()
 
+        // 하단 네비 아이콘 기본 색상 제거
         binding.bottomNavigationView.itemIconTintList = null
 
+        // 초기 탭은 홈으로 설정
         selectTab(R.id.menu_home)
 
+        // 하단 네비게이션 아이템 클릭 이벤트 처리
         binding.bottomNavigationView.setOnItemSelectedListener {
             selectTab(it.itemId)
             true
         }
 
-        // 질문 댓글창 기능
+        // 햄버거 메뉴 버튼 클릭 시 드로어 열기
+        drawerLayout = findViewById(R.id.drawer_layout)
+        val profileButton = findViewById<ImageView>(R.id.iv_profile)
+        profileButton.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        // 네비게이션 드로어 메뉴 클릭 리스너 등록
+        binding.navView.setNavigationItemSelectedListener(navigationItemSelectedListener)
+
+        // 뒤로가기 버튼 처리 (댓글창, 키보드 상태 관리 + 드로어 닫기)
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // 키보드가 떠 있으면 먼저 내리고 끝
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    return
+                }
                 if (imeVisibleFlag) {
                     hideKeyboardAndClearFocus()
                     return
                 }
-                // 댓글바 열려 있으면 닫고 끝
                 if (binding.commentBar.root.visibility == View.VISIBLE) {
                     hideCommentBar()
                     return
                 }
-                // 그 외에는 기존 back 동작 수행
                 isEnabled = false
                 onBackPressedDispatcher.onBackPressed()
                 isEnabled = true
             }
         })
 
-        // 알림창 기능
+        // 알림창 관련 뷰
         val topContainer = findViewById<View>(R.id.top_bar)
         val alarmBtn = findViewById<ImageView>(R.id.iv_notification)
         val bg = findViewById<View>(R.id.iv_top_bg)
 
+        // 더미 알림 리스트
         val dummyList = mutableListOf<NotificationItem>()
 
+        // 알림 아이콘 상태 업데이트
         fun updateAlarmIcon() {
             val hasNew = dummyList.any { it.isNew }
             alarmBtn.setImageResource(
@@ -96,6 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         var isDown = false
 
+        // 알림창 애니메이션 처리
         topContainer.post {
             val bgHeight = bg.height.toFloat()
             val topBarHeight = topContainer.height.toFloat()
@@ -124,13 +158,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 알림 RecyclerView 설정
         val rv = findViewById<RecyclerView>(R.id.rv_notifications).apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
         }
 
         lateinit var adapter: NotificationAdapter
         adapter = NotificationAdapter(dummyList) { pos ->
-
             val item = dummyList.getOrNull(pos) ?: return@NotificationAdapter
             if (item.isNew) {
                 item.isNew = false
@@ -141,26 +175,60 @@ class MainActivity : AppCompatActivity() {
         rv.adapter = adapter
     }
 
+    // 드로어 메뉴 클릭 이벤트 처리
+    private val navigationItemSelectedListener =
+        NavigationView.OnNavigationItemSelectedListener { menuItem ->
+            menuItem.isChecked = true
+            when (menuItem.itemId) {
+                R.id.nav_ticket -> {
+                    replaceFragment(TicketMarkFragment(), addToBackStack = false)
+                }
+                R.id.nav_community -> {
+                    replaceFragment(CommunityManagerFragment(), addToBackStack = false)
+                }
+                R.id.nav_notice -> {
+                    replaceFragment(NotificationFragment(), addToBackStack = false)
+                }
+                R.id.nav_subscribe -> {
+                    replaceFragment(SubscribeFragment(), addToBackStack = false)
+                }
+                R.id.nav_setting -> {
+                    replaceFragment(SettingFragment(), addToBackStack = false)
+                }
+                R.id.nav_support -> {
+                    replaceFragment(CustomerCenterFragment(), addToBackStack = false)
+                }
+                else -> {
+                    toastWip("준비 중입니다.")
+                }
+            }
+            true
+        }
 
+    // 프래그먼트 교체 공통 함수
+    private fun replaceFragment(fragment: Fragment, addToBackStack: Boolean) {
+        val tx = supportFragmentManager.beginTransaction()
+            .replace(binding.fragmentContainerView.id, fragment)
+        if (addToBackStack) tx.addToBackStack(null)
+        tx.commit()
+    }
+
+    // 네비게이션 종류에 따른 바텀 네비 마진 조정
     private fun adjustBottomNavMargin() {
         val bottomNav = binding.bottomNavigationView
         val params = bottomNav.layoutParams as ViewGroup.MarginLayoutParams
 
         if (isGestureNavigation()) {
-            // 제스처 내비게이션일 때
             params.bottomMargin = (-17).dpToPx()
             params.height = 90.dpToPx()
         } else {
-            // 버튼 내비게이션일 때
             params.bottomMargin = (-7).dpToPx()
             params.height = 110.dpToPx()
         }
-
         bottomNav.layoutParams = params
     }
 
-
-
+    // 현재 기기의 내비게이션 방식 확인
     private fun isGestureNavigation(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Settings.Secure.getInt(contentResolver, "navigation_mode", 0) == 2
@@ -169,6 +237,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // dp → px 변환
     private fun Int.dpToPx(): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -177,15 +246,13 @@ class MainActivity : AppCompatActivity() {
         ).toInt()
     }
 
-
+    // 시스템 상단/하단 바 투명 처리
     @Suppress("DEPRECATION", "NewApi")
     private fun setTransparentSystemBars() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
-
             window.statusBarColor = Color.TRANSPARENT
             window.navigationBarColor = Color.TRANSPARENT
-
         } else {
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
@@ -232,12 +299,12 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    // 댓글창 보여주기
     fun showCommentBar(
         scrollable: View,
         hint: String = "댓글을 입력하세요",
         onSend: (String, Boolean) -> Unit
     ) {
-        // 바텀 네비 숨기고 댓글바/스페이서 보이기
         binding.bottomNavigationView.visibility = View.INVISIBLE
         binding.bottomNavigationLine.visibility = View.INVISIBLE
 
@@ -249,7 +316,6 @@ class MainActivity : AppCompatActivity() {
         binding.commentBottomSpacer.bringToFront()
         binding.commentBottomSpacer.translationZ = 23f
 
-        // 힌트/커서(깜빡임) 끄기
         binding.commentBar.etComment.hint = null
         binding.commentBar.etComment.clearFocus()
         binding.commentBar.etComment.isCursorVisible = false
@@ -308,12 +374,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 댓글창 숨기기
     fun hideCommentBar() {
         binding.commentBar.root.visibility = View.GONE
         binding.commentBottomSpacer.visibility = View.GONE
         binding.bottomNavigationView.visibility = View.VISIBLE
         binding.bottomNavigationLine.visibility = View.VISIBLE
-        // 스크롤 하단 패딩 원복
         (currentFocus ?: binding.fragmentContainerView).updatePadding(bottom = 0)
 
         commentTextWatcher?.let {
@@ -322,6 +388,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 키보드와 댓글창 동작 처리
     private fun registerImeLift(targetBar: View, scrollable: View?, spacer: View) {
         val content = findViewById<View>(android.R.id.content)
 
@@ -358,21 +425,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 터치 이벤트 처리 (댓글창 외부 터치 시 키보드 내리기)
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (ev.action == MotionEvent.ACTION_DOWN && imeVisibleFlag) {
-            // 댓글바 영역 안을 탭했는지 체크 (안에서 탭이면 무시)
             val bar = binding.commentBar.root
             if (bar.visibility == View.VISIBLE) {
                 val barRect = Rect()
                 bar.getGlobalVisibleRect(barRect)
-                // 댓글바 밖을 탭했으면 키보드 내림
                 if (!barRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
                     hideKeyboardAndClearFocus()
-                    // 탭 이벤트는 소비해서 다른 클릭이 실행되지 않도록
                     return true
                 }
             } else {
-                // 댓글바가 없어도, 포커스된 EditText가 있고 그 밖을 탭하면 키보드 내림
                 val focused = currentFocus
                 if (focused is android.widget.EditText) {
                     val r = Rect()
@@ -387,12 +451,13 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
+    // 질문 탭 열기
     fun openQuestionTab() {
         binding.bottomNavigationView.selectedItemId = R.id.menu_question
     }
 
+    // 키보드 내리기 및 포커스 해제
     fun hideKeyboardAndClearFocus() {
-        // 포커스 지우고 커서 비표시
         binding.commentBar.etComment.clearFocus()
         binding.commentBar.etComment.isCursorVisible = false
 
@@ -401,6 +466,8 @@ class MainActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-
-
+    // 간단 토스트 표시
+    private fun toastWip(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
 }
