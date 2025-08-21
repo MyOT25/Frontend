@@ -12,7 +12,10 @@
         android:id="@+id/tvMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="13dp"
         android:background="@drawable/bg_chat_right"
         android:textColor="@android:color/white"/>
+
+    <!-- tail과의 간격을 위해 marginEnd 추가 -->
 
 </LinearLayout>

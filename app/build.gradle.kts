@@ -64,4 +64,6 @@ dependencies {
     implementation ("androidx.datastore:datastore-preferences:1.1.7")
     implementation("com.google.dagger:hilt-android:2.56.2")
     ksp ("com.google.dagger:hilt-android-compiler:2.56.2")
+    implementation ("com.google.code.gson:gson:2.9.0") //로그 검사용 json implementation
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")   // OkHttp logging interceptor
 }
