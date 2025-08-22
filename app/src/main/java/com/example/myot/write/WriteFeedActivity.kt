@@ -175,7 +175,7 @@ class WriteFeedActivity : AppCompatActivity() {
         tvCount.text = "${selectedImageUris.size}/4"
 
         addButtonView.setOnClickListener {
-            imagePickerLauncher.launch("image/*")
+            imagePickerLauncher.launch(arrayOf("image/*"))
         }
 
         binding.layoutImageContainer.addView(addButtonView)
@@ -218,8 +218,18 @@ class WriteFeedActivity : AppCompatActivity() {
     }
 
     private val imagePickerLauncher =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
             if (uris != null) {
+
+                uris.forEach { uri ->
+                    try {
+                        contentResolver.takePersistableUriPermission(
+                            uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                    } catch (_: SecurityException) {
+                    }
+                }
                 val remaining = 4 - selectedImageUris.size
                 selectedImageUris.addAll(uris.take(remaining))
                 updateImageThumbnails()

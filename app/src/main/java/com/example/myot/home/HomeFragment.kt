@@ -537,7 +537,12 @@ class HomeFragment : Fragment() {
         tvCommunityName.visibility = View.GONE
 
         viewLifecycleOwner.lifecycleScope.launch {
+
             fetchMyCommunitiesWithCovers()
+            fetchHomeFeed()
+            binding.nestedScrollView.post {
+                binding.nestedScrollView.scrollTo(0, 0)
+            }
         }
     }
 
