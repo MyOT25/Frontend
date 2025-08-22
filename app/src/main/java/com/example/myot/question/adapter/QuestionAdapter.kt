@@ -37,18 +37,21 @@ class QuestionAdapter(
             val displayText = contentOnly + tagsText
 
             val spannable = SpannableString(displayText)
+            val ctx = binding.root.context
+            val pointBlue = ContextCompat.getColor(ctx, R.color.point_blue)
 
-            item.tags.forEach { tag ->
-                val hashtag = "#$tag"
-                val start = displayText.indexOf(hashtag)
-                if (start >= 0) {
-                    spannable.setSpan(
-                        ForegroundColorSpan(ContextCompat.getColor(binding.root.context, R.color.point_blue)),
-                        start, start + hashtag.length,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
+            val regex = Regex("#[^\\s]+")
+            regex.findAll(displayText).forEach { m ->
+                val start = m.range.first
+                val end = m.range.last + 1
+                spannable.setSpan(
+                    ForegroundColorSpan(pointBlue),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
             }
+
             binding.tvContent.text = spannable
 
             // 썸네일 기능 적용
