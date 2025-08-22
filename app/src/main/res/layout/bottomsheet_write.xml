@@ -1,0 +1,51 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="300dp"
+    android:background="@drawable/bg_bottomsheet">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_bottomsheet_handle_bar"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="1dp" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_feedback"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:background="@android:color/transparent"
+        app:tabTextAppearance="@style/TextAppearance.App.LabelMedium"
+        app:tabIndicatorColor="@color/point_blue"
+        app:tabIndicatorHeight="3dp"
+        app:tabMinWidth="0dp"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabSelectedTextColor="@color/point_blue"
+        app:tabIndicator="@drawable/tab_indicator_bottomsheet"
+        app:tabTextColor="@color/gray3"
+        app:tabIndicatorFullWidth="true"
+        app:tabGravity="fill"
+        app:tabMode="fixed" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp_feedback"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never" />
+
+        <!-- 그림자 뷰를 위로 올림 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_bottomsheet_shadow"
+            android:layout_gravity="top" />
+    </FrameLayout>
+</LinearLayout>

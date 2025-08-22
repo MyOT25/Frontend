@@ -1,9 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.MyOT" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- 상태바 아이콘을 어둡게 (검정) 표시 -->
         <item name="android:windowLightStatusBar">true</item>
+
+        <!-- 시스템 바 색상 설정 -->
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
     </style>
 
     <style name="Theme.MyOT" parent="Base.Theme.MyOT" />

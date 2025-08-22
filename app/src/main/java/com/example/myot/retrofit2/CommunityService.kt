@@ -12,6 +12,7 @@ import com.example.myot.community.model.ProfileRequest
 import com.example.myot.community.model.ProfileResponse
 import com.example.myot.home.MyCommunitiesResponse
 import com.example.myot.community.model.basicResponse
+import com.example.myot.home.CommunityTypeListResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -78,4 +79,11 @@ interface CommunityService {
         @Header("Authorization") token: String,
         @Path("profileId") profileId: Int
     ): Response<DeleteProfileResponse>
+
+    @GET("api/community/type/{type}/{userId}")
+    suspend fun getCommunitiesByType(
+        @Header("Authorization") token: String,
+        @Path("type") type: String,
+        @Path("userId") userId: Long
+    ): Response<CommunityTypeListResponse>
 }

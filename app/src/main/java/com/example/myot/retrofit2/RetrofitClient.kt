@@ -30,4 +30,5 @@ object RetrofitClient {
     val profileService: ProfileService = retrofit.create(ProfileService::class.java)
     val bookService: BookService = retrofit.create(BookService::class.java)
     val calendarService: CalendarService = retrofit.create(CalendarService::class.java)
+    val postService: PostService = retrofit.create(PostService::class.java)
 }

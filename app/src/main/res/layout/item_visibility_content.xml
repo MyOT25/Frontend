@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 전체 공개 -->
+    <LinearLayout
+        android:id="@+id/row_public"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/iv_public"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/ic_write_all"/>
+
+        <TextView
+            android:id="@+id/tv_public"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:fontFamily="@font/roboto_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="전체 공개"
+            android:textColor="@color/gray3"
+            android:layout_marginStart="12dp" />
+    </LinearLayout>
+
+    <!-- 팔로워에게 공개 -->
+    <LinearLayout
+        android:id="@+id/row_followers"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="16dp"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/iv_followers"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/ic_write_follow"/>
+
+        <TextView
+            android:id="@+id/tv_followers"
+            style="@style/TextAppearance.App.LabelMedium"
+            android:fontFamily="@font/roboto_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="팔로워에게 공개"
+            android:textColor="@color/gray3"
+            android:layout_marginStart="12dp" />
+    </LinearLayout>
+
+</LinearLayout>

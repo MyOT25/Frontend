@@ -50,34 +50,6 @@ class HomeFragment : Fragment() {
     private var startY = 0f
     private val triggerDistance = 150f
 
-    private val writeFeedResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data ?: return@registerForActivityResult
-
-                val isPublic = data.getBooleanExtra("isPublic", true)
-                val content = data.getStringExtra("content") ?: ""
-                val imageUrls = data.getStringArrayListExtra("imageUrls") ?: arrayListOf()
-
-                val newFeed = FeedItem(
-                    username = "마이오티",
-                    content = content,
-                    imageUrls = imageUrls,
-                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                    community = if (isPublic) "전체 공개" else "친구 공개", // 임시 처리
-                    commentCount = 0,
-                    likeCount = 0,
-                    repostCount = 0,
-                    bookmarkCount = 0,
-                    isBookmarked = false
-                )
-
-                feedList.add(0, newFeed)
-                binding.rvFeeds.adapter?.notifyDataSetChanged()
-                binding.rvFeeds.scrollToPosition(0)
-            }
-        }
-
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?
@@ -89,7 +61,6 @@ class HomeFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         // 새로고침 초기화
         binding.customRefreshView.apply {
@@ -128,12 +99,19 @@ class HomeFragment : Fragment() {
                         if (currentY >= triggerDistance) {
                             isRefreshing = true
                             binding.customRefreshView.startLoading()
-                            // 새로고침 동작 후 종료 시 reset() 호출
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                binding.nestedScrollView.animate().translationY(0f).setDuration(300).start()
-                                binding.customRefreshView.reset()
-                                isRefreshing = false
-                            }, 1500)
+                            binding.nestedScrollView.smoothScrollTo(0, 0)
+
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                try {
+                                    renderCommunityStrip(emptyList())
+                                    awaitRefresh()
+                                } finally {
+                                    // UI 복구
+                                    binding.nestedScrollView.animate().translationY(0f).setDuration(300).start()
+                                    binding.customRefreshView.reset()
+                                    isRefreshing = false
+                                }
+                            }
                         } else {
                             binding.nestedScrollView.animate().translationY(0f).setDuration(300).start()
                             binding.customRefreshView.reset()
@@ -143,10 +121,6 @@ class HomeFragment : Fragment() {
             }
             false
         }
-
-        renderCommunityStrip(emptyList())
-        fetchMyCommunitiesWithCovers()
-
 
         // 피드 리사이클러뷰 초기화
         binding.rvFeeds.apply {
@@ -167,7 +141,11 @@ class HomeFragment : Fragment() {
             )
         }
 
-        fetchHomeFeed()
+        viewLifecycleOwner.lifecycleScope.launch {
+            renderCommunityStrip(emptyList())
+            fetchMyCommunitiesWithCovers()
+            fetchHomeFeed()
+        }
 
         // 글쓰기 버튼 스크롤 시 투명도 처리
         val handler = Handler(Looper.getMainLooper())
@@ -178,7 +156,7 @@ class HomeFragment : Fragment() {
         // 글쓰기 기능
         binding.btnEdit.setOnClickListener {
             val intent = Intent(requireContext(), WriteFeedActivity::class.java)
-            writeFeedResultLauncher.launch(intent)
+            startActivity(intent)
         }
 
         binding.nestedScrollView.setOnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
@@ -221,6 +199,11 @@ class HomeFragment : Fragment() {
             } catch (_: Exception) { }
         }
         return iso
+    }
+
+    private suspend fun awaitRefresh() {
+        fetchMyCommunitiesWithCovers()
+        fetchHomeFeed()
     }
 
     private fun HomeFeedPost.toFeedItem(): FeedItem {
@@ -307,13 +290,14 @@ class HomeFragment : Fragment() {
             val ivRing = root.findViewById<ImageView>(R.id.iv_ring)
 
             if (item == null) {
-                // + 버튼
                 ivRing.visibility = View.GONE
                 ivCommunity.visibility = View.GONE
                 ivPlus.visibility = View.VISIBLE
 
                 root.setOnClickListener {
-                    // TODO: 커뮤니티 검색/추가 화면 이동
+                    // 커뮤니티 추가 화면으로 이동
+                    val intent = Intent(requireContext(), AddCommunityActivity::class.java)
+                    startActivity(intent)
                 }
             } else {
                 // 커뮤니티 항목
@@ -353,7 +337,7 @@ class HomeFragment : Fragment() {
                 }
 
                 root.setOnClickListener {
-                    val fragment = CommunityFragment.newInstance(item.type.uppercase())
+                    val fragment = CommunityFragment.newInstance(item.type, item.id)
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container_view, fragment)
                         .addToBackStack(null)
@@ -374,87 +358,102 @@ class HomeFragment : Fragment() {
             binding.hsCommunities.isHorizontalScrollBarEnabled = false
         }
     }
-    private fun fetchMyCommunitiesWithCovers() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val raw = TokenStore.loadAccessToken(requireContext())
-                if (raw.isNullOrBlank()) {
+    private suspend fun fetchMyCommunitiesWithCovers() {
+        try {
+            val raw = TokenStore.loadAccessToken(requireContext())
+            if (raw.isNullOrBlank()) {
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
                     renderCommunityStrip(emptyList())
                     Toast.makeText(requireContext(), "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
-                    return@launch
                 }
+                return
+            }
 
-                val cleaned = raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
-                val bearer = "Bearer $cleaned"
-                val service: CommunityService = RetrofitClient.communityService
+            val cleaned = raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
+            val bearer = "Bearer $cleaned"
+            val service: CommunityService = RetrofitClient.communityService
 
-                val mineRes = withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    service.getMyCommunities(bearer)
-                }
-                if (!mineRes.isSuccessful) {
+            // 1) 내 커뮤니티 목록
+            val mineRes = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                service.getMyCommunities(bearer)
+            }
+            if (!mineRes.isSuccessful) {
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
                     renderCommunityStrip(emptyList())
-                    return@launch
                 }
-                val body = mineRes.body()
-                val mine = if (body?.success == true) body.communities else emptyList()
+                return
+            }
+            val body = mineRes.body()
+            val mine = if (body?.success == true) body.communities else emptyList()
 
-                val baseUi = mine.map {
-                    CommunityUi(
-                        id = it.communityId,
-                        type = it.type,
-                        name = it.communityName,
-                        coverImage = null
-                    )
-                }
-                renderCommunityStrip(baseUi)
+            val baseUi = mine.map {
+                CommunityUi(
+                    id = it.communityId,
+                    type = it.type,
+                    name = it.communityName,
+                    coverImage = null
+                )
+            }
 
-                if (baseUi.isNotEmpty()) {
-                    val withCovers = withContext(kotlinx.coroutines.Dispatchers.IO) {
-                        baseUi.map { ui ->
-                            try {
-                                val detailRes = service.getCommunityDetail(bearer, ui.type, ui.id)
-                                val cover = if (detailRes.isSuccessful) {
-                                    detailRes.body()?.community?.coverImage
-                                } else null
-                                ui.copy(coverImage = cover)
-                            } catch (_: Exception) {
-                                ui
-                            }
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
+                renderCommunityStrip(baseUi)  // 1차 렌더 (커버 없는 상태)
+            }
+
+            // 2) 커버 채워서 2차 렌더
+            if (baseUi.isNotEmpty()) {
+                val withCovers = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    baseUi.map { ui ->
+                        try {
+                            val detailRes = service.getCommunityDetail(bearer, ui.type, ui.id)
+                            val cover = if (detailRes.isSuccessful) {
+                                detailRes.body()?.community?.coverImage
+                            } else null
+                            ui.copy(coverImage = cover)
+                        } catch (_: Exception) {
+                            ui
                         }
                     }
-                    renderCommunityStrip(withCovers)
                 }
-            } catch (e: Exception) {
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    renderCommunityStrip(withCovers)  // 2차 렌더
+                }
+            }
+        } catch (_: Exception) {
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
                 renderCommunityStrip(emptyList())
             }
         }
     }
 
-    private fun fetchHomeFeed() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val raw = TokenStore.loadAccessToken(requireContext())
-                if (raw.isNullOrBlank()) {
+    private suspend fun fetchHomeFeed() {
+        try {
+            val raw = TokenStore.loadAccessToken(requireContext())
+            if (raw.isNullOrBlank()) {
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
                     Toast.makeText(requireContext(), "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
-                    return@launch
                 }
-                val cleaned = raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
-                val bearer = "Bearer $cleaned"
+                return
+            }
+            val cleaned = raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
+            val bearer = "Bearer $cleaned"
 
-                val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    com.example.myot.retrofit2.RetrofitClient.homeFeedService.getHomeFeed(bearer)
-                }
+            val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                RetrofitClient.homeFeedService.getHomeFeed(bearer)
+            }
 
-                if (!res.isSuccessful) {
+            if (!res.isSuccessful) {
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
                     Toast.makeText(requireContext(), "홈 피드 불러오기 실패 (${res.code()})", Toast.LENGTH_SHORT).show()
-                    return@launch
                 }
+                return
+            }
 
-                val envelope = res.body()
+            val envelope = res.body()
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
                 if (envelope?.resultType != "SUCCESS") {
                     feedList.clear()
                     binding.rvFeeds.adapter?.notifyDataSetChanged()
-                    return@launch
+                    return@withContext
                 }
 
                 val posts = envelope.data?.posts ?: emptyList()
@@ -463,8 +462,9 @@ class HomeFragment : Fragment() {
                 feedList.clear()
                 feedList.addAll(mapped)
                 binding.rvFeeds.adapter?.notifyDataSetChanged()
-
-            } catch (e: Exception) {
+            }
+        } catch (e: Exception) {
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
                 Toast.makeText(requireContext(), "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
@@ -511,6 +511,21 @@ class HomeFragment : Fragment() {
         }.show()
     }
 
+    override fun onStart() {
+        super.onStart()
+        setTopBarLogo(R.drawable.ic_logo_text)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        setTopBarLogo(R.drawable.ic_logo)
+    }
+
+    private fun setTopBarLogo(resId: Int) {
+        val ivLogo = requireActivity().findViewById<ImageView>(R.id.iv_logo)
+        ivLogo?.setImageResource(resId)
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -520,6 +535,15 @@ class HomeFragment : Fragment() {
 
         ivLogo.visibility = View.VISIBLE
         tvCommunityName.visibility = View.GONE
+
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            fetchMyCommunitiesWithCovers()
+            fetchHomeFeed()
+            binding.nestedScrollView.post {
+                binding.nestedScrollView.scrollTo(0, 0)
+            }
+        }
     }
 
     override fun onDestroyView() {

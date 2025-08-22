@@ -303,7 +303,7 @@ class MainActivity : AppCompatActivity() {
     // 댓글창 보여주기
     fun showCommentBar(
         scrollable: View,
-        hint: String = "댓글을 입력하세요",
+        hint: String? = null,
         onSend: (String, Boolean) -> Unit,
         allowAnonymous: Boolean = true
     ) {
@@ -319,7 +319,7 @@ class MainActivity : AppCompatActivity() {
         binding.commentBottomSpacer.translationZ = 23f
 
         // 입력창은 보이되 자동 포커스/자동 키보드는 열지 않는다.
-        binding.commentBar.etComment.hint = hint
+        binding.commentBar.etComment.hint = hint ?: ""
         binding.commentBar.etComment.clearFocus()
         binding.commentBar.etComment.isCursorVisible = false
         binding.commentBar.etComment.setOnFocusChangeListener { v, has ->

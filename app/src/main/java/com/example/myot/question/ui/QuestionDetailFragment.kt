@@ -99,7 +99,7 @@ class QuestionDetailFragment : Fragment() {
 
         (activity as? MainActivity)?.showCommentBar(
             scrollable = binding.rvQuestionDetail,
-            hint = "댓글을 입력하세요",
+            hint = null,
             onSend = { text, isAnonymous ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     // 댓글 등록
@@ -137,7 +137,6 @@ class QuestionDetailFragment : Fragment() {
 
                             (activity as? MainActivity)?.apply {
                                 hideKeyboardAndClearFocus()
-                                hideCommentBar()
                             }
                         }
                         .onFailure {

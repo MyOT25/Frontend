@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="90dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginEnd="12dp">
+
+    <!-- 썸네일 -->
+    <ImageView
+        android:id="@+id/ivCover"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@drawable/bg_thumbnail_gray5"
+        android:scaleType="centerCrop"
+        android:clipToOutline="true" />
+
+    <!-- 이름 -->
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="커뮤니티 이름"
+        style="@style/TextAppearance.App.LabelMedium"
+        android:fontFamily="@font/roboto_bold"
+        android:textColor="@color/gray1" />
+
+    <!-- 가입자 수 -->
+    <TextView
+        android:id="@+id/tvMembers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="1000명 가입"
+        style="@style/TextAppearance.App.LabelSmall"
+        android:textColor="@color/black" />
+
+</LinearLayout>

@@ -30,6 +30,8 @@ class WriteQuestionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityWriteQuestionBinding
 
+    private var isApplyingHashtagSpan = false
+
     private var isAnonymous = true
     private val selectedImageUris = mutableListOf<Uri>()
     private val repo by lazy {
@@ -72,10 +74,17 @@ class WriteQuestionActivity : AppCompatActivity() {
 
         // 본문 입력 감지 → 해시태그 안내 보이기/숨기기
         binding.etContent.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 binding.tvHashtagTip.isVisible = !s.isNullOrBlank()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s == null) return
+                if (isApplyingHashtagSpan) return
+
+                applyHashtagColor(s)
             }
         })
 
@@ -130,6 +139,41 @@ class WriteQuestionActivity : AppCompatActivity() {
                     Toast.makeText(this@WriteQuestionActivity, "등록 실패: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
+        }
+    }
+
+    private fun applyHashtagColor(editable: Editable) {
+        isApplyingHashtagSpan = true
+        try {
+            // 커서 위치 저장
+            val selStart = binding.etContent.selectionStart
+            val selEnd = binding.etContent.selectionEnd
+            
+            val oldSpans = editable.getSpans(0, editable.length, ForegroundColorSpan::class.java)
+            oldSpans.forEach { editable.removeSpan(it) }
+
+            // 정규식: '#'부터 다음 공백(또는 줄끝) 전까지
+            val text = editable.toString()
+            val regex = Regex("#[^\\s]+") // 공백 나오기 전까지 매칭
+            val color = ContextCompat.getColor(this, R.color.point_blue)
+
+            regex.findAll(text).forEach { match ->
+                val start = match.range.first
+                val endExclusive = match.range.last + 1
+                editable.setSpan(
+                    ForegroundColorSpan(color),
+                    start,
+                    endExclusive,
+                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            // 커서 복구 (범위를 벗어나면 안전 보정)
+            val safeStart = selStart.coerceIn(0, editable.length)
+            val safeEnd = selEnd.coerceIn(0, editable.length)
+            binding.etContent.setSelection(safeStart, safeEnd)
+        } finally {
+            isApplyingHashtagSpan = false
         }
     }
 

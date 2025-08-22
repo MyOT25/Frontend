@@ -42,11 +42,12 @@ class CommunityFragment : Fragment() {
 
     private val viewModel: CommunityViewModel by viewModels()   // 커뮤니티 가입 관리
 
-    val communityId = 1
+    private var communityId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        itemType = arguments?.getString(ARG_ITEM_TYPE) ?: "musical"   // 기본값 "작품"으로 설정
+        itemType = requireArguments().getString(ARG_COMMUNITY_TYPE) ?: "musical"
+        communityId = requireArguments().getInt(ARG_COMMUNITY_ID)
     }
 
     override fun onAttach(context: Context) {
@@ -80,20 +81,21 @@ class CommunityFragment : Fragment() {
     }
 
     companion object {
-        private const val ARG_ITEM_TYPE = "item_type"
-        fun newInstance(type: String): CommunityFragment {
-            val fragment = CommunityFragment()
-            fragment.arguments = Bundle().apply {
-                putString(ARG_ITEM_TYPE, type)
+        private const val ARG_COMMUNITY_TYPE = "community_type"
+        private const val ARG_COMMUNITY_ID = "community_id"
+
+        fun newInstance(type: String, id: Int): CommunityFragment {
+            return CommunityFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_COMMUNITY_TYPE, type)
+                    putInt(ARG_COMMUNITY_ID, id)
+                }
             }
-            return fragment
         }
     }
 
     private fun setCommunity() {
-        // TODO: 선택한 커뮤니티 정보 Home에서 넘겨받기
-        //val communityId = intent.getIntExtra("communityId", 0)
-        viewModel.fetchCommunity("musical", communityId)
+        viewModel.fetchCommunity(itemType, communityId)
 
         viewModel.community.observe(viewLifecycleOwner) { community ->
             if (community != null) {
@@ -110,7 +112,7 @@ class CommunityFragment : Fragment() {
 
         viewModel.error.observe(viewLifecycleOwner) { error ->
             Log.e("communityAPI", error)
-            Toast.makeText(getActivity(), error , Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, error, Toast.LENGTH_LONG).show()
         }
     }
 

@@ -71,21 +71,8 @@ class QuestionDetailAdapter(
             val content = item.content
             val tagsText = if (item.tags.isNotEmpty()) item.tags.joinToString(prefix = "\n#", separator = " #") else ""
             val full = content + tagsText
-            val spannable = SpannableString(full)
-            if (item.tags.isNotEmpty()) {
-                item.tags.forEach { tag ->
-                    val hash = "#$tag"
-                    val start = full.indexOf(hash)
-                    if (start >= 0) {
-                        spannable.setSpan(
-                            ForegroundColorSpan(ContextCompat.getColor(binding.root.context, R.color.point_blue)),
-                            start, start + hash.length,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                }
-            }
-            binding.tvDetailContent.text = spannable
+
+            binding.tvDetailContent.text = buildHashtagSpannable(binding.root.context, full)
 
             // 이미지 처리 (기존 로직 그대로)
             if (imageUrls.isNotEmpty()) {
@@ -142,6 +129,24 @@ class QuestionDetailAdapter(
             binding.ivOverflow.setOnClickListener { v ->
                 showOverflowPopup(v)
             }
+        }
+
+        private fun buildHashtagSpannable(ctx: android.content.Context, text: String): SpannableString {
+            val sp = SpannableString(text)
+            val color = ContextCompat.getColor(ctx, R.color.point_blue)
+            val regex = Regex("#[^\\s]+")
+
+            regex.findAll(text).forEach { m ->
+                val start = m.range.first
+                val end = m.range.last + 1
+                sp.setSpan(
+                    ForegroundColorSpan(color),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            return sp
         }
 
         private fun updateIndicator(position: Int, itemCount: Int) {
@@ -261,6 +266,7 @@ class QuestionDetailAdapter(
                 layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.dp_16)
                 layoutParams.topMargin = context.resources.getDimensionPixelSize(R.dimen.dp_3)
             } else {
+
                 binding.tvName.text = answer.authorName
                 binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.point_purple))
                 binding.ivProfile.setImageResource(R.drawable.ic_profile)
