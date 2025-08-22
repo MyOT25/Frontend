@@ -24,7 +24,7 @@
         android:id="@+id/tv_nav_nickname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="사용자 닉네임"
+        android:text="테스트 유저"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginTop="12dp" />

@@ -1,7 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_marginTop="110dp"
+    android:padding="12dp">
+
+    <!-- 상단 검색창 -->
+    <FrameLayout
+        android:id="@+id/searchContainer"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 검색창 배경 (ic_searching_menu 벡터) -->
+        <ImageView
+            android:id="@+id/searchBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_searching_menu"
+            android:scaleType="fitXY"/>
+
+        <!-- 실제 입력 EditText -->
+        <EditText
+            android:id="@+id/editSearch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:hint="검색창"
+            android:paddingStart="20dp"
+            android:paddingEnd="52dp"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:imeOptions="actionSearch"/>
+    </FrameLayout>
+
+    <!-- 인기 피드 제목 -->
+    <TextView
+        android:id="@+id/textFeedTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="인기 피드"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/searchContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"/>
+
+    <!-- 인기 피드 ViewPager -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/feedViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        app:layout_constraintTop_toBottomOf="@id/textFeedTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <!-- 추천 커뮤니티 제목 -->
+    <TextView
+        android:id="@+id/textCommunityTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="추천 커뮤니티"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/feedViewPager"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"/>
+
+    <!-- 추천 커뮤니티 ViewPager -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/communityViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        app:layout_constraintTop_toBottomOf="@id/textCommunityTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
