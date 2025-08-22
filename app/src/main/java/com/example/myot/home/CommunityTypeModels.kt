@@ -1,5 +1,7 @@
 package com.example.myot.home
 
+import com.example.myot.write.CommunityOption
+
 data class CommunityTypeItem(
     val communityId: Long,
     val communityName: String,

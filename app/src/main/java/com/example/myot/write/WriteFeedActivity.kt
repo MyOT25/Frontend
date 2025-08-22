@@ -3,17 +3,22 @@ package com.example.myot.write
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.Gravity
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.myot.R
 import com.example.myot.databinding.ActivityWriteFeedBinding
+import com.example.myot.retrofit2.PostCreateRequest
+import com.example.myot.retrofit2.RetrofitClient
+import com.example.myot.retrofit2.TokenStore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class WriteFeedActivity : AppCompatActivity() {
@@ -21,6 +26,8 @@ class WriteFeedActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWriteFeedBinding
     private val selectedImageUris = mutableListOf<Uri>()
     private var isPublic = true
+    private var selectedCommunity = CommunityOption(-1, "커뮤니티명")
+    private val communityOptions = mutableListOf<CommunityOption>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,25 +36,133 @@ class WriteFeedActivity : AppCompatActivity() {
 
         updateImageThumbnails()
 
-        binding.tvVisibility.setOnClickListener {
-            showVisibilityPopup(it)
-        }
+        renderChips()
+
+        validatePost()
 
         binding.tvCancel.setOnClickListener {
             finish()
         }
 
-        binding.tvPost.setOnClickListener {
-
-
-            val resultIntent = Intent().apply {
-                putExtra("isPublic", isPublic)
-                putExtra("content", binding.etContent.text.toString())
-                putStringArrayListExtra("imageUrls", selectedImageUris.map { it.toString() } as ArrayList<String>)
-            }
-            setResult(RESULT_OK, resultIntent)
-            finish()
+        binding.tvVisibility.setOnClickListener {
+            openBottomSheet(PublishBottomSheet.Tab.VISIBILITY)
         }
+        binding.tvCommunity.setOnClickListener {
+            openBottomSheet(PublishBottomSheet.Tab.COMMUNITY)
+        }
+
+        binding.etContent.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                validatePost()
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        binding.tvPost.setOnClickListener {
+            submitPost()
+        }
+
+        loadMyCommunities()
+    }
+
+    private fun submitPost() {
+        val content = binding.etContent.text?.toString()?.trim().orEmpty()
+        val hasCommunity = selectedCommunity.id != -1L
+        if (content.isBlank() || !hasCommunity) {
+            validatePost()
+            return
+        }
+
+        setPostEnabled(false)
+        binding.tvPost.text = "업로드 중…"
+
+        val visibility = if (isPublic) "public" else "friends"
+        val imageUrls = selectedImageUris.map { it.toString() }
+
+        val body = PostCreateRequest(
+            content = content,
+            postImages = imageUrls,
+            communityId = selectedCommunity.id,
+            visibility = visibility
+        )
+
+        lifecycleScope.launch {
+            try {
+                val raw = TokenStore.loadAccessToken(this@WriteFeedActivity)
+                if (raw.isNullOrBlank()) {
+                    restorePostButton(); return@launch
+                }
+                val bearer = "Bearer " + raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
+
+                val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    RetrofitClient.postService.createPost(bearer, body)
+                }
+
+                if (res.isSuccessful && res.body()?.resultType == "SUCCESS") {
+                    finish()
+                } else {
+                    restorePostButton()
+                }
+            } catch (e: Exception) {
+                restorePostButton()
+            }
+        }
+    }
+
+    private fun restorePostButton() {
+        binding.tvPost.text = "게시하기"
+        validatePost()
+    }
+
+    private fun openBottomSheet(initial: PublishBottomSheet.Tab) {
+        if (communityOptions.isEmpty()) loadMyCommunities()
+
+        PublishBottomSheet(
+            initialTab = initial,
+            isPublicNow = isPublic,
+            communities = communityOptions.toList(),
+            selectedCommunityId = selectedCommunity.id,
+            listener = object : PublishBottomSheet.Listener {
+                override fun onSelectVisibility(isPublic: Boolean) {
+                    this@WriteFeedActivity.isPublic = isPublic
+                    renderChips()
+                    validatePost()
+                }
+                override fun onSelectCommunity(option: CommunityOption) {
+                    selectedCommunity = option
+                    renderChips()
+                    validatePost()
+                }
+            }
+        ).show(supportFragmentManager, "publish_sheet")
+    }
+
+    private fun loadMyCommunities() {
+        val service = com.example.myot.retrofit2.RetrofitClient.communityService
+
+        lifecycleScope.launch {
+            try {
+                val raw = com.example.myot.retrofit2.TokenStore.loadAccessToken(this@WriteFeedActivity)
+                if (raw.isNullOrBlank()) return@launch
+                val bearer = "Bearer " + raw.trim().removePrefix("Bearer ").trim().removeSurrounding("\"")
+
+                val res = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    service.getMyCommunities(bearer)
+                }
+                if (!res.isSuccessful) return@launch
+                val body = res.body()
+                val mine = if (body?.success == true) body.communities else emptyList()
+
+                communityOptions.clear()
+                communityOptions.addAll(mine.map { it.toOption() })
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun renderChips() {
+        binding.tvVisibility.text = if (isPublic) "전체 공개" else "팔로워 공개"
+        binding.tvCommunity.text = selectedCommunity.name
     }
 
     private fun updateImageThumbnails() {
@@ -85,6 +200,23 @@ class WriteFeedActivity : AppCompatActivity() {
         }
     }
 
+    private fun validatePost() {
+        val hasContent = binding.etContent.text?.isNotBlank() == true
+        val hasCommunity = selectedCommunity.id != -1L
+        setPostEnabled(hasContent && hasCommunity)
+    }
+
+    private fun setPostEnabled(enabled: Boolean) {
+        binding.tvPost.isEnabled = enabled
+        if (enabled) {
+            binding.tvPost.setBackgroundResource(R.drawable.bg_write_btn)
+            binding.tvPost.setTextColor(ContextCompat.getColor(this, R.color.white))
+        } else {
+            binding.tvPost.setBackgroundResource(R.drawable.bg_write_btn_disabled)
+            binding.tvPost.setTextColor(ContextCompat.getColor(this, R.color.gray2))
+        }
+    }
+
     private val imagePickerLauncher =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
             if (uris != null) {
@@ -93,59 +225,4 @@ class WriteFeedActivity : AppCompatActivity() {
                 updateImageThumbnails()
             }
         }
-
-    private fun showVisibilityPopup(anchor: View) {
-        val context = anchor.context
-        val inflater = LayoutInflater.from(context)
-        val popupView = inflater.inflate(R.layout.menu_popup_visibility, null)
-
-        val popupWindow = PopupWindow(
-            popupView,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            true
-        )
-
-        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-        val popupWidth = popupView.measuredWidth
-
-        val location = IntArray(2)
-        anchor.getLocationOnScreen(location)
-        val anchorX = location[0]
-        val anchorY = location[1]
-
-        val rootView = (anchor.rootView as? ViewGroup) ?: return
-        val dimView = View(context).apply {
-            setBackgroundColor(0x22000000.toInt())
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
-        rootView.addView(dimView)
-        popupWindow.setOnDismissListener { rootView.removeView(dimView) }
-
-        popupWindow.setBackgroundDrawable(null)
-        popupWindow.isOutsideTouchable = true
-        popupWindow.isFocusable = true
-        popupWindow.elevation = 20f
-
-        val offsetX = anchor.width - popupWidth + 90
-        val offsetY = anchor.height - 165
-
-        popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, anchorX + offsetX, anchorY + offsetY)
-
-        // 항목 클릭 이벤트
-        popupView.findViewById<View>(R.id.btn_set_public).setOnClickListener {
-            popupWindow.dismiss()
-            isPublic = true
-            binding.tvVisibility.text = "전체 공개"
-        }
-
-        popupView.findViewById<View>(R.id.btn_set_friends).setOnClickListener {
-            popupWindow.dismiss()
-            isPublic = false
-            binding.tvVisibility.text = "친구 공개"
-        }
-    }
 }

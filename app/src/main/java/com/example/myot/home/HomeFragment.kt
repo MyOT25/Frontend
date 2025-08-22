@@ -50,34 +50,6 @@ class HomeFragment : Fragment() {
     private var startY = 0f
     private val triggerDistance = 150f
 
-    private val writeFeedResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data ?: return@registerForActivityResult
-
-                val isPublic = data.getBooleanExtra("isPublic", true)
-                val content = data.getStringExtra("content") ?: ""
-                val imageUrls = data.getStringArrayListExtra("imageUrls") ?: arrayListOf()
-
-                val newFeed = FeedItem(
-                    username = "마이오티",
-                    content = content,
-                    imageUrls = imageUrls,
-                    date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date()),
-                    community = if (isPublic) "전체 공개" else "친구 공개", // 임시 처리
-                    commentCount = 0,
-                    likeCount = 0,
-                    repostCount = 0,
-                    bookmarkCount = 0,
-                    isBookmarked = false
-                )
-
-                feedList.add(0, newFeed)
-                binding.rvFeeds.adapter?.notifyDataSetChanged()
-                binding.rvFeeds.scrollToPosition(0)
-            }
-        }
-
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?
@@ -184,7 +156,7 @@ class HomeFragment : Fragment() {
         // 글쓰기 기능
         binding.btnEdit.setOnClickListener {
             val intent = Intent(requireContext(), WriteFeedActivity::class.java)
-            writeFeedResultLauncher.launch(intent)
+            startActivity(intent)
         }
 
         binding.nestedScrollView.setOnScrollChangeListener { v, _, scrollY, _, oldScrollY ->

@@ -77,6 +77,20 @@
             android:src="@drawable/ic_profile" />
 
         <TextView
+            android:id="@+id/tv_community"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="커뮤니티명"
+            style="@style/TextAppearance.App.BodySmall"
+            android:background="@drawable/bg_write_question"
+            android:backgroundTint="@color/gray5"
+            android:textColor="@color/gray2"
+            android:includeFontPadding="false"
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="8dp"
+            android:layout_marginStart="8dp" />
+
+        <TextView
             android:id="@+id/tv_visibility"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

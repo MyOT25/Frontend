@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@color/white"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <!-- 썸네일(원형) -->
+    <ImageView
+        android:id="@+id/iv_cover"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_no_community"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- 커뮤니티명 -->
+    <TextView
+        android:id="@+id/tv_name"
+        style="@style/TextAppearance.App.LabelMedium"
+        android:fontFamily="@font/roboto_bold"
+        android:textColor="@color/black"
+        android:text="커뮤니티명"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/iv_cover"
+        app:layout_constraintTop_toTopOf="@+id/iv_cover"
+        app:layout_constraintEnd_toStartOf="@+id/iv_check"
+        android:layout_marginStart="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"/>
+
+    <!-- 서브텍스트 -->
+    <TextView
+        android:id="@+id/tv_desc"
+        style="@style/TextAppearance.App.LabelSmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="관극 커뮤니티"
+        android:textColor="@color/gray3"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
+        app:layout_constraintEnd_toStartOf="@+id/iv_check"
+        app:layout_constraintStart_toStartOf="@+id/tv_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+
+    <!-- 선택 체크 -->
+    <ImageView
+        android:id="@+id/iv_check"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:src="@drawable/ic_write_community_check"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
