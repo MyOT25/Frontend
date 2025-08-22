@@ -6,7 +6,7 @@
 
     <!-- 중간 단계 (절반 별) -->
     <item android:id="@android:id/secondaryProgress"
-        android:drawable="@drawable/ic_star_half" />
+        android:drawable="@drawable/ic_star_half2" />
 
     <!-- 채워진 별 -->
     <item android:id="@android:id/progress"

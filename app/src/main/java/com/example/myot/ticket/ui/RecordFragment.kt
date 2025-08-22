@@ -93,6 +93,14 @@ class RecordFragment : Fragment() {
         binding.tvRecordInfoRatingAvg.text = musical.avgRating.toString()
         Glide.with(this).load(musical.poster).into(binding.ivRecordInfoPoster)
 
+        viewModel.fetchLatestViewing()
+
+        viewModel.ticketToday.observe(viewLifecycleOwner) { tickets ->
+            val data = viewModel.ticketToday.value?.get(0)
+            val actors = data?.cast
+            binding.tvRecordInfoCasting.text = actors
+        }
+
         setEditTexts(musical.seatStructure)
         setCasting(musical)
         setupRecordButton()
