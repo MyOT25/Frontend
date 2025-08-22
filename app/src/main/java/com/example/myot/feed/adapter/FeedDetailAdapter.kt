@@ -343,7 +343,6 @@ class FeedDetailAdapter(
 
             popupView.findViewById<View>(R.id.btn_community).setOnClickListener {
                 popupWindow.dismiss()
-                Toast.makeText(context, "‘ABC’ 커뮤니티 이동", Toast.LENGTH_SHORT).show()
             }
             popupView.findViewById<View>(R.id.btn_user_profile).setOnClickListener {
                 popupWindow.dismiss()

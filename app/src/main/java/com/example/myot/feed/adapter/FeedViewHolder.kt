@@ -456,7 +456,7 @@
 
             // 팝업 메뉴 띄우기
             ivOverflow?.setOnClickListener { showOverflowPopup(it, item) }
-            ivProfile?.setOnClickListener { showProfilePopup(it) }
+            ivProfile?.setOnClickListener { showProfilePopup(it, item) }
 
             // 롱클릭 피드백
             val context = root.context as Activity
@@ -651,15 +651,12 @@
             // 버튼 리스너
             popupView.findViewById<View>(R.id.btn_share).setOnClickListener {
                 popupWindow.dismiss()
-                Toast.makeText(context, "공유 클릭", Toast.LENGTH_SHORT).show()
             }
             popupView.findViewById<View>(R.id.btn_report).setOnClickListener {
                 popupWindow.dismiss()
-                Toast.makeText(context, "신고 클릭", Toast.LENGTH_SHORT).show()
             }
             popupView.findViewById<View>(R.id.btn_profile).setOnClickListener {
                 popupWindow.dismiss()
-                Toast.makeText(context, "프로필 보기 클릭", Toast.LENGTH_SHORT).show()
             }
             popupView.findViewById<View>(R.id.btn_delete).setOnClickListener {
                 popupWindow.dismiss()
@@ -667,7 +664,7 @@
             }
         }
 
-        private fun showProfilePopup(anchor: View) {
+        private fun showProfilePopup(anchor: View, currentItem: FeedItem? = null)  {
             val context = anchor.context
             val inflater = LayoutInflater.from(context)
             val popupView = inflater.inflate(R.layout.menu_popup_profile, null)
@@ -708,14 +705,18 @@
 
             popupView.findViewById<View>(R.id.btn_community).setOnClickListener {
                 popupWindow.dismiss()
-                Toast.makeText(context, "‘ABC’ 커뮤니티 이동", Toast.LENGTH_SHORT).show()
             }
 
             popupView.findViewById<View>(R.id.btn_user_profile).setOnClickListener {
                 popupWindow.dismiss()
 
+                val userId = currentItem?.id
+                if (userId == null || userId <= 0L) {
+                    return@setOnClickListener
+                }
+
                 val activity = anchor.context as? FragmentActivity ?: return@setOnClickListener
-                val fragment = ProfileFragment.newInstance(1L) // 임시 userId = 1 전달
+                val fragment = ProfileFragment.newInstance(userId)
                 activity.supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container_view, fragment)
                     .addToBackStack(null)
