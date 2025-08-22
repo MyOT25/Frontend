@@ -93,3 +93,12 @@ data class DeleteProfileResponse(
     val message: String,
     val deletedProfile: Profile
 )
+
+data class SeatPayload(
+    val theaterId: Int,
+    val floor: Int,
+    val zone: String,
+    val blockNumber: Int,
+    val rowNumber: Int,
+    val seatIndex: Int
+)

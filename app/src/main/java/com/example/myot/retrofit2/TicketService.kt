@@ -2,6 +2,7 @@ package com.example.myot.retrofit2
 
 import com.example.myot.ticket.model.ApiEnvelope
 import com.example.myot.ticket.model.CastResponse
+import com.example.myot.ticket.model.LatestViewingResponse
 import com.example.myot.ticket.model.MusicalSearchResponse
 import com.example.myot.ticket.model.RecordDetailResponse
 import com.example.myot.ticket.model.RecordResponse
@@ -47,4 +48,9 @@ interface TicketService {
         @Header("Authorization") token: String,
         @Path("postId") postId: Int
     ): ApiEnvelope<RecordDetailResponse>
+
+    @GET("/api/viewingrecords/latest")
+    suspend fun getLatestViewingRecord(
+        @Header("Authorization") token: String
+    ): Response<LatestViewingResponse>
 }
