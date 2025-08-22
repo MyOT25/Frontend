@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:paddingHorizontal="16dp"
     android:paddingTop="122dp">
 
@@ -21,8 +21,8 @@
             android:id="@+id/searchBar"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginHorizontal="12px"
-            android:layout_marginVertical="5px"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginVertical="5dp"
             android:background="@drawable/bg_question_input"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -60,47 +60,52 @@
             android:text="최근 관람한 관극"
             android:textSize="20sp" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_add_ticket"
-            android:layout_width="230dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:layout_marginVertical="16dp"
-            android:background="@drawable/bg_add_ticket"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/addIcon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="100dp"
-                android:layout_marginEnd="30dp"
-                android:src="@drawable/ic_add_ticket"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:fontFamily="@font/roboto_semibold"
-                android:text="기록 추가"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="@+id/addIcon"
-                app:layout_constraintStart_toStartOf="@+id/addIcon"
-                app:layout_constraintTop_toBottomOf="@+id/addIcon" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_today"
+        <FrameLayout
+            android:id="@+id/today_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="16dp"
-            android:visibility="visible" />
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_today"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
+                android:visibility="visible" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layout_add_ticket"
+                android:layout_width="230dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_add_ticket">
+
+                <ImageView
+                    android:id="@+id/addIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="100dp"
+                    android:layout_marginEnd="30dp"
+                    android:src="@drawable/ic_add_ticket"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/roboto_semibold"
+                    android:text="기록 추가"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="@+id/addIcon"
+                    app:layout_constraintStart_toStartOf="@+id/addIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/addIcon" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -118,9 +123,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_semibold"
+            android:paddingBottom="4dp"
             android:text="n월"
-            android:textSize="20sp"
-            android:paddingBottom="4dp"/>
+            android:textSize="20sp" />
 
         <com.example.myot.ticket.calendar.ui.TicketCalendarView
             android:id="@+id/calendar_mini"
@@ -128,7 +133,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:padding="4dp"
-            app:tcv_mode="mini"/>
+            app:tcv_mode="mini" />
 
     </LinearLayout>
 
@@ -168,7 +173,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="35dp"
-            app:layout_constraintDimensionRatio="w,4:3"
+            app:layout_constraintDimensionRatio="W,4:3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_ticketbook_title"
@@ -181,7 +186,7 @@
             android:layout_marginTop="20dp"
             android:background="@drawable/bg_ticketbook_short"
             android:clipToOutline="true"
-            app:layout_constraintDimensionRatio="w,4:3"
+            app:layout_constraintDimensionRatio="W,4:3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_ticketbook_title"

@@ -37,5 +37,6 @@ class TicketTodayAdapter (
 
     override fun onBindViewHolder(holder: TicketTodayViewHolder, position: Int) {
         holder.bind(items[position])
+        holder.itemView.translationX = 0f
     }
 }

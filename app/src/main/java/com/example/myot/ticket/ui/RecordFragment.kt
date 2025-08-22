@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -24,6 +25,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.myot.R
+import com.example.myot.community.model.SeatPayload
 import com.example.myot.databinding.FragmentRecordBinding
 import com.example.myot.ticket.model.Actor
 import com.example.myot.ticket.model.Musical
@@ -42,6 +44,14 @@ import com.google.gson.Gson
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+private const val DEFAULT_BLOCK = 1
+private const val DEFAULT_FLOOR = 1
+private const val DEFAULT_ZONE = "A"
+private const val DEFAULT_ROW_NUMBER = 1
+private const val DEFAULT_SEAT_INDEX = 1
+
+data class ActorTag(val id: Int, val locked: Boolean)
 
 @AndroidEntryPoint
 class RecordFragment : Fragment() {
@@ -166,137 +176,171 @@ class RecordFragment : Fragment() {
     }
 
     private fun setCasting(musical: Musical) {
-        // 1) 캐스팅 로드
         viewModel.loadCast(musical.id)
 
-        // 2) 역할/배우 UI 생성
         viewModel.roles.observe(viewLifecycleOwner) { roles ->
             binding.layoutCastingContainer.removeAllViews()
 
+            val roleContainerLpFactory: () -> ViewGroup.LayoutParams =
+                when (binding.layoutCastingContainer) {
+                    is LinearLayout -> {
+                        { LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ) }
+                    }
+                    is FlexboxLayout -> {
+                        { FlexboxLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ) }
+                    }
+                    else -> {
+                        { ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ) }
+                    }
+                }
+
+            val chipGroupLp = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+
+            // mandatory(importance<0) 수집 & 보장
+            val mandatoryIds = roles.flatMap { it.actors }
+                .filter { (it.importance ?: 0) < 0 }
+                .map { it.actorId }
+                .toSet()
+            viewModel.setMandatoryActors(mandatoryIds)
+
             roles.forEach { role ->
-                // 배역 컨테이너(세로): [배역명 Text] + [ChipGroup]
                 val roleContainer = LinearLayout(requireContext()).apply {
                     orientation = LinearLayout.VERTICAL
-                    setPadding(0, 5, 0, 5)
-                    layoutParams = when (parent) {
-                        is LinearLayout -> LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                        )
-                        is com.google.android.flexbox.FlexboxLayout -> com.google.android.flexbox.FlexboxLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                        )
-                        else -> ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                        )
-                    }
+                    layoutParams = roleContainerLpFactory()
+                    setPadding(0, dp(5), 0, 0)
                 }
 
                 val roleTitle = TextView(requireContext()).apply {
                     text = role.role
-                    textSize = 10f
-                    setTypeface(ResourcesCompat.getFont(context, R.font.roboto_regular))
-                    setPadding(0, 0, 0, 0)
+                    setTextColor(ContextCompat.getColor(context, R.color.gray1))
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+                    typeface = ResourcesCompat.getFont(context, R.font.roboto_semibold)
+                    layoutParams = ViewGroup.MarginLayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply { bottomMargin = dp(0) }
                 }
                 roleContainer.addView(roleTitle)
 
-                val chipGroup = ChipGroup(requireContext()).apply {
-                    isSingleSelection = false // 선택은 직접 관리(역할당 1명은 ViewModel에서 강제)
-                    isSingleLine = false
-                    chipSpacingHorizontal = 24
-                    chipSpacingVertical = 16
+                val scroller = HorizontalScrollView(requireContext()).apply {
+                    isHorizontalScrollBarEnabled = false
+                    overScrollMode = View.OVER_SCROLL_NEVER
                     layoutParams = LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                }
+
+                val chipGroup = ChipGroup(requireContext()).apply {
+                    isSingleSelection = false
+                    isSingleLine = true
+                    chipSpacingHorizontal = dp(8)
+                    chipSpacingVertical = 0
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
                     )
                 }
 
                 role.actors.forEach { actor ->
+                    val locked = (actor.importance ?: 0) < 0
                     val chip = Chip(requireContext()).apply {
                         text = actor.name
                         isCheckable = false
-                        isClickable = true
-                        tag = actor.actorId
+                        tag = ActorTag(actor.actorId, locked)
 
-                        // 초기 스타일 (선택 상태 반영)
-                        val selected = viewModel.selectedActors.value?.contains(actor.actorId) == true
-                        applyActorChipStyle(this, selected)
-                        setOnClickListener {
-                            viewModel.selectActor(role.role, actor.actorId)
+                        val initiallySelected =
+                            locked || (viewModel.selectedActors.value?.contains(actor.actorId) == true)
+                        applyActorChipStyle(this, initiallySelected, locked)
+
+                        if (locked) {
+                            isClickable = false
+                            isEnabled = true  // 색 빠짐 방지
+                        } else {
+                            setOnClickListener { viewModel.selectActor(role.role, actor.actorId) }
                         }
                     }
                     chipGroup.addView(chip)
                 }
 
-                roleContainer.addView(chipGroup)
+                scroller.addView(chipGroup)
+                roleContainer.addView(scroller)
                 binding.layoutCastingContainer.addView(roleContainer)
             }
 
-            // 역할 UI를 그린 직후 현재 선택 상태로 한 번 더 스타일 정리
             updateCastingSelectionUI()
+            // 레이아웃 갱신 보장
+            binding.layoutCastingContainer.requestLayout()
+            binding.layoutCastingContainer.invalidate()
         }
 
-        // 3) 선택 목록이 바뀔 때마다 스타일 갱신
-        viewModel.selectedActors.observe(viewLifecycleOwner) {
-            updateCastingSelectionUI()
-        }
+        viewModel.selectedActors.observe(viewLifecycleOwner) { updateCastingSelectionUI() }
     }
 
-    // 배우 선택 버튼 디자인 적용
-    private fun applyActorChipStyle(chip: Chip, selected: Boolean) {
+    private fun applyActorChipStyle(chip: Chip, selected: Boolean, locked: Boolean = false) {
         val ctx = chip.context
-        val dm = resources.displayMetrics
-        fun dp(value: Float) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, dm)
+        fun dpF(v: Float) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, resources.displayMetrics)
 
-        chip.chipCornerRadius = dp(50f)
+        chip.chipCornerRadius = dpF(50f)
         chip.textSize = 12f
-
-        if (selected) {
-            // 선택됨: 흰 배경 + 보라 테두리 + 검정 글씨
-            chip.chipBackgroundColor = ColorStateList.valueOf(
-                ContextCompat.getColor(ctx, android.R.color.white)
-            )
-            chip.chipStrokeColor = ColorStateList.valueOf(
-                ContextCompat.getColor(ctx, R.color.point_purple)
-            )
-            chip.typeface = ResourcesCompat.getFont(context, R.font.roboto_semibold)
-            chip.chipStrokeWidth = dp(2f)
-            chip.setTextColor(ContextCompat.getColor(ctx, R.color.gray1))
-            chip.typeface = Typeface.create(chip.typeface, Typeface.BOLD)
-        } else {
-            // 비선택: 흰 배경 + 회색 테두리 + 회색 글씨
-            chip.chipBackgroundColor = ColorStateList.valueOf(
-                ContextCompat.getColor(ctx, android.R.color.white)
-            )
-            chip.chipStrokeColor = ColorStateList.valueOf(
-                ContextCompat.getColor(ctx, R.color.gray3)
-            )
-            chip.typeface = ResourcesCompat.getFont(context, R.font.roboto_regular)
-            chip.chipStrokeWidth = dp(1f)
-            chip.setTextColor(ContextCompat.getColor(ctx, R.color.gray3))
-            chip.typeface = Typeface.create(chip.typeface, Typeface.NORMAL)
-        }
-
-        // 머티리얼 기본 효과가 간섭하지 않도록 추가 정리(있어도 되고 없어도 됨)
         chip.isCheckedIconVisible = false
         chip.isChipIconVisible = false
         chip.rippleColor = ColorStateList.valueOf(Color.TRANSPARENT)
+
+        when {
+            locked -> {
+                chip.chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, android.R.color.white))
+                chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.point_purple))
+                chip.chipStrokeWidth = dpF(2f)
+                chip.setTextColor(ContextCompat.getColor(ctx, R.color.gray1))
+                chip.typeface = Typeface.create(ResourcesCompat.getFont(ctx, R.font.roboto_semibold), Typeface.BOLD)
+            }
+            selected -> {
+                chip.chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, android.R.color.white))
+                chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.point_purple))
+                chip.chipStrokeWidth = dpF(2f)
+                chip.setTextColor(ContextCompat.getColor(ctx, R.color.gray1))
+                chip.typeface = Typeface.create(ResourcesCompat.getFont(ctx, R.font.roboto_semibold), Typeface.BOLD)
+            }
+            else -> {
+                chip.chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, android.R.color.white))
+                chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.gray3))
+                chip.chipStrokeWidth = dpF(1f)
+                chip.setTextColor(ContextCompat.getColor(ctx, R.color.gray3))
+                chip.typeface = ResourcesCompat.getFont(ctx, R.font.roboto_regular)
+            }
+        }
     }
 
-
-    // 선택 시 viewModel에서 selectedActors 변경
     private fun updateCastingSelectionUI() {
         val selectedIds = viewModel.selectedActors.value ?: mutableListOf()
 
-        // layoutCastingContainer 안에는 여러 개의 roleContainer(LinearLayout)가 들어있음
+        // 각 roleContainer 안에서 ChipGroup만 찾아 처리(인덱스 의존 X)
         for (i in 0 until binding.layoutCastingContainer.childCount) {
-            val roleContainer = binding.layoutCastingContainer.getChildAt(i) as? LinearLayout ?: continue
-            // roleContainer의 0번째: TextView(배역명), 1번째: ChipGroup(배우들)
-            val chipGroup = roleContainer.getChildAt(1) as? ChipGroup ?: continue
+            val roleContainer = binding.layoutCastingContainer.getChildAt(i) as? ViewGroup ?: continue
+            val chipGroup = (0 until roleContainer.childCount)
+                .asSequence()
+                .map { roleContainer.getChildAt(it) }
+                .filterIsInstance<com.google.android.material.chip.ChipGroup>()
+                .firstOrNull() ?: continue
 
             for (j in 0 until chipGroup.childCount) {
-                val chip = chipGroup.getChildAt(j) as? Chip ?: continue
-                val actorId = chip.tag as? Int ?: continue
-                val isSelected = selectedIds.contains(actorId)
-                applyActorChipStyle(chip, isSelected)
+                val chip = chipGroup.getChildAt(j) as? com.google.android.material.chip.Chip ?: continue
+                val tag = chip.tag as? ActorTag ?: continue
+                val isSelected = tag.locked || selectedIds.contains(tag.id)
+                applyActorChipStyle(chip, isSelected, tag.locked)
             }
         }
     }
@@ -321,27 +365,40 @@ class RecordFragment : Fragment() {
     }
 
     // 좌석 문자열 만들기
-    private fun getFormattedSeat(): String {
-        val floor = binding.inputFloor.editText.text.toString().trim()
-        val zone = binding.inputZone.editText.text.toString().trim()
-        val rowNumber = binding.inputRow.editText.text.toString().trim()
-        val seatIndex = binding.inputNumber.editText.text.toString().trim()
+    private fun getFormattedSeat(structInfo: SeatStructure): String {
+        val floorStr = binding.inputFloor.editText?.text?.toString()?.trim().orEmpty()
+        val zoneStr = binding.inputZone.editText?.text?.toString()?.trim().orEmpty()
+        val rowStr = binding.inputRow.editText?.text?.toString()?.trim().orEmpty()
+        val seatIdxStr = binding.inputNumber.editText?.text?.toString()?.trim().orEmpty()
 
-        val result = "{\"theaterId\":${selectedMusical.id},\"floor\":$floor,\"zone\":$zone,\"blockNumber\":1,\"rowNumber\":$rowNumber,\"seatIndex\":$seatIndex}"
+        val floor = if (structInfo.hasFloor)
+            floorStr.toIntOrNull() ?: DEFAULT_FLOOR
+        else DEFAULT_FLOOR
 
-        // 최종 문자열 조합 JSON
-        return result
-    }
+        val zone = if (structInfo.hasZone)
+            zoneStr.ifBlank { DEFAULT_ZONE }
+        else DEFAULT_ZONE
 
-    private fun updateButtonState() {
-        val allFilled = true // 실제 EditText 값 검사 로직 작성
-        if (allFilled) {
-            binding.btnRecord.setImageResource(R.drawable.ic_record_activate)
-            binding.btnRecord.isEnabled = true
-        } else {
-            binding.btnRecord.setImageResource(R.drawable.ic_record_deactivate)
-            binding.btnRecord.isEnabled = false
-        }
+        // 주의: 네 레이아웃에서 inputRow는 structInfo.hasColumn을 따라가므로 그대로 매핑
+        val rowNumber = if (structInfo.hasColumn)
+            rowStr.toIntOrNull() ?: DEFAULT_ROW_NUMBER
+        else DEFAULT_ROW_NUMBER
+
+        val seatIndex = if (structInfo.hasRowNumber)
+            seatIdxStr.toIntOrNull() ?: DEFAULT_SEAT_INDEX
+        else DEFAULT_SEAT_INDEX
+
+        val payload = SeatPayload(
+            theaterId = selectedMusical.id,
+            floor = floor,
+            zone = zone,
+            blockNumber = DEFAULT_BLOCK,
+            rowNumber = rowNumber,
+            seatIndex = seatIndex
+        )
+
+        // 안전하게 JSON 생성 (직접 문자열 조립 X)
+        return Gson().toJson(payload)
     }
 
     private fun setupRecordButton() {
@@ -421,7 +478,7 @@ class RecordFragment : Fragment() {
             val musicalId = selectedMusical.id.toString()
             val watchDate = getFormattedDate()
             val watchTime = binding.inputTime.editText.text.toString().trim()
-            val seat = getFormattedSeat()
+            val seat = getFormattedSeat(selectedMusical.seatStructure)
             val content = binding.etRecordContent.text.toString()
             val rating = ratingBar.rating.toString()
 
@@ -453,6 +510,8 @@ class RecordFragment : Fragment() {
         }
     }
 
+    private fun dp(v: Int): Int =
+        (resources.displayMetrics.density * v).toInt()
 
     override fun onDestroyView() {
         super.onDestroyView()

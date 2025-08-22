@@ -91,5 +91,6 @@ data class Actor(
     val birthDate: String,
     val profile: String?,
     val snsLink: String?,
-    val performanceCount: Int
+    val performanceCount: Int,
+    val importance: Int
 )

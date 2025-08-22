@@ -27,6 +27,7 @@ class CmReviewAdapter (
             binding.tvRating.text = review.rating.toString()
             binding.tvContent.text = review.content
             binding.tvDate.text = review.date
+            binding.tvReviewLikes.text = review.likedNumber.toString()
             if (review.isLiked) {
                 binding.ivReviewLike.setImageResource(R.drawable.ic_heart_liked)
             } else {
