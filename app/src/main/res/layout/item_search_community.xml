@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- 커뮤니티 이미지 -->
+    <ImageView
+        android:id="@+id/imageCommunity"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scaleType="centerCrop"
+        android:background="#E0E0E0" />
+
+    <!-- 커뮤니티 이름 -->
+    <TextView
+        android:id="@+id/textCommunityName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="커뮤니티명"
+        android:textStyle="bold"
+        android:ellipsize="end"
+        android:singleLine="true" />
+
+    <!-- 가입자 수 -->
+    <TextView
+        android:id="@+id/textCommunityMembers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1000명 가입"
+        android:textSize="12sp"
+        android:textColor="#757575" />
+
+</LinearLayout>

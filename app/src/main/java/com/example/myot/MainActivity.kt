@@ -42,6 +42,7 @@ import com.example.myot.drawer.NotificationFragment
 import com.example.myot.drawer.SubscribeFragment
 import com.example.myot.drawer.SettingFragment
 import com.example.myot.drawer.CustomerCenterFragment
+import com.example.myot.search.SearchFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

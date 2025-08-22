@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <!-- 인기 피드 검색 뷰페이저 아이템 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- 유저 이름 -->
+        <TextView
+            android:id="@+id/textUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="유저1"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+        <!-- 피드 내용 -->
+        <TextView
+            android:id="@+id/textFeedContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="2"
+            android:layout_marginTop="4dp"
+            android:text="텍스트" />
+
+        <!-- 사진 여부 -->
+        <TextView
+            android:id="@+id/textFeedPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="사진 포함"
+            android:textSize="12sp"
+            android:textColor="#E53935" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
