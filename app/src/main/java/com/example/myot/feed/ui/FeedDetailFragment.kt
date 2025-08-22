@@ -271,7 +271,7 @@ class FeedDetailFragment : Fragment() {
         val act = requireActivity() as com.example.myot.MainActivity
         act.showCommentBar(
             scrollable = binding.nestedScrollView,
-            hint = "댓글을 입력하세요",
+            hint = null,
             allowAnonymous = false,
             onSend = { text, _ ->
                 viewLifecycleOwner.lifecycleScope.launch {
@@ -332,9 +332,7 @@ class FeedDetailFragment : Fragment() {
                                 )
                                 binding.rvFeedDetail.adapter = adapter
 
-                                // 입력창 닫기
                                 act.hideKeyboardAndClearFocus()
-                                act.hideCommentBar()
                             } else {
                                 Toast.makeText(requireContext(), "댓글 새로고침 실패 (${listRes.code()})", Toast.LENGTH_SHORT).show()
                             }
