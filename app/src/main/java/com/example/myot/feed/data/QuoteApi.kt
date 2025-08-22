@@ -31,6 +31,7 @@ data class QuotePostDto(
 
 data class QuoteUserDto(
     val id: Long?,
+    val loginId: String?,
     val nickname: String?,
     val profileImage: String?
 )

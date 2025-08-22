@@ -18,6 +18,10 @@ private fun isoToDisplayDate(iso: String?): String {
 
 fun QuotePostDto.toFeedItemWithQuoted(baseFeed: FeedItem): FeedItem {
     val images = postImages.mapNotNull { it.url }.filter { it.isNullOrBlank().not() }
+
+    val loginIdText = user?.loginId?.takeIf { !it.isNullOrBlank() }
+    val userHandleStr = loginIdText?.let { "@$it" }
+
     return FeedItem(
         id = id,
         username = user?.nickname ?: "익명",
@@ -33,7 +37,7 @@ fun QuotePostDto.toFeedItemWithQuoted(baseFeed: FeedItem): FeedItem {
         isBookmarked = false,
         profileImageUrl = user?.profileImage,
         communityCoverUrl = community?.coverImage,
-        userHandle = null,
+        userHandle = userHandleStr,
         quotedFeed = baseFeed
     )
 }

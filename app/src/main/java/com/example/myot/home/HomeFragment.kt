@@ -307,13 +307,14 @@ class HomeFragment : Fragment() {
             val ivRing = root.findViewById<ImageView>(R.id.iv_ring)
 
             if (item == null) {
-                // + 버튼
                 ivRing.visibility = View.GONE
                 ivCommunity.visibility = View.GONE
                 ivPlus.visibility = View.VISIBLE
 
                 root.setOnClickListener {
-                    // TODO: 커뮤니티 검색/추가 화면 이동
+                    // 커뮤니티 추가 화면으로 이동
+                    val intent = Intent(requireContext(), AddCommunityActivity::class.java)
+                    startActivity(intent)
                 }
             } else {
                 // 커뮤니티 항목
@@ -353,7 +354,7 @@ class HomeFragment : Fragment() {
                 }
 
                 root.setOnClickListener {
-                    val fragment = CommunityFragment.newInstance(item.type.uppercase())
+                    val fragment = CommunityFragment.newInstance(item.type, item.id)
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container_view, fragment)
                         .addToBackStack(null)
@@ -520,6 +521,8 @@ class HomeFragment : Fragment() {
 
         ivLogo.visibility = View.VISIBLE
         tvCommunityName.visibility = View.GONE
+
+        fetchMyCommunitiesWithCovers()
     }
 
     override fun onDestroyView() {

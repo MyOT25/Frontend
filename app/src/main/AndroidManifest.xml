@@ -37,6 +37,10 @@
             android:windowSoftInputMode="adjustResize"/>
 
         <activity
+            android:name=".home.AddCommunityActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ticket.ui.RecordActivity"
             android:exported="false" />
         <activity
