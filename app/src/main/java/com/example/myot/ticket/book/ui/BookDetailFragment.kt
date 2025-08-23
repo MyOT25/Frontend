@@ -100,7 +100,7 @@ class BookDetailFragment : Fragment() {
             val assetName = seatMapAssetFor(data.theaterId)
             runCatching {
                 val json = requireContext().assets.open(assetName).bufferedReader().use { it.readText() }
-                binding.seatView.setSeatData(org.json.JSONObject(json))
+                binding.seatView.setSeatData(JSONObject(json))
             }.onFailure {
                 it.printStackTrace()
                 // 좌석맵이 없거나 에러면 기본 맵으로 폴백

@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.example.myot.R
@@ -60,6 +61,7 @@ class SeatingChartView @JvmOverloads constructor(
 
     fun setHighlightedSeats(seatInfoList: List<SeatHighlightInfo>) {
         highlightedSeats = seatInfoList.toMutableList()
+        //Log.d("seathigh", highlightedSeats.toString())
         invalidate()
     }
 
@@ -107,6 +109,8 @@ class SeatingChartView @JvmOverloads constructor(
         var maxBlockHeightInLine = 0f
         var currentLeft = 0f
 
+        var numOfSeat = 0
+
         for (floorIndex in 0 until floorsString!!.length()) {
             val floor = floorsString!!.getJSONObject(floorIndex)
             val blocks = floor.getJSONArray("blocks")
@@ -115,7 +119,7 @@ class SeatingChartView @JvmOverloads constructor(
             val blockGroups = mutableMapOf<Int, MutableList<JSONObject>>()
             for (blockIndex in 0 until blocks.length()) {
                 val block = blocks.getJSONObject(blockIndex)
-                val blockNumber = block.optInt("blockNumber", 1)
+                val blockNumber = block.optInt("columnNumber", 1)
 
                 if (!blockGroups.containsKey(blockNumber)) {
                     blockGroups[blockNumber] = mutableListOf()
@@ -146,22 +150,36 @@ class SeatingChartView @JvmOverloads constructor(
 
                         for (seatIndex in 0 until seats.length()) {
                             val seatValue = seats.getInt(seatIndex)
-
+                            if (seatValue != 0) numOfSeat++
                             val seatHighlight = highlightedSeats.find {
                                 it.floor == floor.getInt("floorNumber") &&
                                         it.zone == block.optString("zone") &&
-                                        it.rowNumber == row.getInt("rowNumber") &&
-                                        it.seatIndex == seatIndex
+                                        it.seatIndex == numOfSeat || numOfSeat == 2755
+                                //it.rowNumber == row.getInt("rowNumber") &&
                             }
+                            //if (seatHighlight != null) Log.d("seat", seatHighlight.toString())
 
                             seatPaint.color = when {
                                 seatValue == 0 -> Color.TRANSPARENT
                                 seatHighlight != null -> when (seatHighlight.numberOfSittings) {
-                                    1 -> ContextCompat.getColor(context, R.color.point_pink)
-                                    2 -> Color.RED
-                                    else -> Color.BLUE
+                                    1 -> {
+                                        ContextCompat.getColor(context, R.color.point_pink)
+                                        //numOfSeat++
+                                    }
+                                    2 -> {
+                                        Color.RED
+                                        //numOfSeat++
+                                    }
+                                    else -> {
+                                        Color.BLUE
+                                        //numOfSeat++
+                                    }
                                 }
-                                else -> ContextCompat.getColor(context, R.color.gray5)
+                                seatIndex == 2755 ->Color.GREEN
+                                else -> {
+                                    ContextCompat.getColor(context, R.color.gray5)
+                                    //numOfSeat++
+                                }
                             }
 
 

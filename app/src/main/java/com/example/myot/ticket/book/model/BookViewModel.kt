@@ -136,7 +136,7 @@ class BookViewModel: ViewModel() {
                 highlightList += SeatHighlightInfo(
                     floor = item.getInt("floor"),
                     zone = item.getString("zone"),
-                    columnNumber = item.getInt("columnNumber"),
+                    columnNumber = if (item.isNull("columnNumber")) 1 else item.optInt("columnNumber"),
                     rowNumber = item.getInt("rowNumber"),
                     seatIndex = item.getInt("seatIndex"),
                     numberOfSittings = item.getInt("numberOfSittings")
