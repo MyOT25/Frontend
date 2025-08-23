@@ -1,5 +1,6 @@
 package com.example.myot.feed.model
 
+import com.example.myot.community.model.CommunityPostDto
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -91,4 +92,33 @@ private fun isoToDisplayDate(iso: String?): String {
         } catch (_: Exception) {}
     }
     return ""
+}
+
+fun CommunityPostDto.toFeedItem(): FeedItem {
+    val images = (postImages ?: emptyList())
+        .mapNotNull { it.url }
+        .filter { it.isNullOrBlank().not() }
+
+    val quoted = repostTarget?.toFeedItem()
+
+    return FeedItem(
+        id = id,
+        username = user?.nickname ?: "익명",
+        profileImageUrl = user?.profileImage,
+        content = content.orEmpty(),
+        imageUrls = images,
+        date = isoToDisplayDate(createdAt),
+
+        community = community?.groupName.orEmpty(),
+        commentCount = commentCount,
+        likeCount = likeCount,
+        bookmarkCount = bookmarkCount,
+        repostCount = repostCount,
+
+        isReposted = isRepost ?: false,
+        isLiked = false,
+        isBookmarked = false,
+        isCommented = false,
+        quotedFeed = quoted
+    )
 }
