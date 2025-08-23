@@ -279,7 +279,6 @@ class RecordFragment : Fragment() {
                         } else {
                             setOnClickListener {
                                 viewModel.selectActor(role.role, actor.actorId)
-                                applyActorChipStyle(this, true, locked)
                             }
                         }
                     }
@@ -335,26 +334,33 @@ class RecordFragment : Fragment() {
         }
     }
 
-    private fun updateCastingSelectionUI() {
-        val selectedIds = viewModel.selectedActors.value ?: mutableListOf()
+    private fun ViewGroup.findFirstChipGroup(): ChipGroup? {
+        for (i in 0 until childCount) {
+            when (val v = getChildAt(i)) {
+                is ChipGroup -> return v
+                is ViewGroup -> v.findFirstChipGroup()?.let { return it } // 깊이 우선 탐색
+            }
+        }
+        return null
+    }
 
-        // 각 roleContainer 안에서 ChipGroup만 찾아 처리(인덱스 의존 X)
+
+    private fun updateCastingSelectionUI() {
+        val selectedIds = viewModel.selectedActors.value ?: emptyList()
+
         for (i in 0 until binding.layoutCastingContainer.childCount) {
             val roleContainer = binding.layoutCastingContainer.getChildAt(i) as? ViewGroup ?: continue
-            val chipGroup = (0 until roleContainer.childCount)
-                .asSequence()
-                .map { roleContainer.getChildAt(it) }
-                .filterIsInstance<com.google.android.material.chip.ChipGroup>()
-                .firstOrNull() ?: continue
+            val chipGroup = roleContainer.findFirstChipGroup() ?: continue
 
             for (j in 0 until chipGroup.childCount) {
-                val chip = chipGroup.getChildAt(j) as? com.google.android.material.chip.Chip ?: continue
+                val chip = chipGroup.getChildAt(j) as? Chip ?: continue
                 val tag = chip.tag as? ActorTag ?: continue
                 val isSelected = tag.locked || selectedIds.contains(tag.id)
                 applyActorChipStyle(chip, isSelected, tag.locked)
             }
         }
     }
+
 
     // 값 입력 여부에 따라 activated 상태 변경
     private fun setupInputActivation(container: ViewGroup, editText: EditText) {
