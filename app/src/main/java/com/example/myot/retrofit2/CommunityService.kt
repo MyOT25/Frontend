@@ -1,5 +1,6 @@
 package com.example.myot.retrofit2
 
+import com.example.myot.community.model.CommunityFeedResponse
 import com.example.myot.community.model.CommunityProfileResponse
 import com.example.myot.community.model.CommunityResponse
 import com.example.myot.community.model.DeleteProfileResponse
@@ -21,6 +22,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Header
 import retrofit2.http.PATCH
+import retrofit2.http.Query
 
 interface CommunityService {
     @GET("api/community/{type}/{communityId}")
@@ -86,4 +88,12 @@ interface CommunityService {
         @Path("type") type: String,
         @Path("userId") userId: Long
     ): Response<CommunityTypeListResponse>
+
+    @GET("api/community/{id}/feed")
+    suspend fun getCommunityFeed(
+        @Header("Authorization") token: String,
+        @Path("id") communityId: Long,
+        @Query("cursor") cursor: String? = null,
+        @Query("size") size: Int = 20
+    ): Response<CommunityFeedResponse>
 }
