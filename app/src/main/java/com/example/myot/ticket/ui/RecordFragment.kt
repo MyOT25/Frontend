@@ -277,7 +277,10 @@ class RecordFragment : Fragment() {
                             isClickable = false
                             isEnabled = true  // 색 빠짐 방지
                         } else {
-                            setOnClickListener { viewModel.selectActor(role.role, actor.actorId) }
+                            setOnClickListener {
+                                viewModel.selectActor(role.role, actor.actorId)
+                                applyActorChipStyle(this, true, locked)
+                            }
                         }
                     }
                     chipGroup.addView(chip)

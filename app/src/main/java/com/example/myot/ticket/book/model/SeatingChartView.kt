@@ -150,7 +150,6 @@ class SeatingChartView @JvmOverloads constructor(
                             val seatHighlight = highlightedSeats.find {
                                 it.floor == floor.getInt("floorNumber") &&
                                         it.zone == block.optString("zone") &&
-                                        it.blockNumber == block.optString("blockNumber").toInt() &&
                                         it.rowNumber == row.getInt("rowNumber") &&
                                         it.seatIndex == seatIndex
                             }
