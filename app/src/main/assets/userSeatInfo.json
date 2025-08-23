@@ -2,7 +2,7 @@
   {
     "floor": 1,
     "zone": "A",
-    "blockNumber": 1,
+    "columnNumber": null,
     "rowNumber": 17,
     "seatIndex": 5,
     "numberOfSittings": 2
@@ -10,7 +10,7 @@
   {
     "floor": 1,
     "zone": "C",
-    "blockNumber": 1,
+    "columnNumber": null,
     "rowNumber": 16,
     "seatIndex": 3,
     "numberOfSittings": 1

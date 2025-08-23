@@ -89,7 +89,7 @@ class BookDetailFragment : Fragment() {
     }
 
     private fun setSeatView() {
-        viewModel.enableSeatAssetsMode(true)
+        viewModel.enableSeatAssetsMode(false)
         viewModel.fetchSeatData(requireContext(), musicalId)
 
         viewModel.seatData.observe(viewLifecycleOwner) { data ->

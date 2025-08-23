@@ -84,13 +84,13 @@ class BookViewModel: ViewModel() {
     @Volatile private var useAssetsForSeats: Boolean = false
     fun enableSeatAssetsMode(enable: Boolean) { useAssetsForSeats = enable }
 
-    fun fetchSeatData(context: android.content.Context, musicalId: Int) {
+    fun fetchSeatData(context: Context, musicalId: Int) {
         viewModelScope.launch {
             if (useAssetsForSeats) {
-                val seats = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val seats = withContext(Dispatchers.IO) {
                     loadHighlightedSeatsFromAssets(context)
                 }
-                // theaterId는 임시값(예: 1 = 세종대극장). 필요 시 매핑 바꾸세요.
+                // theaterId는 임시값(예: 1 = 세종대극장).
                 _seatData.value = SeatData(theaterId = 1, seats = seats)
                 return@launch
             }
@@ -136,7 +136,7 @@ class BookViewModel: ViewModel() {
                 highlightList += SeatHighlightInfo(
                     floor = item.getInt("floor"),
                     zone = item.getString("zone"),
-                    blockNumber = item.getInt("blockNumber"),
+                    columnNumber = item.getInt("columnNumber"),
                     rowNumber = item.getInt("rowNumber"),
                     seatIndex = item.getInt("seatIndex"),
                     numberOfSittings = item.getInt("numberOfSittings")

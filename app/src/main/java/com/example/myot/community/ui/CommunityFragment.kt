@@ -36,7 +36,6 @@ class CommunityFragment : Fragment() {
     private var _binding: FragmentCommunityBinding? = null
     private val binding get() = _binding!!
 
-
     private var _userId: Long? = null
     private val userId get() = _userId!!
 
