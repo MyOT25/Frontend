@@ -20,6 +20,10 @@ import android.widget.Toast
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsAnimationCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -44,6 +48,7 @@ import com.google.gson.Gson
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.max
 
 private const val DEFAULT_BLOCK = 1
 private const val DEFAULT_FLOOR = 1
@@ -83,6 +88,33 @@ class RecordFragment : Fragment() {
                 }
             }
         }
+
+        // 키보드와 시스템바 중 더 큰 하단 inset만큼 패딩
+        val container = binding.layoutRecordFragment /* 루트나 NestedScrollView 등 */
+        ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(bottom = max(ime.bottom, sys.bottom))
+            insets
+        }
+
+        // (선택) IME 애니메이션 동안 부드럽게
+        ViewCompat.setWindowInsetsAnimationCallback(
+            container,
+            object : WindowInsetsAnimationCompat.Callback(
+                WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE
+            ) {
+                override fun onProgress(
+                    insets: WindowInsetsCompat,
+                    runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                ): WindowInsetsCompat {
+                    val ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                    val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+                    container.setPadding(container.paddingLeft, container.paddingTop, container.paddingRight, max(ime, sys))
+                    return insets
+                }
+            }
+        )
     }
 
     // 화면 세팅
