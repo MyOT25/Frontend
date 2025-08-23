@@ -100,6 +100,7 @@ class CommunityFragment : Fragment() {
                 binding.tvCommunityName.text = community.groupName
                 Glide.with(this)
                     .load(community.coverImage)
+                    .error(R.drawable.ig_poster_placeholder)
                     .into(binding.ivCommunityCover)
                 setTabs(itemType)
             } else {

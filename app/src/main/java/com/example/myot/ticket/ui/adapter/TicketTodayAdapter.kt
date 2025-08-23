@@ -24,6 +24,7 @@ class TicketTodayAdapter (
             Glide.with(binding.ivTodayPoster.context)
                 .load(ticket.posterUrl)
                 .placeholder(R.drawable.ig_poster_placeholder)
+                .error(R.drawable.ig_poster_placeholder)
                 .into(binding.ivTodayPoster)
         }
     }
